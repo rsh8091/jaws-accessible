@@ -44,8 +44,7 @@ Sub AccessibleMainMenu ()
 
         Select Case commandValue$
             Case "1", "play", "game", "single"
-                Print "Single-game setup will be connected in the next development phase."
-                Print "You are still at the main menu."
+                Call AccessibleSingleGameSetup
 
             Case "2", "help", "h", "?"
                 Call AccessibleShowHelp
@@ -62,6 +61,167 @@ Sub AccessibleMainMenu ()
     Loop Until exitRequested% = 1
 
 End Sub
+
+
+Sub AccessibleSingleGameSetup ()
+
+    yearNumber$ = ""
+    visitorIdx = 0
+    homeIdx = 0
+    visitorName$ = ""
+    homeName$ = ""
+
+    Print "Single-game setup"
+    Print "Enter back at any prompt to return to the main menu."
+
+    Do
+        If AccessibleChooseTeam%("visiting", yearNumber$, visitorIdx, visitorName$) = 0 Then Exit Sub
+        If AccessibleChooseTeam%("home", yearNumber$, homeIdx, homeName$) = 0 Then Exit Sub
+
+        Print
+        Print "Matchup"
+        Print "Visitor: "; AccessibleTeamDisplay$(visitorName$); " ("; yearNumber$; ")"
+        Print "Home: "; AccessibleTeamDisplay$(homeName$); " ("; yearNumber$; ")"
+        Print "1. Confirm matchup."
+        Print "2. Change visiting team."
+        Print "3. Change home team."
+        Print "4. Cancel."
+
+        commandValue$ = AccessibleReadCommand$("Enter choice: ")
+
+        Select Case commandValue$
+            Case "1", "confirm", "yes", "y"
+                Print
+                Print "Matchup confirmed: "; AccessibleTeamDisplay$(visitorName$); " at "; AccessibleTeamDisplay$(homeName$); "."
+                Print "The next development phase will connect this matchup to game options and tipoff."
+                Exit Sub
+            Case "2", "visitor", "visiting"
+                visitorIdx = 0
+            Case "3", "home"
+                homeIdx = 0
+            Case "4", "cancel", "back", "exit"
+                Print "Single-game setup canceled."
+                Exit Sub
+            Case Else
+                Print "Choice not recognized. Enter 1, 2, 3, or 4."
+        End Select
+    Loop
+
+End Sub
+
+
+Function AccessibleChooseTeam% (roleName$, yearNumber$, chosenIdx, teamName$) Static
+
+    Dim matchIndices(MAX_TEAMS)
+
+    AccessibleChooseTeam% = 0
+
+    Do
+        If chosenIdx = 0 Then
+            Print
+            Print "Choose the "; roleName$; " team."
+
+            If yearNumber$ = "" Then
+                commandValue$ = AccessibleReadCommand$("Enter season ID, such as 2025, or back: ")
+            Else
+                Print "Current season ID: "; yearNumber$
+                commandValue$ = AccessibleReadCommand$("Press Enter to use it, enter another season ID, or back: ")
+                If commandValue$ = "" Then commandValue$ = yearNumber$
+            End If
+
+            If commandValue$ = "back" Or commandValue$ = "cancel" Or commandValue$ = "exit" Then Exit Function
+
+            If AccessibleLoadTeams%(commandValue$) = 0 Then
+                Print "No team data was found for season ID "; commandValue$; "."
+                Print "Try a four-digit season from 1959 through 2025."
+            Else
+                yearNumber$ = commandValue$
+
+                Do
+                    searchValue$ = AccessibleReadCommand$("Enter part of a team name, list, or back: ")
+                    If searchValue$ = "back" Or searchValue$ = "cancel" Then Exit Do
+
+                    matchCount = 0
+                    For teamIdx = 1 To teamIndex(0)
+                        If searchValue$ = "list" Or searchValue$ = "" Or InStr(LCase$(teamNames$(teamIdx)), searchValue$) > 0 Then
+                            matchCount = matchCount + 1
+                            matchIndices(matchCount) = teamIdx
+                        End If
+                    Next teamIdx
+
+                    If matchCount = 0 Then
+                        Print "No teams matched. Try another search."
+                    Else
+                        displayCount = matchCount
+                        If displayCount > 25 Then displayCount = 25
+                        Print LTrim$(Str$(matchCount)); " team(s) matched."
+                        For matchIdx = 1 To displayCount
+                            Print LTrim$(Str$(matchIdx)); ". "; AccessibleTeamDisplay$(teamNames$(matchIndices(matchIdx)))
+                        Next matchIdx
+                        If matchCount > displayCount Then Print "Only the first 25 matches are shown. Narrow the search to see fewer results."
+
+                        selectionValue$ = AccessibleReadCommand$("Enter a displayed team number, search, or back: ")
+                        If selectionValue$ = "back" Or selectionValue$ = "cancel" Then Exit Do
+                        If selectionValue$ <> "search" Then
+                            selectedNumber = Val(selectionValue$)
+                            If selectedNumber >= 1 And selectedNumber <= displayCount And LTrim$(Str$(selectedNumber)) = selectionValue$ Then
+                                chosenIdx = teamIndex(matchIndices(selectedNumber))
+                                teamName$ = teamNames$(matchIndices(selectedNumber))
+                                Print "Selected "; AccessibleTeamDisplay$(teamName$); " as the "; roleName$; " team."
+                                AccessibleChooseTeam% = 1
+                                Exit Function
+                            Else
+                                Print "That is not a displayed team number."
+                            End If
+                        End If
+                    End If
+                Loop
+            End If
+        Else
+            AccessibleChooseTeam% = 1
+            Exit Function
+        End If
+    Loop
+
+End Function
+
+
+Function AccessibleTeamDisplay$ (teamName$) Static
+
+    displayName$ = RTrim$(teamName$)
+    If Len(displayName$) >= 4 Then
+        If Mid$(displayName$, 3, 1) = " " And Val(Left$(displayName$, 2)) > 0 Then displayName$ = Mid$(displayName$, 4)
+    End If
+    AccessibleTeamDisplay$ = displayName$
+
+End Function
+
+
+Function AccessibleLoadTeams% (yearNumber$) Static
+
+    AccessibleLoadTeams% = 0
+    teamFile$ = diskPaths$(0) + TEAM_FILE_NAME$ + "." + yearNumber$
+    dataFile$ = diskPaths$(0) + DATA_FILE_NAME$ + "." + yearNumber$
+
+    If Not _FileExists(teamFile$) Or Not _FileExists(dataFile$) Then Exit Function
+
+    Open teamFile$ For Random As #1 Len = TEAM_SIZE_BYTES
+    fileLength& = LOF(1)
+    numberTeams = fileLength& / TEAM_SIZE_BYTES
+    If numberTeams > MAX_TEAMS Then numberTeams = MAX_TEAMS
+    Field #1, 15 As Q$(0)
+
+    For teamIdx = 1 To numberTeams
+        Get #1, teamIdx
+        teamNames$(teamIdx) = Q$(0)
+        teamIndex(teamIdx) = teamIdx
+    Next teamIdx
+    Close #1
+
+    teamIndex(0) = numberTeams
+    AccessibleLoadTeams% = numberTeams
+
+End Function
 
 
 Sub AccessibleShowHelp ()
