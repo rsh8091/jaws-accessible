@@ -2,6 +2,7 @@
 *.7z
 *.exe
 *.ini
+.tools/
 bin/DEV.BAS
 bin/errlog
 bin/FOLDERS.CFG
