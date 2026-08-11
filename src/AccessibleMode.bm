@@ -1,0 +1,75 @@
+Function IsAccessibleMode% Static
+
+    IsAccessibleMode% = 0
+
+    For argIndex% = 1 To _CommandCount
+        argument$ = Command$(argIndex%)
+        argument$ = LCase$(_Trim$(argument$))
+
+        If argument$ = "--accessible" Or argument$ = "-a" Or argument$ = "/accessible" Then
+            IsAccessibleMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
+Function AccessibleReadCommand$ (promptText$) Static
+
+    Print promptText$;
+    Line Input commandValue$
+    AccessibleReadCommand$ = LCase$(_Trim$(commandValue$))
+
+End Function
+
+
+Sub AccessibleMainMenu ()
+
+    Print "Courtside College Basketball, version "; GAME_VERSION$
+    Print "Accessible command-line mode."
+    Print "All choices can be entered as a number or a word."
+    Print
+
+    exitRequested% = 0
+
+    Do
+        Print "Main menu"
+        Print "1. Play a single game."
+        Print "2. Accessibility help."
+        Print "3. Exit."
+
+        commandValue$ = AccessibleReadCommand$("Enter choice: ")
+        Print
+
+        Select Case commandValue$
+            Case "1", "play", "game", "single"
+                Print "Single-game setup will be connected in the next development phase."
+                Print "You are still at the main menu."
+
+            Case "2", "help", "h", "?"
+                Call AccessibleShowHelp
+
+            Case "3", "exit", "quit", "q"
+                Print "Exiting Courtside College Basketball."
+                exitRequested% = 1
+
+            Case Else
+                Print "Choice not recognized. Enter 1 for play, 2 for help, or 3 to exit."
+        End Select
+
+        If exitRequested% = 0 Then Print
+    Loop Until exitRequested% = 1
+
+End Sub
+
+
+Sub AccessibleShowHelp ()
+
+    Print "Accessibility help"
+    Print "This mode uses complete lines of text so screen readers can follow the game."
+    Print "Enter a menu number or its command word, then press Enter."
+    Print "No mouse, color, graphics, or cursor position is required."
+    Print "At the main menu, enter play, help, or exit."
+
+End Sub

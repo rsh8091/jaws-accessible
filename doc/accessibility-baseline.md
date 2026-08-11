@@ -22,6 +22,20 @@ Extract QB64-PE into `.tools/qb64pe`, then run:
 
 The build script compiles `src/HELLO.BAS` and writes the ignored executable to `bin/HELLO.exe`. A different compiler or output path can be supplied with `-Compiler` and `-Output`.
 
+Run the accessible command-line mode with:
+
+```powershell
+.\bin\HELLO.exe --accessible
+```
+
+The aliases `-a` and `/accessible` are also accepted. Running the executable without one of these arguments preserves the original graphical interface.
+
+After building, run the accessible main-menu transcript test with:
+
+```powershell
+.\scripts\test-accessible-menu.ps1
+```
+
 Windows may mark executables extracted from a downloaded archive as blocked. After verifying the official release checksum, clear that marker if necessary:
 
 ```powershell

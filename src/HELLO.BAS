@@ -1,5 +1,6 @@
 $Debug
 $Color:32
+$Console
 
 Const GAME_VERSION$ = "5.32"
 Const MAX_FILES = 10240
@@ -27,6 +28,7 @@ DefInt A-Z
 
 ' General purpose
 '$Include: 'KeyInput.bi'
+'$Include: 'AccessibleMode.bi'
 '$Include: 'QPProEqu.bi'
 '$Include: 'StringManip.bi'
 '$Include: 'QBWRITE.bi'
@@ -277,6 +279,17 @@ yesNo$(1) = "Y"
 '----------------------------------------
 '               MAIN CODE
 '----------------------------------------
+accessibleMode% = IsAccessibleMode%
+
+If accessibleMode% Then
+    _ScreenHide
+    _Console On
+    _Dest _Console
+    _ConsoleTitle "Courtside College Basketball - Accessible Mode"
+Else
+    _Console Off
+End If
+
 _Title "Courtside College Basketball - Menu"
 $ExeIcon:'./lhg_ccb.ico'
 _Icon
@@ -362,16 +375,20 @@ Close #3
 'End If
 
 'Run main menu
-SELECTION% = 1
+If accessibleMode% Then
+    Call AccessibleMainMenu
+Else
+    SELECTION% = 1
 
-menu& = _NewImage(640, 480, 256)
-Screen menu&
+    menu& = _NewImage(640, 480, 256)
+    Screen menu&
 
-Do
+    Do
 
-    Call Main_Menu(SELECTION%)
+        Call Main_Menu(SELECTION%)
 
-Loop Until SELECTION% = 8
+    Loop Until SELECTION% = 8
+End If
 
 System
 
@@ -745,6 +762,7 @@ End Sub
 
 ' General purpose
 '$Include: 'KeyInput.bm'
+'$Include: 'AccessibleMode.bm'
 '$Include: 'QPProEqu.bm'
 '$Include: 'StringManip.bm'
 '$Include: 'QBWRITE.bm'
