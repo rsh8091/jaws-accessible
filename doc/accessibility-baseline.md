@@ -30,10 +30,19 @@ Run the accessible command-line mode with:
 
 The aliases `-a` and `/accessible` are also accepted. Running the executable without one of these arguments preserves the original graphical interface.
 
+Install the official upstream team-data archive before using single-game setup:
+
+```powershell
+.\scripts\install-team-data.ps1
+```
+
+Accessible single-game setup now accepts a season ID, searches team names, presents numbered results, selects visitor and home teams, and confirms the matchup. Team data remains an upstream release dependency and is not committed to this repository.
+
 After building, run the accessible main-menu transcript test with:
 
 ```powershell
 .\scripts\test-accessible-menu.ps1
+.\scripts\test-accessible-team-selection.ps1
 ```
 
 Windows may mark executables extracted from a downloaded archive as blocked. After verifying the official release checksum, clear that marker if necessary:

@@ -8,6 +8,8 @@ bin/errlog
 bin/FOLDERS.CFG
 bin/GAME82
 bin/HELLO*
+bin/BASK.*
+bin/COLBBTMS.*
 bin/TICKER
 doc/*.odt
 src/*.mp3
