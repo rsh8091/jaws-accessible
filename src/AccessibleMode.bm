@@ -93,7 +93,15 @@ Sub AccessibleSingleGameSetup ()
             Case "1", "confirm", "yes", "y"
                 Print
                 Print "Matchup confirmed: "; AccessibleTeamDisplay$(visitorName$); " at "; AccessibleTeamDisplay$(homeName$); "."
-                Print "The next development phase will connect this matchup to game options and tipoff."
+                If AccessibleConfigureGame% = 1 Then
+                    If AccessiblePrepareMatchup%(yearNumber$, visitorIdx, homeIdx) = 1 Then
+                        Print
+                        Print "Ready for tipoff."
+                        Print "The next development phase will connect coaching commands and possession-by-possession play."
+                    End If
+                Else
+                    Print "Game configuration canceled."
+                End If
                 Exit Sub
             Case "2", "visitor", "visiting"
                 visitorIdx = 0
@@ -106,6 +114,150 @@ Sub AccessibleSingleGameSetup ()
                 Print "Choice not recognized. Enter 1, 2, 3, or 4."
         End Select
     Loop
+
+End Sub
+
+
+Function AccessibleConfigureGame% Static
+
+    AccessibleConfigureGame% = 0
+
+    Print
+    Print "Game control"
+    Print "1. Human controls both teams."
+    Print "2. Human controls home; computer controls visitor."
+    Print "3. Human controls visitor; computer controls home."
+    Print "4. Computer controls both teams."
+
+    Do
+        commandValue$ = AccessibleReadCommand$("Enter control mode, or back: ")
+        If commandValue$ = "back" Or commandValue$ = "cancel" Then Exit Function
+        accessiblePlayerOpt = Val(commandValue$) - 1
+        If accessiblePlayerOpt >= 0 And accessiblePlayerOpt <= 3 And LTrim$(Str$(accessiblePlayerOpt + 1)) = commandValue$ Then Exit Do
+        Print "Enter a number from 1 through 4."
+    Loop
+
+    Print
+    Print "Game location"
+    Print "1. Home-court advantage."
+    Print "2. Neutral site."
+    Do
+        commandValue$ = AccessibleReadCommand$("Enter location, or back: ")
+        If commandValue$ = "back" Or commandValue$ = "cancel" Then Exit Function
+        accessibleGameLoc = Val(commandValue$)
+        If accessibleGameLoc >= 1 And accessibleGameLoc <= 2 And LTrim$(Str$(accessibleGameLoc)) = commandValue$ Then Exit Do
+        Print "Enter 1 for home court or 2 for neutral site."
+    Loop
+
+    Print
+    Print "Rule settings"
+    Print "1. Modern college rules: 30-second shot clock, three-point shot, five fouls to disqualify."
+    Print "2. Custom rules."
+    Do
+        commandValue$ = AccessibleReadCommand$("Enter rule set, or back: ")
+        If commandValue$ = "back" Or commandValue$ = "cancel" Then Exit Function
+        If commandValue$ = "1" Or commandValue$ = "modern" Then
+            accessibleShotClock = 30
+            accessibleThreePoint = 1
+            accessibleFoulsToDQ = 5
+            Exit Do
+        ElseIf commandValue$ = "2" Or commandValue$ = "custom" Then
+            Do
+                shotValue$ = AccessibleReadCommand$("Shot clock in seconds: 0, 30, 35, or 45: ")
+                accessibleShotClock = Val(shotValue$)
+                If shotValue$ = "0" Or shotValue$ = "30" Or shotValue$ = "35" Or shotValue$ = "45" Then Exit Do
+                Print "Enter 0, 30, 35, or 45."
+            Loop
+            Do
+                threeValue$ = AccessibleReadCommand$("Use the three-point shot? yes or no: ")
+                If threeValue$ = "yes" Or threeValue$ = "y" Then
+                    accessibleThreePoint = 1
+                    Exit Do
+                ElseIf threeValue$ = "no" Or threeValue$ = "n" Then
+                    accessibleThreePoint = 0
+                    Exit Do
+                End If
+                Print "Enter yes or no."
+            Loop
+            Do
+                foulValue$ = AccessibleReadCommand$("Fouls to disqualify: 5 or 6: ")
+                accessibleFoulsToDQ = Val(foulValue$)
+                If foulValue$ = "5" Or foulValue$ = "6" Then Exit Do
+                Print "Enter 5 or 6."
+            Loop
+            Exit Do
+        Else
+            Print "Enter 1 for modern rules or 2 for custom rules."
+        End If
+    Loop
+
+    Print
+    Print "Game configuration summary"
+    Select Case accessiblePlayerOpt
+        Case 0: Print "Control: human controls both teams."
+        Case 1: Print "Control: human controls home; computer controls visitor."
+        Case 2: Print "Control: human controls visitor; computer controls home."
+        Case 3: Print "Control: computer controls both teams."
+    End Select
+    If accessibleGameLoc = 1 Then Print "Location: home-court advantage." Else Print "Location: neutral site."
+    If accessibleShotClock = 0 Then Print "Shot clock: none." Else Print "Shot clock: "; LTrim$(Str$(accessibleShotClock)); " seconds."
+    If accessibleThreePoint = 1 Then Print "Three-point shot: yes." Else Print "Three-point shot: no."
+    Print "Fouls to disqualify: "; LTrim$(Str$(accessibleFoulsToDQ)); "."
+
+    commandValue$ = AccessibleReadCommand$("Enter confirm to load the teams, or back: ")
+    If commandValue$ = "confirm" Or commandValue$ = "yes" Or commandValue$ = "y" Or commandValue$ = "1" Then AccessibleConfigureGame% = 1
+
+End Function
+
+
+Function AccessiblePrepareMatchup% (yearNumber$, visitorIdx, homeIdx) Static
+
+    AccessiblePrepareMatchup% = 0
+    Call InitVar
+
+    For gameIdx = 0 To 1
+        If gameIdx = 0 Then selectedIdx = visitorIdx Else selectedIdx = homeIdx
+
+        diskIDs$(gameIdx) = yearNumber$
+        teamGender$(gameIdx) = GetTeamGender$(yearNumber$)
+        teamYears(gameIdx) = Val(yearNumber$)
+
+        Call ReadGameTeam(yearNumber$, gameTeams$(gameIdx), selectedIdx, gameIdx)
+        validData = 0
+        Call ReadGameExtraData(yearNumber$, selectedIdx, gameIdx, validData)
+        If validData = 0 Then
+            Print "The data for "; AccessibleTeamDisplay$(gameTeams$(gameIdx)); " could not be loaded."
+            Exit Function
+        End If
+
+        FY%(gameIdx) = 2 * teamRat_GAME(gameIdx, 3) - teamRat_GAME(gameIdx, 4)
+        Call StartingLineup(gameIdx)
+        Call TEAMSETUP(gameIdx)
+    Next gameIdx
+
+    Print
+    Print "Teams loaded successfully."
+    Call AccessibleShowLoadedTeam(0, "Visiting")
+    Call AccessibleShowLoadedTeam(1, "Home")
+    AccessiblePrepareMatchup% = 1
+
+End Function
+
+
+Sub AccessibleShowLoadedTeam (gameIdx, roleName$)
+
+    Print
+    Print roleName$; " team: "; AccessibleTeamDisplay$(gameTeams$(gameIdx))
+    If gameCoaches$(gameIdx) <> "" Then Print "Coach: "; gameCoaches$(gameIdx)
+    If gameArena$(gameIdx) <> "" Then Print "Arena: "; gameArena$(gameIdx)
+    Print "Roster:"
+    rosterNumber = 0
+    For playerIdx = 0 To 13
+        If players$(gameIdx, playerIdx) <> "" And UCase$(players$(gameIdx, playerIdx)) <> "XXX" Then
+            rosterNumber = rosterNumber + 1
+            Print LTrim$(Str$(rosterNumber)); ". "; players$(gameIdx, playerIdx)
+        End If
+    Next playerIdx
 
 End Sub
 
