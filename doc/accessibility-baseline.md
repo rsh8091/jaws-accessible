@@ -36,7 +36,7 @@ Install the official upstream team-data archive before using single-game setup:
 .\scripts\install-team-data.ps1
 ```
 
-Accessible single-game setup now accepts a season ID, searches team names, presents numbered results, selects visitor and home teams, configures control/location/rules, loads the original team records, and reads both rosters before reaching a ready-for-tipoff checkpoint. Team data remains an upstream release dependency and is not committed to this repository.
+Accessible single-game setup now accepts a season ID, searches team names, presents numbered results, selects visitor and home teams, configures control/location/rules, loads the original team records, and reads both rosters. It pauses between roster sections without clearing the console review history. Computer teams receive an automatic lineup; human teams can select five starters by number or enter `auto` for a recommended lineup before reaching the ready-for-tipoff checkpoint. Team data remains an upstream release dependency and is not committed to this repository.
 
 After building, run the accessible main-menu transcript test with:
 

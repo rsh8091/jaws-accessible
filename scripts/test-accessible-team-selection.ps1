@@ -5,7 +5,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $executablePath = (Resolve-Path -LiteralPath $Executable).Path
-$scriptedInput = @('1', '2025', 'duke', '1', '2025', 'akron', '1', '1', '2', '1', '1', 'confirm', '3')
+$scriptedInput = @('1', '2025', 'duke', '1', '2025', 'akron', '1', '1', '2', '1', '1', 'confirm', 'continue', 'continue', 'auto', '3')
 Push-Location (Split-Path -Parent $executablePath)
 try {
     $transcript = $scriptedInput | & $executablePath --accessible 2>&1 | Out-String
@@ -32,6 +32,9 @@ $expectedText = @(
     'Teams loaded successfully.',
     'Visiting team: DUKE',
     'Home team: AKRON',
+    'The computer selected this lineup.',
+    'Home starting lineup for AKRON.',
+    'Confirmed starting lineups',
     'Ready for tipoff.',
     'Exiting Courtside College Basketball.'
 )
