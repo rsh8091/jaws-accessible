@@ -9,6 +9,10 @@ Dim Shared diskPaths$(0 To 3), Q$(0 To 500)
 Dim Shared teamNames$(MAX_TEAMS)
 Dim Shared teamIndex(MAX_TEAMS)
 
+' Accessible single-game configuration, retained for the gameplay phase.
+Dim Shared accessiblePlayerOpt, accessibleGameLoc, accessibleShotClock
+Dim Shared accessibleThreePoint, accessibleFoulsToDQ
+
 ' *** Reading Stat Data ***
 ' -------------------------
 Dim teamNameStats$
