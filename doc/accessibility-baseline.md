@@ -40,6 +40,8 @@ Accessible single-game setup now accepts a season ID, searches team names, prese
 
 Visitor and home season IDs are stored independently, so cross-season matchups load each selected team from its correct data file.
 
+The accessible path now plays one opening possession using the selected starters and original player shooting ratings. It announces tipoff, score, game clock, possession, shot clock, shooter, result, and the next possession as complete lines. Human offenses can enter `shoot 2`, `shoot 3`, `auto`, `status`, `lineup`, `help`, or `back`; computer-controlled offenses choose automatically. This intentionally stops after one possession while the remaining graphical gameplay loop is adapted.
+
 After building, run the accessible main-menu transcript test with:
 
 ```powershell
