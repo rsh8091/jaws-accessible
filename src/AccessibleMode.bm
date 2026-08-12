@@ -407,7 +407,7 @@ Sub AccessibleShowLoadedTeam (gameIdx, roleName$)
     For playerIdx = 0 To 13
         If players$(gameIdx, playerIdx) <> "" And UCase$(players$(gameIdx, playerIdx)) <> "XXX" Then
             rosterNumber = rosterNumber + 1
-            Print LTrim$(Str$(rosterNumber)); ". "; players$(gameIdx, playerIdx); ", position "; RTrim$(positions_GAME$(gameIdx, playerIdx));
+            Print LTrim$(Str$(rosterNumber)); ". "; players$(gameIdx, playerIdx); ", "; AccessiblePlayerPosition$(gameIdx, playerIdx);
             If playerActive%(gameIdx, playerIdx) = 0 Then Print ", unavailable";
             Print "."
         End If
@@ -462,7 +462,7 @@ Function AccessibleChooseLineup% (gameIdx, roleName$, computerControlled) Static
         If playerActive%(gameIdx, playerIdx) = 1 And players$(gameIdx, playerIdx) <> "" And UCase$(players$(gameIdx, playerIdx)) <> "XXX" Then
             eligibleCount = eligibleCount + 1
             eligibleIndices(eligibleCount) = playerIdx
-            Print LTrim$(Str$(eligibleCount)); ". "; players$(gameIdx, playerIdx); ", position "; RTrim$(positions_GAME$(gameIdx, playerIdx)); "."
+            Print LTrim$(Str$(eligibleCount)); ". "; players$(gameIdx, playerIdx); ", "; AccessiblePlayerPosition$(gameIdx, playerIdx); "."
         End If
     Next playerIdx
 
@@ -477,7 +477,7 @@ Function AccessibleChooseLineup% (gameIdx, roleName$, computerControlled) Static
                 Exit Function
             ElseIf commandValue$ = "repeat" Or commandValue$ = "list" Then
                 For repeatIdx = 1 To eligibleCount
-                    Print LTrim$(Str$(repeatIdx)); ". "; players$(gameIdx, eligibleIndices(repeatIdx)); ", position "; RTrim$(positions_GAME$(gameIdx, eligibleIndices(repeatIdx))); "."
+                    Print LTrim$(Str$(repeatIdx)); ". "; players$(gameIdx, eligibleIndices(repeatIdx)); ", "; AccessiblePlayerPosition$(gameIdx, eligibleIndices(repeatIdx)); "."
                 Next repeatIdx
             Else
                 selectedNumber = Val(commandValue$)
@@ -537,11 +537,23 @@ Sub AccessiblePrintLineup (gameIdx, roleName$)
     For slot = 0 To 4
         playerIdx = lineupIdx(gameIdx, slot)
         If playerIdx >= 0 Then
-            Print LTrim$(Str$(slot + 1)); ". "; players$(gameIdx, playerIdx); ", position "; RTrim$(positions_GAME$(gameIdx, playerIdx)); "."
+            Print LTrim$(Str$(slot + 1)); ". "; players$(gameIdx, playerIdx); ", "; AccessiblePlayerPosition$(gameIdx, playerIdx); "."
         End If
     Next slot
 
 End Sub
+
+
+Function AccessiblePlayerPosition$ (gameIdx, playerIdx) Static
+
+    positionText$ = RTrim$(positions_GAME$(gameIdx, playerIdx))
+    If positionText$ = "" Then
+        AccessiblePlayerPosition$ = "position not provided in this season's data"
+    Else
+        AccessiblePlayerPosition$ = "position " + positionText$
+    End If
+
+End Function
 
 
 Function AccessibleChooseTeam% (roleName$, yearNumber$, chosenIdx, teamName$) Static
