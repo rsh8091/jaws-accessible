@@ -65,7 +65,8 @@ End Sub
 
 Sub AccessibleSingleGameSetup ()
 
-    yearNumber$ = ""
+    visitorYear$ = ""
+    homeYear$ = ""
     visitorIdx = 0
     homeIdx = 0
     visitorName$ = ""
@@ -75,13 +76,13 @@ Sub AccessibleSingleGameSetup ()
     Print "Enter back at any prompt to return to the main menu."
 
     Do
-        If AccessibleChooseTeam%("visiting", yearNumber$, visitorIdx, visitorName$) = 0 Then Exit Sub
-        If AccessibleChooseTeam%("home", yearNumber$, homeIdx, homeName$) = 0 Then Exit Sub
+        If AccessibleChooseTeam%("visiting", visitorYear$, visitorIdx, visitorName$) = 0 Then Exit Sub
+        If AccessibleChooseTeam%("home", homeYear$, homeIdx, homeName$) = 0 Then Exit Sub
 
         Print
         Print "Matchup"
-        Print "Visitor: "; AccessibleTeamDisplay$(visitorName$); " ("; yearNumber$; ")"
-        Print "Home: "; AccessibleTeamDisplay$(homeName$); " ("; yearNumber$; ")"
+        Print "Visitor: "; AccessibleTeamDisplay$(visitorName$); " ("; visitorYear$; ")"
+        Print "Home: "; AccessibleTeamDisplay$(homeName$); " ("; homeYear$; ")"
         Print "1. Confirm matchup."
         Print "2. Change visiting team."
         Print "3. Change home team."
@@ -94,7 +95,7 @@ Sub AccessibleSingleGameSetup ()
                 Print
                 Print "Matchup confirmed: "; AccessibleTeamDisplay$(visitorName$); " at "; AccessibleTeamDisplay$(homeName$); "."
                 If AccessibleConfigureGame% = 1 Then
-                    If AccessiblePrepareMatchup%(yearNumber$, visitorIdx, homeIdx) = 1 Then
+                    If AccessiblePrepareMatchup%(visitorYear$, homeYear$, visitorIdx, homeIdx) = 1 Then
                         If AccessibleChooseStartingLineups% = 1 Then
                             Print
                             Print "Ready for tipoff."
@@ -212,21 +213,27 @@ Function AccessibleConfigureGame% Static
 End Function
 
 
-Function AccessiblePrepareMatchup% (yearNumber$, visitorIdx, homeIdx) Static
+Function AccessiblePrepareMatchup% (visitorYear$, homeYear$, visitorIdx, homeIdx) Static
 
     AccessiblePrepareMatchup% = 0
     Call InitVar
 
     For gameIdx = 0 To 1
-        If gameIdx = 0 Then selectedIdx = visitorIdx Else selectedIdx = homeIdx
+        If gameIdx = 0 Then
+            selectedIdx = visitorIdx
+            targetYear$ = visitorYear$
+        Else
+            selectedIdx = homeIdx
+            targetYear$ = homeYear$
+        End If
 
-        diskIDs$(gameIdx) = yearNumber$
-        teamGender$(gameIdx) = GetTeamGender$(yearNumber$)
-        teamYears(gameIdx) = Val(yearNumber$)
+        diskIDs$(gameIdx) = targetYear$
+        teamGender$(gameIdx) = GetTeamGender$(targetYear$)
+        teamYears(gameIdx) = Val(targetYear$)
 
-        Call ReadGameTeam(yearNumber$, gameTeams$(gameIdx), selectedIdx, gameIdx)
+        Call ReadGameTeam(targetYear$, gameTeams$(gameIdx), selectedIdx, gameIdx)
         validData = 0
-        Call ReadGameExtraData(yearNumber$, selectedIdx, gameIdx, validData)
+        Call ReadGameExtraData(targetYear$, selectedIdx, gameIdx, validData)
         If validData = 0 Then
             Print "The data for "; AccessibleTeamDisplay$(gameTeams$(gameIdx)); " could not be loaded."
             Exit Function
