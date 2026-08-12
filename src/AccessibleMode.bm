@@ -161,35 +161,44 @@ Sub AccessiblePlayOpeningPossession ()
     End If
 
     Do While actionChosen = 0
-        commandValue$ = AccessibleReadCommand$("Offense command: shoot 2, shoot 3, auto, status, lineup, help, or back: ")
+        Print "Offense choices"
+        Print "1. Attempt a two-point shot."
+        If accessibleThreePoint = 1 Then Print "2. Attempt a three-point shot." Else Print "2. Three-point shot unavailable under current rules."
+        Print "3. Let the computer choose."
+        Print "4. Hear the game status."
+        Print "5. Hear the lineup."
+        Print "6. Help."
+        Print "7. Cancel this possession."
+        commandValue$ = AccessibleReadCommand$("Enter choice: ")
         Select Case commandValue$
-            Case "shoot 2", "shoot2", "2", "two"
+            Case "1", "shoot 2", "shoot2", "two"
                 shotType = 2
                 actionChosen = 1
-            Case "shoot 3", "shoot3", "3", "three"
+            Case "2", "shoot 3", "shoot3", "three"
                 If accessibleThreePoint = 1 Then
                     shotType = 3
                     actionChosen = 1
                 Else
                     Print "The three-point shot is disabled for this game."
                 End If
-            Case "auto", "play", "continue"
+            Case "3", "auto", "play", "continue"
                 If accessibleThreePoint = 1 And d100% <= 35 Then shotType = 3
                 actionChosen = 1
-            Case "status", "score", "clock"
+            Case "4", "status", "score", "clock"
                 Call AccessibleAnnounceStatus
-            Case "lineup", "roster"
+            Case "5", "lineup", "roster"
                 If P = 0 Then roleName$ = "Visiting" Else roleName$ = "Home"
                 Call AccessiblePrintLineup(P, roleName$)
-            Case "help", "h", "?"
-                Print "Enter shoot 2 or shoot 3 to attempt a shot."
-                Print "Enter auto to let the computer choose this possession."
-                Print "Enter status to hear score, clock, and possession, or lineup to hear the five players on court."
-            Case "back", "cancel", "exit"
+            Case "6", "help", "h", "?"
+                Print "Enter 1 for a two-point shot or 2 for a three-point shot."
+                Print "Enter 3 to let the computer choose this possession."
+                Print "Enter 4 to hear score, clock, and possession, or 5 to hear the five players on court."
+                Print "You may also enter the command words printed in this help."
+            Case "7", "back", "cancel", "exit"
                 Print "Opening possession canceled."
                 Exit Sub
             Case Else
-                Print "Command not recognized. Enter help for available commands."
+                Print "Choice not recognized. Enter a number from 1 through 7."
         End Select
     Loop
 
