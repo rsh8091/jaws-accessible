@@ -13,3 +13,6 @@ Declare Function AccessibleChooseStartingLineups% () Static
 Declare Function AccessibleChooseLineup% (gameIdx, roleName$, computerControlled) Static
 Declare Sub AccessibleAutoLineup (gameIdx)
 Declare Sub AccessiblePrintLineup (gameIdx, roleName$)
+Declare Sub AccessiblePlayOpeningPossession ()
+Declare Function AccessibleTeamIsComputer% (gameIdx) Static
+Declare Sub AccessibleAnnounceStatus ()
