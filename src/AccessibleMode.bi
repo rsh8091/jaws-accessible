@@ -9,3 +9,7 @@ Declare Function AccessibleTeamDisplay$ (teamName$) Static
 Declare Function AccessibleConfigureGame% () Static
 Declare Function AccessiblePrepareMatchup% (yearNumber$, visitorIdx, homeIdx) Static
 Declare Sub AccessibleShowLoadedTeam (gameIdx, roleName$)
+Declare Function AccessibleChooseStartingLineups% () Static
+Declare Function AccessibleChooseLineup% (gameIdx, roleName$, computerControlled) Static
+Declare Sub AccessibleAutoLineup (gameIdx)
+Declare Sub AccessiblePrintLineup (gameIdx, roleName$)
