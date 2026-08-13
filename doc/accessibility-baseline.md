@@ -38,6 +38,8 @@ Install the official upstream team-data archive before using single-game setup:
 
 Accessible single-game setup now accepts a season ID, searches team names, presents numbered results, selects visitor and home teams, configures control/location/rules, loads the original team records, and reads both rosters. It pauses between roster sections without clearing the console review history. Computer teams receive an automatic lineup; human teams can select five starters by number or enter `auto` for a recommended lineup before reaching the ready-for-tipoff checkpoint. Team data remains an upstream release dependency and is not committed to this repository.
 
+Lineup slots preserve the original engine's roles: first guard, second guard, first forward, second forward, and center. Automatic selection prefers eligible players whose recorded position matches each role. If no match exists, it assigns the best remaining eligible player and announces a warning. Manual selection also warns about missing or mismatched recorded positions without blocking historical teams.
+
 Visitor and home season IDs are stored independently, so cross-season matchups load each selected team from its correct data file.
 
 Some historical companion files, including 1987, contain blank player-position fields. Accessible output reports these as `position not provided in this season's data` instead of reading an empty label; it does not invent a position that is absent from the source data.
