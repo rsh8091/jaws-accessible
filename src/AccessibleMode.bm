@@ -456,7 +456,7 @@ Function AccessibleChooseLineup% (gameIdx, roleName$, computerControlled) Static
         Exit Function
     End If
 
-    Print "You may enter auto for a recommended lineup, or select five different player numbers."
+    Print "You may enter auto for a position-aware recommended lineup, or select five different player numbers."
     eligibleCount = 0
     For playerIdx = 0 To 13
         If playerActive%(gameIdx, playerIdx) = 1 And players$(gameIdx, playerIdx) <> "" And UCase$(players$(gameIdx, playerIdx)) <> "XXX" Then
@@ -468,7 +468,8 @@ Function AccessibleChooseLineup% (gameIdx, roleName$, computerControlled) Static
 
     For slot = 0 To 4
         Do
-            commandValue$ = AccessibleReadCommand$("Choose starter "+ LTrim$(Str$(slot + 1)) + " of 5, auto, repeat, or back: ")
+            Print "Role: "; AccessibleLineupRole$(slot); "."
+            commandValue$ = AccessibleReadCommand$("Choose the " + LCase$(AccessibleLineupRole$(slot)) + " by player number, or enter auto, repeat, or back: ")
             If commandValue$ = "back" Or commandValue$ = "cancel" Then Exit Function
             If commandValue$ = "auto" Then
                 Call AccessibleAutoLineup(gameIdx)
@@ -490,6 +491,13 @@ Function AccessibleChooseLineup% (gameIdx, roleName$, computerControlled) Static
                     If duplicatePlayer = 0 Then
                         lineupIdx(gameIdx, slot) = selectedPlayer
                         Print "Selected "; players$(gameIdx, selectedPlayer); "."
+                        If AccessiblePlayerMatchesRole%(gameIdx, selectedPlayer, slot) = 0 Then
+                            If RTrim$(positions_GAME$(gameIdx, selectedPlayer)) = "" Then
+                                Print "Warning: this season's data does not provide a position for "; players$(gameIdx, selectedPlayer); "."
+                            Else
+                                Print "Warning: recorded position "; RTrim$(positions_GAME$(gameIdx, selectedPlayer)); " does not match the "; LCase$(AccessibleLineupRole$(slot)); " role."
+                            End If
+                        End If
                         Exit Do
                     Else
                         Print "That player is already in the lineup."
@@ -513,18 +521,41 @@ Sub AccessibleAutoLineup (gameIdx)
     For slot = 0 To 4
         bestPlayer = -1
         bestContribution! = -1
+
+        'First pass: honor the recorded position whenever possible.
         For playerIdx = 0 To 13
             alreadyChosen = 0
             For checkSlot = 0 To slot - 1
                 If lineupIdx(gameIdx, checkSlot) = playerIdx Then alreadyChosen = 1
             Next checkSlot
-            If alreadyChosen = 0 And playerActive%(gameIdx, playerIdx) = 1 And players$(gameIdx, playerIdx) <> "" And UCase$(players$(gameIdx, playerIdx)) <> "XXX" Then
+            If alreadyChosen = 0 And playerActive%(gameIdx, playerIdx) = 1 And players$(gameIdx, playerIdx) <> "" And UCase$(players$(gameIdx, playerIdx)) <> "XXX" And AccessiblePlayerMatchesRole%(gameIdx, playerIdx, slot) = 1 Then
                 If plyrOff_GAME!(gameIdx, playerIdx, 3) > bestContribution! Then
                     bestContribution! = plyrOff_GAME!(gameIdx, playerIdx, 3)
                     bestPlayer = playerIdx
                 End If
             End If
         Next playerIdx
+
+        'Fallback: use the best remaining eligible player and announce why.
+        If bestPlayer = -1 Then
+            bestContribution! = -1
+            For playerIdx = 0 To 13
+                alreadyChosen = 0
+                For checkSlot = 0 To slot - 1
+                    If lineupIdx(gameIdx, checkSlot) = playerIdx Then alreadyChosen = 1
+                Next checkSlot
+                If alreadyChosen = 0 And playerActive%(gameIdx, playerIdx) = 1 And players$(gameIdx, playerIdx) <> "" And UCase$(players$(gameIdx, playerIdx)) <> "XXX" Then
+                    If plyrOff_GAME!(gameIdx, playerIdx, 3) > bestContribution! Then
+                        bestContribution! = plyrOff_GAME!(gameIdx, playerIdx, 3)
+                        bestPlayer = playerIdx
+                    End If
+                End If
+            Next playerIdx
+            If bestPlayer >= 0 Then
+                Print "Warning: no available player with a recorded "; LCase$(AccessibleLineupRole$(slot)); " position."
+                Print players$(gameIdx, bestPlayer); " was assigned to "; LCase$(AccessibleLineupRole$(slot)); " based on contribution rating."
+            End If
+        End If
         lineupIdx(gameIdx, slot) = bestPlayer
     Next slot
 
@@ -537,7 +568,7 @@ Sub AccessiblePrintLineup (gameIdx, roleName$)
     For slot = 0 To 4
         playerIdx = lineupIdx(gameIdx, slot)
         If playerIdx >= 0 Then
-            Print LTrim$(Str$(slot + 1)); ". "; players$(gameIdx, playerIdx); ", "; AccessiblePlayerPosition$(gameIdx, playerIdx); "."
+            Print LTrim$(Str$(slot + 1)); ". "; AccessibleLineupRole$(slot); ": "; players$(gameIdx, playerIdx); ", "; AccessiblePlayerPosition$(gameIdx, playerIdx); "."
         End If
     Next slot
 
@@ -552,6 +583,31 @@ Function AccessiblePlayerPosition$ (gameIdx, playerIdx) Static
     Else
         AccessiblePlayerPosition$ = "position " + positionText$
     End If
+
+End Function
+
+
+Function AccessibleLineupRole$ (slot) Static
+
+    Select Case slot
+        Case 0: AccessibleLineupRole$ = "First guard"
+        Case 1: AccessibleLineupRole$ = "Second guard"
+        Case 2: AccessibleLineupRole$ = "First forward"
+        Case 3: AccessibleLineupRole$ = "Second forward"
+        Case 4: AccessibleLineupRole$ = "Center"
+        Case Else: AccessibleLineupRole$ = "Unknown role"
+    End Select
+
+End Function
+
+
+Function AccessiblePlayerMatchesRole% (gameIdx, playerIdx, slot) Static
+
+    positionText$ = UCase$(RTrim$(positions_GAME$(gameIdx, playerIdx)))
+    AccessiblePlayerMatchesRole% = 0
+    If slot <= 1 And InStr(positionText$, "G") > 0 Then AccessiblePlayerMatchesRole% = 1
+    If slot >= 2 And slot <= 3 And InStr(positionText$, "F") > 0 Then AccessiblePlayerMatchesRole% = 1
+    If slot = 4 And InStr(positionText$, "C") > 0 Then AccessiblePlayerMatchesRole% = 1
 
 End Function
 
