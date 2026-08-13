@@ -44,7 +44,7 @@ Visitor and home season IDs are stored independently, so cross-season matchups l
 
 Some historical companion files, including 1987, contain blank player-position fields. Accessible output reports these as `position not provided in this season's data` instead of reading an empty label; it does not invent a position that is absent from the source data.
 
-The accessible path now plays one opening possession using the selected starters and original player shooting ratings. It announces tipoff, score, game clock, possession, shot clock, shooter, result, and the next possession as complete lines. Human offenses receive a numbered menu: 1 two-point shot, 2 three-point shot, 3 computer choice, 4 status, 5 lineup, 6 help, and 7 cancel. Descriptive command words remain aliases. Computer-controlled offenses choose automatically. This intentionally stops after one possession while the remaining graphical gameplay loop is adapted.
+The accessible path now plays a bounded six-possession test using selected starters and original player ratings. It supports numbered passing targets, pass steals and turnovers, two- and three-point attempts, assists, offensive rebounds, defensive rebounds, status, and lineup review. It announces ball carrier, events, score, game clock, possession, and shot clock as complete lines. Human offenses receive a numbered menu; descriptive command words remain aliases. Computer-controlled offenses choose automatically. The bounded loop allows focused testing before fouls, free throws, substitutions, and full-half play are adapted.
 
 After building, run the accessible main-menu transcript test with:
 

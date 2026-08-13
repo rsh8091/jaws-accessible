@@ -151,89 +151,185 @@ Sub AccessiblePlayOpeningPossession ()
     Print AccessibleTeamDisplay$(gameTeams$(P)); " controls the opening tip."
     Call AccessibleAnnounceStatus
 
-    actionChosen = 0
-    shotType = 2
+    maxPossessions = 6
+    possessionNumber = 0
+    gameTestEnded = 0
 
-    If AccessibleTeamIsComputer%(P) = 1 Then
-        Print AccessibleTeamDisplay$(gameTeams$(P)); " is computer-controlled."
-        If accessibleThreePoint = 1 And d100% <= 35 Then shotType = 3
-        actionChosen = 1
-    End If
+    Do While possessionNumber < maxPossessions And gameTestEnded = 0
+        possessionNumber = possessionNumber + 1
+        ballCarrier = 0
+        If plyrOff_GAME!(P, lineupIdx(P, 1), 4) > plyrOff_GAME!(P, lineupIdx(P, 0), 4) Then ballCarrier = 1
+        shotClock = accessibleShotClock
+        possessionComplete = 0
+        lastPasser = -1
 
-    Do While actionChosen = 0
-        Print "Offense choices"
-        Print "1. Attempt a two-point shot."
-        If accessibleThreePoint = 1 Then Print "2. Attempt a three-point shot." Else Print "2. Three-point shot unavailable under current rules."
-        Print "3. Let the computer choose."
-        Print "4. Hear the game status."
-        Print "5. Hear the lineup."
-        Print "6. Help."
-        Print "7. Cancel this possession."
-        commandValue$ = AccessibleReadCommand$("Enter choice: ")
-        Select Case commandValue$
-            Case "1", "shoot 2", "shoot2", "two"
-                shotType = 2
-                actionChosen = 1
-            Case "2", "shoot 3", "shoot3", "three"
-                If accessibleThreePoint = 1 Then
-                    shotType = 3
-                    actionChosen = 1
+        Print
+        Print "Possession "; LTrim$(Str$(possessionNumber)); " of "; LTrim$(Str$(maxPossessions)); "."
+        Print players$(P, lineupIdx(P, ballCarrier)); " has the ball for "; AccessibleTeamDisplay$(gameTeams$(P)); "."
+
+        Do While possessionComplete = 0 And gameTestEnded = 0
+            action = 0
+            shotType = 2
+
+            If AccessibleTeamIsComputer%(P) = 1 Then
+                If d100% <= 35 And shotClock > 8 Then
+                    action = 1
                 Else
-                    Print "The three-point shot is disabled for this game."
+                    action = 2
+                    If accessibleThreePoint = 1 And d100% <= 35 Then shotType = 3
                 End If
-            Case "3", "auto", "play", "continue"
-                If accessibleThreePoint = 1 And d100% <= 35 Then shotType = 3
-                actionChosen = 1
-            Case "4", "status", "score", "clock"
-                Call AccessibleAnnounceStatus
-            Case "5", "lineup", "roster"
-                If P = 0 Then roleName$ = "Visiting" Else roleName$ = "Home"
-                Call AccessiblePrintLineup(P, roleName$)
-            Case "6", "help", "h", "?"
-                Print "Enter 1 for a two-point shot or 2 for a three-point shot."
-                Print "Enter 3 to let the computer choose this possession."
-                Print "Enter 4 to hear score, clock, and possession, or 5 to hear the five players on court."
-                Print "You may also enter the command words printed in this help."
-            Case "7", "back", "cancel", "exit"
-                Print "Opening possession canceled."
-                Exit Sub
-            Case Else
-                Print "Choice not recognized. Enter a number from 1 through 7."
-        End Select
+            Else
+                Print "Offense choices"
+                Print "1. Pass to another player."
+                Print "2. Attempt a two-point shot."
+                If accessibleThreePoint = 1 Then Print "3. Attempt a three-point shot." Else Print "3. Three-point shot unavailable under current rules."
+                Print "4. Let the computer choose."
+                Print "5. Hear the game status."
+                Print "6. Hear the lineup."
+                Print "7. Help."
+                Print "8. End this gameplay test."
+                commandValue$ = AccessibleReadCommand$("Enter choice: ")
+                Select Case commandValue$
+                    Case "1", "pass": action = 1
+                    Case "2", "shoot 2", "shoot2", "two": action = 2: shotType = 2
+                    Case "3", "shoot 3", "shoot3", "three"
+                        If accessibleThreePoint = 1 Then action = 2: shotType = 3 Else Print "The three-point shot is disabled for this game."
+                    Case "4", "auto", "play", "continue"
+                        If d100% <= 35 And shotClock > 8 Then
+                            action = 1
+                        Else
+                            action = 2
+                            If accessibleThreePoint = 1 And d100% <= 35 Then shotType = 3
+                        End If
+                    Case "5", "status", "score", "clock": Call AccessibleAnnounceStatus
+                    Case "6", "lineup", "roster"
+                        If P = 0 Then roleName$ = "Visiting" Else roleName$ = "Home"
+                        Call AccessiblePrintLineup(P, roleName$)
+                    Case "7", "help", "h", "?"
+                        Print "Enter 1 to pass, 2 for a two-point shot, or 3 for a three-point shot."
+                        Print "Enter 4 to let the computer choose, 5 for status, or 6 for the lineup."
+                        Print "A pass uses time and can be stolen. A made shot after a successful pass may earn an assist."
+                    Case "8", "back", "cancel", "exit": gameTestEnded = 1
+                    Case Else: Print "Choice not recognized. Enter a number from 1 through 8."
+                End Select
+            End If
+
+            If action = 1 Then
+                targetSlot = -1
+                If AccessibleTeamIsComputer%(P) = 1 Then
+                    Do
+                        targetSlot = Int(Rnd(1) * 5)
+                    Loop Until targetSlot <> ballCarrier
+                Else
+                    Print "Pass targets"
+                    For passSlot = 0 To 4
+                        If passSlot <> ballCarrier Then Print LTrim$(Str$(passSlot + 1)); ". "; AccessibleLineupRole$(passSlot); ": "; players$(P, lineupIdx(P, passSlot)); "."
+                    Next passSlot
+                    passValue$ = AccessibleReadCommand$("Enter a displayed lineup number, or back: ")
+                    If passValue$ <> "back" And passValue$ <> "cancel" Then
+                        targetSlot = Val(passValue$) - 1
+                        If targetSlot < 0 Or targetSlot > 4 Or targetSlot = ballCarrier Or LTrim$(Str$(targetSlot + 1)) <> passValue$ Then
+                            Print "That is not an available pass target."
+                            targetSlot = -1
+                        End If
+                    End If
+                End If
+
+                If targetSlot >= 0 Then
+                    passerIdx = lineupIdx(P, ballCarrier)
+                    defenderIdx = lineupIdx(D, ballCarrier)
+                    passSeconds = Int(Rnd(1) * 4) + 2
+                    gameClock! = gameClock! - passSeconds
+                    If accessibleShotClock > 0 Then shotClock = shotClock - passSeconds
+                    stealChance = 14 - plyrOff_GAME!(P, passerIdx, 4) + Int(plyrDef_GAME(D, defenderIdx) / 20)
+                    If stealChance < 4 Then stealChance = 4
+                    If stealChance > 24 Then stealChance = 24
+                    Print players$(P, passerIdx); " passes toward "; players$(P, lineupIdx(P, targetSlot)); "."
+                    If d100% <= stealChance Then
+                        Print players$(D, defenderIdx); " steals the pass for "; AccessibleTeamDisplay$(gameTeams$(D)); "."
+                        turnovers(P) = turnovers(P) + 1
+                        plyrOff_GAME!(P, passerIdx, 23) = plyrOff_GAME!(P, passerIdx, 23) + 1
+                        possessionComplete = 1
+                    Else
+                        lastPasser = passerIdx
+                        ballCarrier = targetSlot
+                        Print "Pass complete. "; players$(P, lineupIdx(P, ballCarrier)); " has the ball."
+                        If accessibleShotClock > 0 And shotClock <= 0 Then
+                            Print "Shot-clock violation by "; AccessibleTeamDisplay$(gameTeams$(P)); "."
+                            turnovers(P) = turnovers(P) + 1
+                            possessionComplete = 1
+                        End If
+                    End If
+                End If
+            End If
+
+            If action = 2 Then
+                shooterIdx = lineupIdx(P, ballCarrier)
+                elapsedSeconds = Int(Rnd(1) * 6) + 4
+                If accessibleShotClock > 0 And elapsedSeconds > shotClock Then elapsedSeconds = shotClock
+                gameClock! = gameClock! - elapsedSeconds
+                If accessibleShotClock > 0 Then shotClock = shotClock - elapsedSeconds
+
+                If shotType = 3 Then
+                    shotChance! = plyrOff_GAME!(P, shooterIdx, 20)
+                    If shotChance! <= 0 Then shotChance! = 30
+                    threeFG(P, shooterIdx, 1) = threeFG(P, shooterIdx, 1) + 1
+                    Print players$(P, shooterIdx); " attempts a three-point shot."
+                Else
+                    shotChance! = plyrOff_GAME!(P, shooterIdx, 0)
+                    If shotChance! <= 0 Then shotChance! = 45
+                    Print players$(P, shooterIdx); " attempts a two-point shot."
+                End If
+
+                plyrOff_GAME!(P, shooterIdx, 7) = plyrOff_GAME!(P, shooterIdx, 7) + 1
+                If d100% <= shotChance! Then
+                    score(P, 0) = score(P, 0) + shotType
+                    plyrOff_GAME!(P, shooterIdx, 8) = plyrOff_GAME!(P, shooterIdx, 8) + 1
+                    If shotType = 3 Then threeFG(P, shooterIdx, 0) = threeFG(P, shooterIdx, 0) + 1
+                    Print "The shot is good for "; LTrim$(Str$(shotType)); " points."
+                    If lastPasser >= 0 And lastPasser <> shooterIdx Then
+                        assistChance = plyrOff_GAME!(P, lastPasser, 4) * 12
+                        If assistChance > 80 Then assistChance = 80
+                        If d100% <= assistChance Then
+                            plyrOff_GAME!(P, lastPasser, 14) = plyrOff_GAME!(P, lastPasser, 14) + 1
+                            Print "Assist credited to "; players$(P, lastPasser); "."
+                        End If
+                    End If
+                    possessionComplete = 1
+                Else
+                    Print "The shot misses."
+                    offensiveReboundChance = 28
+                    If d100% <= offensiveReboundChance Then
+                        reboundSlot = 2 + Int(Rnd(1) * 3)
+                        ballCarrier = reboundSlot
+                        reboundIdx = lineupIdx(P, reboundSlot)
+                        plyrOff_GAME!(P, reboundIdx, 11) = plyrOff_GAME!(P, reboundIdx, 11) + 1
+                        Print players$(P, reboundIdx); " gets the offensive rebound."
+                        If accessibleShotClock > 0 Then shotClock = accessibleShotClock
+                        lastPasser = -1
+                    Else
+                        reboundSlot = Int(Rnd(1) * 5)
+                        reboundIdx = lineupIdx(D, reboundSlot)
+                        plyrOff_GAME!(D, reboundIdx, 11) = plyrOff_GAME!(D, reboundIdx, 11) + 1
+                        Print players$(D, reboundIdx); " gets the defensive rebound for "; AccessibleTeamDisplay$(gameTeams$(D)); "."
+                        possessionComplete = 1
+                    End If
+                End If
+            End If
+        Loop
+
+        If gameTestEnded = 0 Then
+            Swap P, D
+            If accessibleShotClock > 0 Then shotClock = accessibleShotClock
+            Print "Possession complete."
+            Call AccessibleAnnounceStatus
+        End If
     Loop
 
-    shooterSlot = Int(Rnd(1) * 5)
-    shooterIdx = lineupIdx(P, shooterSlot)
-    elapsedSeconds = Int(Rnd(1) * 12) + 8
-    If accessibleShotClock > 0 And elapsedSeconds > accessibleShotClock Then elapsedSeconds = accessibleShotClock
-    gameClock! = gameClock! - elapsedSeconds
-
-    If shotType = 3 Then
-        shotChance! = plyrOff_GAME!(P, shooterIdx, 20)
-        If shotChance! <= 0 Then shotChance! = 30
-        threeFG(P, shooterIdx, 1) = threeFG(P, shooterIdx, 1) + 1
-        Print players$(P, shooterIdx); " attempts a three-point shot."
-    Else
-        shotChance! = plyrOff_GAME!(P, shooterIdx, 0)
-        If shotChance! <= 0 Then shotChance! = 45
-        Print players$(P, shooterIdx); " attempts a two-point shot."
-    End If
-
-    plyrOff_GAME!(P, shooterIdx, 7) = plyrOff_GAME!(P, shooterIdx, 7) + 1
-    If d100% <= shotChance! Then
-        score(P, 0) = score(P, 0) + shotType
-        plyrOff_GAME!(P, shooterIdx, 8) = plyrOff_GAME!(P, shooterIdx, 8) + 1
-        If shotType = 3 Then threeFG(P, shooterIdx, 0) = threeFG(P, shooterIdx, 0) + 1
-        Print "The shot is good for "; LTrim$(Str$(shotType)); " points."
-    Else
-        Print "The shot misses. "; AccessibleTeamDisplay$(gameTeams$(D)); " secures the rebound."
-    End If
-
-    Swap P, D
-    If accessibleShotClock > 0 Then shotClock = accessibleShotClock
-    Print "First possession complete."
+    Print
+    If gameTestEnded = 1 Then Print "Gameplay test ended by user." Else Print "Six-possession gameplay test complete."
     Call AccessibleAnnounceStatus
-    Print "The next development phase will continue possession-by-possession play."
+    Print "The next development phase will add fouls, free throws, substitutions, and longer play."
 
 End Sub
 

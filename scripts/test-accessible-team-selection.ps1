@@ -41,7 +41,7 @@ $expectedText = @(
     'Ready for tipoff.',
     'Tipoff',
     'Score: DUKE 0, SYRACUSE 0.',
-    'First possession complete.',
+    'Six-possession gameplay test complete.',
     'Exiting Courtside College Basketball.'
 )
 
