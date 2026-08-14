@@ -115,7 +115,7 @@ Sub AccessibleSingleGameSetup ()
                         If AccessibleChooseStartingLineups% = 1 Then
                             Print
                             Print "Ready for tipoff."
-                            Call AccessiblePlayOpeningPossession
+                            Call AccessibleRunGame
                         End If
                     End If
                 Else
@@ -137,17 +137,26 @@ Sub AccessibleSingleGameSetup ()
 End Sub
 
 
-Sub AccessiblePlayOpeningPossession ()
+Sub AccessibleRunGame ()
 
     Print
     Print "Original simulator validation."
     If accessiblePlayerOpt = 3 Then
         Print "The original game engine will coach both teams for six possessions."
         accessibleEngineLimit = 6
+        accessibleEngineStopClock = 0
     Else
-        Print "The original game engine will play one possession for each team."
+        If accessiblePauseEvents = 0 Then
+            Print "The original game engine will play one possession for each team."
+            accessibleEngineLimit = 2
+            accessibleEngineStopClock = 0
+        Else
+            Print "The original game engine will play the first 10 minutes of the first half."
+            Print "The segment ends when the game clock reaches 10:00."
+            accessibleEngineLimit = 0
+            accessibleEngineStopClock = 600
+        End If
         Print "Computer play runs continuously. Your team pauses when a decision is required."
-        accessibleEngineLimit = 2
     End If
     Print "Play-by-play is being presented through the accessible command-line adapter."
 
@@ -156,6 +165,7 @@ Sub AccessiblePlayOpeningPossession ()
     accessibleEnginePossessions = 0
     accessibleEngineLastTeam = -1
     accessibleEngineHumanPrompted = 0
+    accessibleEngineStopRequested = 0
     accessibleLastPbp$ = ""
     accessiblePbpGroupCount = 0
     accessiblePbpGroupTeam = -1
@@ -214,12 +224,28 @@ Function AccessibleReadPlayChoice% (teamIdx) Static
 
     accessibleEngineHumanPrompted = 1
     Do
-        Call AccessibleFlushPbp
+        'Keep pending simulator narration and the resulting human decision on one
+        'screen so a screen reader encounters the pass result before the next menu.
+        savedPauseEvents = accessiblePauseEvents
         Cls
+        accessiblePauseEvents = 0
+        Call AccessibleFlushPbp
+        accessiblePauseEvents = savedPauseEvents
         Print
         Print "Your team, "; AccessibleTeamDisplay$(gameTeams$(teamIdx)); ", is on offense."
-        If accessibleLastPbp$ <> "" Then Print "Latest play description: "; accessibleLastPbp$; "."
         Print players$(teamIdx, lineupIdx(teamIdx, ballCarrier)); " has the ball."
+        Select Case shotType
+            Case 1
+                Print "Current situation: tightly guarded."
+            Case 2
+                Print "Current situation: open inside."
+            Case 3
+                Print "Current situation: good opportunity close to the basket."
+            Case 4
+                Print "Current situation: open from three-point range."
+            Case Else
+                Print "Current situation: normal defensive coverage."
+        End Select
         Print "Offensive choices"
         Print "1. Pass."
         Print "2. Attempt a two-point shot."
@@ -279,6 +305,7 @@ End Sub
 
 
 Sub AccessibleQueuePbp (teamIdx, eventText$)
+    If accessibleEngineStopRequested = 1 Then Exit Sub
 
     If eventText$ = "" Then Exit Sub
     If accessiblePbpGroupCount > 0 And teamIdx <> accessiblePbpGroupTeam Then Call AccessibleFlushPbp
@@ -299,10 +326,103 @@ Sub AccessibleFlushPbp ()
     For eventIdx = 1 To accessiblePbpGroupCount
         Print accessiblePbpGroup$(eventIdx)
     Next eventIdx
-    If accessiblePauseEvents = 1 Then Line Input "Press Enter to continue: "; accessibleContinue$
+    If accessiblePauseEvents = 1 Then
+        Line Input "Press Enter to continue, or type end to finish this segment: "; accessibleContinue$
+        accessibleContinue$ = LCase$(_Trim$(accessibleContinue$))
+        If accessibleContinue$ = "end" Or accessibleContinue$ = "quit" Or accessibleContinue$ = "q" Then accessibleEngineStopRequested = 1
+    End If
     accessiblePbpGroupCount = 0
     accessiblePbpGroupTeam = -1
     Erase accessiblePbpGroup$
+
+End Sub
+
+
+Sub AccessibleDeadBallMenu (humanTeam, userTakeTO)
+
+    Call AccessibleFlushPbp
+    userTakeTO = 0
+    Do
+        Cls
+        Print "Dead-ball options for "; AccessibleTeamDisplay$(gameTeams$(humanTeam)); "."
+        Call AccessiblePrintGameStatus
+        Print "1. Continue play."
+        Print "2. Make a substitution."
+        Print "3. Hear the current lineup."
+        Print "4. Call timeout."
+        Print "5. End this test segment."
+        commandValue$ = AccessibleReadCommand$("Enter choice: ")
+        Select Case commandValue$
+            Case "1", "continue", "play", "enter"
+                Exit Do
+            Case "2", "sub", "substitute", "substitution"
+                Call AccessibleSubstitutionMenu(humanTeam)
+            Case "3", "lineup", "roster"
+                If humanTeam = 0 Then roleName$ = "Visiting" Else roleName$ = "Home"
+                Call AccessiblePrintLineup(humanTeam, roleName$)
+                commandValue$ = AccessibleReadCommand$("Press Enter to return to dead-ball options: ")
+            Case "4", "timeout", "time out"
+                If timeouts(humanTeam) > 0 Then
+                    Call TimeoutCalled(humanTeam)
+                    userTakeTO = 1
+                    Print "Timeout charged to "; AccessibleTeamDisplay$(gameTeams$(humanTeam)); "."
+                    Exit Do
+                Else
+                    Print "Your team has no timeouts remaining."
+                    commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
+                End If
+            Case "5", "end", "quit", "exit", "q"
+                accessibleEngineStopRequested = 1
+                Exit Do
+            Case Else
+                Print "Enter a choice from 1 through 5."
+                commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
+        End Select
+    Loop
+
+End Sub
+
+
+Sub AccessibleSubstitutionMenu (humanTeam)
+
+    Cls
+    Print "Current lineup for "; AccessibleTeamDisplay$(gameTeams$(humanTeam)); "."
+    For slot = 0 To 4
+        playerIdx = lineupIdx(humanTeam, slot)
+        Print LTrim$(Str$(slot + 1)); ". "; AccessibleLineupRole$(slot); ": "; players$(humanTeam, playerIdx); ", fouls "; LTrim$(Str$(plyrOff_GAME!(humanTeam, playerIdx, 12))); ", stamina "; LTrim$(Str$(playerStamina%(humanTeam, playerIdx))); "."
+    Next slot
+
+    commandValue$ = AccessibleReadCommand$("Choose the lineup position to replace, 1 through 5, or back: ")
+    If commandValue$ = "back" Or commandValue$ = "cancel" Then Exit Sub
+    selectedSlot = Val(commandValue$) - 1
+    If selectedSlot < 0 Or selectedSlot > 4 Or LTrim$(Str$(selectedSlot + 1)) <> commandValue$ Then
+        Print "That is not a valid lineup position."
+        commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
+        Exit Sub
+    End If
+
+    Print
+    Print "Available substitutes"
+    For playerIdx = 0 To 13
+        If playerActive%(humanTeam, playerIdx) = 1 And playerInLineup%(humanTeam, playerIdx) = 0 And plyrOff_GAME!(humanTeam, playerIdx, 12) < foulsToDQ And players$(humanTeam, playerIdx) <> "" And UCase$(players$(humanTeam, playerIdx)) <> "XXX" Then
+            Print LTrim$(Str$(playerIdx + 1)); ". "; players$(humanTeam, playerIdx); ", "; AccessiblePlayerPosition$(humanTeam, playerIdx); ", fouls "; LTrim$(Str$(plyrOff_GAME!(humanTeam, playerIdx, 12))); ", stamina "; LTrim$(Str$(playerStamina%(humanTeam, playerIdx))); "."
+        End If
+    Next playerIdx
+
+    commandValue$ = AccessibleReadCommand$("Choose a displayed substitute number, or back: ")
+    If commandValue$ = "back" Or commandValue$ = "cancel" Then Exit Sub
+    selectedPlayer = Val(commandValue$) - 1
+    If selectedPlayer < 0 Or selectedPlayer > 13 Or LTrim$(Str$(selectedPlayer + 1)) <> commandValue$ Or playerActive%(humanTeam, selectedPlayer) = 0 Or playerInLineup%(humanTeam, selectedPlayer) = 1 Or plyrOff_GAME!(humanTeam, selectedPlayer, 12) >= foulsToDQ Or players$(humanTeam, selectedPlayer) = "" Or UCase$(players$(humanTeam, selectedPlayer)) = "XXX" Then
+        Print "That player is not an available substitute."
+        commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
+        Exit Sub
+    End If
+
+    outgoingPlayer = lineupIdx(humanTeam, selectedSlot)
+    lineupIdx(humanTeam, selectedSlot) = selectedPlayer
+    Print players$(humanTeam, selectedPlayer); " replaces "; players$(humanTeam, outgoingPlayer); " as "; LCase$(AccessibleLineupRole$(selectedSlot)); "."
+    If AccessiblePlayerMatchesRole%(humanTeam, selectedPlayer, selectedSlot) = 0 Then Print "Warning: the substitute's recorded position does not match this lineup role."
+    commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
 
 End Sub
 
