@@ -8,7 +8,7 @@ $executablePath = (Resolve-Path -LiteralPath $Executable).Path
 $scriptedInput = @('2', 'not-a-command', '3')
 Push-Location (Split-Path -Parent $executablePath)
 try {
-    $transcript = $scriptedInput | & $executablePath --accessible 2>&1 | Out-String
+    $transcript = $scriptedInput | & $executablePath --accessible --accessible-test 2>&1 | Out-String
 }
 finally {
     Pop-Location

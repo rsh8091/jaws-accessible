@@ -44,13 +44,18 @@ Visitor and home season IDs are stored independently, so cross-season matchups l
 
 Some historical companion files, including 1987, contain blank player-position fields. Accessible output reports these as `position not provided in this season's data` instead of reading an empty label; it does not invent a position that is absent from the source data.
 
-The accessible path now runs a bounded six-possession validation through the original simulator. Accessible mode supplies team and rules configuration, then adapts the simulator's play-by-play to complete command-line lines for JAWS. The original engine remains responsible for coaching, passing, shots, turnovers, fouls, rebounds, scoring, timing, and all other basketball calculations. This milestone uses computer coaching for both teams so the engine/UI boundary can be tested before accessible human play-call input is connected.
+The accessible path now runs bounded validation through the original simulator. Accessible mode supplies team and rules configuration, then adapts the simulator's play-by-play to complete command-line lines for JAWS. The original engine remains responsible for coaching, passing, shots, turnovers, fouls, rebounds, scoring, timing, and all other basketball calculations. Computer-versus-computer validation runs six possessions.
+
+Human-versus-computer validation runs at least one possession for each team. Computer possessions provide continuous detailed original-engine play-by-play. Human possessions pause at the simulator's existing decision points for accessible numbered pass and shot menus, with commands to hear status or the current lineup. Computer coaching handles defensive decisions during this initial offensive-control milestone. If the first human possession ends before a decision is needed, validation continues until a human decision prompt has been exercised.
+
+Accessible gameplay clears the console at each new possession and again before a human offensive decision. Original-engine play-by-play is presented consistently for both teams in groups of up to three adjacent messages, with a single Enter press to advance each group. Partial groups are presented before a human decision or possession change. Human decision screens repeat the latest play description, then announce the current team, player with the ball, and complete choice menu. This prevents a screen reader from needing to track an indefinitely scrolling console buffer or racing against computer play.
 
 After building, run the accessible main-menu transcript test with:
 
 ```powershell
 .\scripts\test-accessible-menu.ps1
 .\scripts\test-accessible-team-selection.ps1
+.\scripts\test-accessible-human-vs-computer.ps1
 ```
 
 Windows may mark executables extracted from a downloaded archive as blocked. After verifying the official release checksum, clear that marker if necessary:

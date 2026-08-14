@@ -8,7 +8,7 @@ $executablePath = (Resolve-Path -LiteralPath $Executable).Path
 $scriptedInput = @('1', '2025', 'duke', '1', '2003', 'syracuse', '1', '1', '4', '1', '1', 'confirm', 'continue', 'continue', '3')
 Push-Location (Split-Path -Parent $executablePath)
 try {
-    $transcript = $scriptedInput | & $executablePath --accessible 2>&1 | Out-String
+    $transcript = $scriptedInput | & $executablePath --accessible --accessible-test 2>&1 | Out-String
 }
 finally {
     Pop-Location
@@ -42,7 +42,7 @@ $expectedText = @(
     'Original simulator validation.',
     'The original game engine will coach both teams for six possessions.',
     'Possession 1 of 6:',
-    'Six original-simulator possessions completed.',
+    '6 original-simulator possessions completed.',
     'Original simulator validation complete.',
     'Exiting Courtside College Basketball.'
 )

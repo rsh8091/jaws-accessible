@@ -841,7 +841,7 @@ Sub COLHOOP ()
     Shared sClockOpt$(), yesNoText$()
 
     Color 7, 0
-    Cls
+    If accessibleEngineMode = 0 Then Cls
 
     Randomize Timer
 
@@ -1330,12 +1330,12 @@ Sub COLHOOP ()
     If accessiblePreparedGame = 1 Then
         autoPlay = 0
         tourneyPlay = 0
-        playerOpt = 3
+        playerOpt = accessiblePlayerOpt
         threePtOpt = accessibleThreePoint
         gameLoc = accessibleGameLoc
         foulsToDQ = accessibleFoulsToDQ
         pbpDelay! = 0
-        coachOpt = 1
+        If accessiblePlayerOpt = 3 Then coachOpt = 1 Else coachOpt = 0
         ft10thFoul = 1
         ft3PtFoul = 1
         ft6FloorFouls = 0
@@ -1784,16 +1784,23 @@ Sub COLHOOP ()
 
     300 '
     If accessibleEngineMode = 1 And P <> accessibleEngineLastTeam Then
+        Call AccessibleFlushPbp
         accessibleEnginePossessions = accessibleEnginePossessions + 1
         If accessibleEnginePossessions > accessibleEngineLimit Then
-            Print
-            Print "Six original-simulator possessions completed."
-            Print "Score: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 0))); "."
-            Exit Sub
+            If accessiblePlayerOpt = 3 Or accessibleEngineHumanPrompted = 1 Then
+                Print
+                Print LTrim$(Str$(accessibleEngineLimit)); " original-simulator possessions completed."
+                Print "Score: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 0))); "."
+                Exit Sub
+            Else
+                accessibleEngineLimit = accessibleEngineLimit + 1
+            End If
         End If
         accessibleEngineLastTeam = P
+        Cls
         Print
         Print "Possession "; LTrim$(Str$(accessibleEnginePossessions)); " of "; LTrim$(Str$(accessibleEngineLimit)); ": "; AccessibleTeamDisplay$(gameTeams$(P)); "."
+        Call AccessiblePrintGameStatus
     End If
     'Last 5 secs, no timeout, offense is ahead
     If gameClock! <= 5 And timeouts(D) <= 0 And score(P, 0) > score(D, 0) Then
@@ -2317,6 +2324,8 @@ Sub COLHOOP ()
 
             If IsDefensePC Then
                 desigFouler = Int(Rnd(1) * 5)
+            ElseIf accessibleEngineMode = 1 Then
+                desigFouler = AccessibleReadDefenderChoice%(D)
             Else
                 Do
                     I$ = GetKeyPress$
@@ -3464,7 +3473,7 @@ Sub COLHOOP ()
                 Else
 
                     '[Human vs. PC | Human Opponent] AND Coach Shots
-                    If (playerMode = 1 Or playerMode = 0) And coachOpt <> 1 Then
+                    If (playerMode = 1 Or playerMode = 0) And coachOpt <> 1 And Not IsOffensePC Then
                         'Get user input
                         GoTo 530
                     End If
@@ -3523,6 +3532,11 @@ Sub COLHOOP ()
 
         'Respond to manual input from user for shot options
         530 '
+        If accessibleEngineMode = 1 Then
+            playChoice = AccessibleReadPlayChoice%(P)
+            If playChoice = 4 Then forcedThree = 1
+            GoTo 532
+        End If
         Do
 
             I$ = GetKeyPress$
@@ -4177,6 +4191,8 @@ Sub COLHOOP ()
 
             If IsDefensePC Then
                 desigFouler = Int(Rnd(1) * 5)
+            ElseIf accessibleEngineMode = 1 Then
+                desigFouler = AccessibleReadDefenderChoice%(D)
             Else
                 Do
                     I$ = GetKeyPress$
@@ -6304,7 +6320,7 @@ End Sub
 Sub PBP (teamIdx)
 
     If accessibleEngineMode = 1 Then
-        Print RTrim$(pbpString$)
+        If _Trim$(pbpString$) <> "" Then Call AccessibleQueuePbp(teamIdx, RTrim$(pbpString$))
         Exit Sub
     End If
 
@@ -8077,6 +8093,8 @@ End Sub
 'for the play-by-play text.
 Sub WINDEX ()
 
+    If accessibleEngineMode = 1 Then Exit Sub
+
     For I = 8 To (7 + MAX_PBP_LINES)
         Locate I, 1
         Call BLANKLINE
@@ -8107,6 +8125,8 @@ End Sub
 'if there is a PBP delay. It also places
 'the cursor further down when done.
 Sub CLEARPBPBOX ()
+
+    If accessibleEngineMode = 1 Then Exit Sub
 
     For I = 8 To (7 + MAX_PBP_LINES):
         Locate I, 1
@@ -12224,6 +12244,11 @@ End Sub
 'player to pass to.
 Sub GetPassChoice ()
 
+    If accessibleEngineMode = 1 Then
+        ballCarrier = AccessibleReadPassChoice%(P)
+        Exit Sub
+    End If
+
     Do
 
         If autoPlay <> 1 Then
@@ -12309,6 +12334,14 @@ End Sub
 Sub DEADBALLOPTIONS (userTakeTO)
 
     userTakeTO = 0
+
+    If accessibleEngineMode = 1 Then
+        P9 = P
+        C1 = 2
+        Call CheckGameClock
+        Call StealAdjustments
+        Exit Sub
+    End If
 
     prevBall$ = ""
     Call CLEARPBP
@@ -12426,6 +12459,14 @@ End Sub
 Sub STOPPAGE (userTakeTO)
 
     userTakeTO = 0
+
+    If accessibleEngineMode = 1 Then
+        P9 = P
+        C1 = 2
+        Call CheckGameClock
+        Call StealAdjustments
+        Exit Sub
+    End If
 
     Do
 
@@ -12593,7 +12634,7 @@ Sub PRESSGUARD ()
     If defCategory(D) = 1 Or defCategory(D) = 2 Then
 
         'Full Court Press only
-        If IsOffensePC Then
+        If IsOffensePC Or accessibleEngineMode = 1 Then
 
             ' COMPUTER GUARD FOR PRESS
             guardNbr = 1
@@ -18102,6 +18143,10 @@ End Function
 'is on defense
 Function IsDefensePC
 
+    If accessibleEngineMode = 1 Then
+        IsDefensePC = -1
+        Exit Function
+    End If
     IsDefensePC = (playerMode = 1 And D = compTeam) Or playerMode = 2
 
 End Function
