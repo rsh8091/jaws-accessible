@@ -37,7 +37,7 @@ $expectedText = @(
     'SHOT %',
     'Offensive choices',
     'Your team, SYRACUSE, is on offense.',
-    'Latest play description:',
+    'Current situation:',
     '1. Pass.',
     '2. Attempt a two-point shot.',
     '3. Attempt a three-point shot.',

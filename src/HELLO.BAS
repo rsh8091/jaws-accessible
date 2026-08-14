@@ -1785,8 +1785,14 @@ Sub COLHOOP ()
     300 '
     If accessibleEngineMode = 1 And P <> accessibleEngineLastTeam Then
         Call AccessibleFlushPbp
+        If accessibleEngineStopRequested = 1 Or (accessibleEngineStopClock > 0 And gameClock! <= accessibleEngineStopClock) Then
+            Print
+            Print "Accessible game segment complete."
+            Call AccessiblePrintGameStatus
+            Exit Sub
+        End If
         accessibleEnginePossessions = accessibleEnginePossessions + 1
-        If accessibleEnginePossessions > accessibleEngineLimit Then
+        If accessibleEngineLimit > 0 And accessibleEnginePossessions > accessibleEngineLimit Then
             If accessiblePlayerOpt = 3 Or accessibleEngineHumanPrompted = 1 Then
                 Print
                 Print LTrim$(Str$(accessibleEngineLimit)); " original-simulator possessions completed."
@@ -1799,7 +1805,11 @@ Sub COLHOOP ()
         accessibleEngineLastTeam = P
         Cls
         Print
-        Print "Possession "; LTrim$(Str$(accessibleEnginePossessions)); " of "; LTrim$(Str$(accessibleEngineLimit)); ": "; AccessibleTeamDisplay$(gameTeams$(P)); "."
+        If accessibleEngineLimit > 0 Then
+            Print "Possession "; LTrim$(Str$(accessibleEnginePossessions)); " of "; LTrim$(Str$(accessibleEngineLimit)); ": "; AccessibleTeamDisplay$(gameTeams$(P)); "."
+        Else
+            Print "Possession "; LTrim$(Str$(accessibleEnginePossessions)); ": "; AccessibleTeamDisplay$(gameTeams$(P)); "."
+        End If
         Call AccessiblePrintGameStatus
     End If
     'Last 5 secs, no timeout, offense is ahead
@@ -12336,6 +12346,10 @@ Sub DEADBALLOPTIONS (userTakeTO)
     userTakeTO = 0
 
     If accessibleEngineMode = 1 Then
+        If accessiblePauseEvents = 1 Then
+            If playerMode = 1 Then humanTeam = 1 - compTeam Else humanTeam = P
+            Call AccessibleDeadBallMenu(humanTeam, userTakeTO)
+        End If
         P9 = P
         C1 = 2
         Call CheckGameClock
@@ -12461,6 +12475,10 @@ Sub STOPPAGE (userTakeTO)
     userTakeTO = 0
 
     If accessibleEngineMode = 1 Then
+        If accessiblePauseEvents = 1 Then
+            If playerMode = 1 Then humanTeam = 1 - compTeam Else humanTeam = P
+            Call AccessibleDeadBallMenu(humanTeam, userTakeTO)
+        End If
         P9 = P
         C1 = 2
         Call CheckGameClock

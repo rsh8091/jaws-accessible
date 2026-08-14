@@ -15,6 +15,7 @@ Dim Shared accessibleThreePoint, accessibleFoulsToDQ
 Dim Shared accessiblePreparedGame, accessibleEngineMode
 Dim Shared accessibleEnginePossessions, accessibleEngineLastTeam, accessibleEngineLimit
 Dim Shared accessibleEngineHumanPrompted
+Dim Shared accessibleEngineStopClock, accessibleEngineStopRequested
 Dim Shared accessiblePauseEvents
 Dim Shared accessibleLastPbp$
 Dim Shared accessiblePbpGroupCount, accessiblePbpGroupTeam
