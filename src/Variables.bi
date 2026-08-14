@@ -14,6 +14,11 @@ Dim Shared accessiblePlayerOpt, accessibleGameLoc, accessibleShotClock
 Dim Shared accessibleThreePoint, accessibleFoulsToDQ
 Dim Shared accessiblePreparedGame, accessibleEngineMode
 Dim Shared accessibleEnginePossessions, accessibleEngineLastTeam, accessibleEngineLimit
+Dim Shared accessibleEngineHumanPrompted
+Dim Shared accessiblePauseEvents
+Dim Shared accessibleLastPbp$
+Dim Shared accessiblePbpGroupCount, accessiblePbpGroupTeam
+Dim Shared accessiblePbpGroup$(1 To 3)
 
 ' *** Reading Stat Data ***
 ' -------------------------

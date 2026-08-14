@@ -15,6 +15,20 @@ Function IsAccessibleMode% Static
 End Function
 
 
+Function IsAccessibleTestMode% Static
+
+    IsAccessibleTestMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--accessible-test" Then
+            IsAccessibleTestMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
 Function AccessibleReadCommand$ (promptText$) Static
 
     Print promptText$;
@@ -26,6 +40,8 @@ End Function
 
 Sub AccessibleMainMenu ()
 
+    accessiblePauseEvents = 1
+    If IsAccessibleTestMode% = 1 Then accessiblePauseEvents = 0
     Print "Courtside College Basketball, version "; GAME_VERSION$
     Print "Accessible command-line mode."
     Print "All choices can be entered as a number or a word."
@@ -125,20 +141,168 @@ Sub AccessiblePlayOpeningPossession ()
 
     Print
     Print "Original simulator validation."
-    Print "The original game engine will coach both teams for six possessions."
+    If accessiblePlayerOpt = 3 Then
+        Print "The original game engine will coach both teams for six possessions."
+        accessibleEngineLimit = 6
+    Else
+        Print "The original game engine will play one possession for each team."
+        Print "Computer play runs continuously. Your team pauses when a decision is required."
+        accessibleEngineLimit = 2
+    End If
     Print "Play-by-play is being presented through the accessible command-line adapter."
 
     accessiblePreparedGame = 1
     accessibleEngineMode = 1
     accessibleEnginePossessions = 0
     accessibleEngineLastTeam = -1
-    accessibleEngineLimit = 6
-
+    accessibleEngineHumanPrompted = 0
+    accessibleLastPbp$ = ""
+    accessiblePbpGroupCount = 0
+    accessiblePbpGroupTeam = -1
+    Erase accessiblePbpGroup$
     Call COLHOOP
+    Call AccessibleFlushPbp
 
     accessibleEngineMode = 0
     accessiblePreparedGame = 0
     Print "Original simulator validation complete."
+
+End Sub
+
+
+Function AccessibleReadPassChoice% (teamIdx) Static
+
+    Print
+    Print "Choose who receives the pass for "; AccessibleTeamDisplay$(gameTeams$(teamIdx)); "."
+    For slot = 0 To 4
+        Print LTrim$(Str$(slot + 1)); ". "; AccessibleLineupRole$(slot); ": "; players$(teamIdx, lineupIdx(teamIdx, slot)); "."
+    Next slot
+    Do
+        commandValue$ = AccessibleReadCommand$("Enter a player number: ")
+        selectedNumber = Val(commandValue$)
+        If selectedNumber >= 1 And selectedNumber <= 5 And LTrim$(Str$(selectedNumber)) = commandValue$ Then
+            AccessibleReadPassChoice% = selectedNumber - 1
+            Exit Function
+        End If
+        Print "Enter a displayed player number from 1 through 5."
+    Loop
+
+End Function
+
+
+Function AccessibleReadDefenderChoice% (teamIdx) Static
+
+    Print
+    Print "Choose the defender for "; AccessibleTeamDisplay$(gameTeams$(teamIdx)); "."
+    For slot = 0 To 4
+        Print LTrim$(Str$(slot + 1)); ". "; AccessibleLineupRole$(slot); ": "; players$(teamIdx, lineupIdx(teamIdx, slot)); "."
+    Next slot
+    Do
+        commandValue$ = AccessibleReadCommand$("Enter a defender number: ")
+        selectedNumber = Val(commandValue$)
+        If selectedNumber >= 1 And selectedNumber <= 5 And LTrim$(Str$(selectedNumber)) = commandValue$ Then
+            AccessibleReadDefenderChoice% = selectedNumber - 1
+            Exit Function
+        End If
+        Print "Enter a displayed defender number from 1 through 5."
+    Loop
+
+End Function
+
+
+Function AccessibleReadPlayChoice% (teamIdx) Static
+
+    accessibleEngineHumanPrompted = 1
+    Do
+        Call AccessibleFlushPbp
+        Cls
+        Print
+        Print "Your team, "; AccessibleTeamDisplay$(gameTeams$(teamIdx)); ", is on offense."
+        If accessibleLastPbp$ <> "" Then Print "Latest play description: "; accessibleLastPbp$; "."
+        Print players$(teamIdx, lineupIdx(teamIdx, ballCarrier)); " has the ball."
+        Print "Offensive choices"
+        Print "1. Pass."
+        Print "2. Attempt a two-point shot."
+        If threePtOpt = 1 Then Print "3. Attempt a three-point shot."
+        Print "4. Call timeout."
+        Print "5. Hear score, clock, and possession."
+        Print "6. Hear the current lineup."
+        commandValue$ = AccessibleReadCommand$("Enter choice: ")
+
+        Select Case commandValue$
+            Case "1", "pass"
+                AccessibleReadPlayChoice% = 0
+                Exit Function
+            Case "2", "shoot 2", "shoot2", "two"
+                AccessibleReadPlayChoice% = 1
+                Exit Function
+            Case "3", "shoot 3", "shoot3", "three"
+                If threePtOpt = 1 Then
+                    AccessibleReadPlayChoice% = 4
+                    Exit Function
+                Else
+                    Print "The three-point shot is disabled for this game."
+                End If
+            Case "4", "timeout", "time out"
+                If timeouts(teamIdx) > 0 Then
+                    AccessibleReadPlayChoice% = 2
+                    Exit Function
+                Else
+                    Print "Your team has no timeouts remaining."
+                End If
+            Case "5", "status", "score", "clock"
+                Call AccessiblePrintGameStatus
+            Case "6", "lineup", "roster"
+                If teamIdx = 0 Then roleName$ = "Visiting" Else roleName$ = "Home"
+                Call AccessiblePrintLineup(teamIdx, roleName$)
+            Case Else
+                If threePtOpt = 1 Then Print "Enter a choice from 1 through 6." Else Print "Enter 1, 2, 4, 5, or 6."
+        End Select
+    Loop
+
+End Function
+
+
+Sub AccessiblePrintGameStatus ()
+
+    clockMinutes = Int(gameClock! / 60)
+    clockSeconds = Int(gameClock! - clockMinutes * 60)
+    clockText$ = LTrim$(Str$(clockMinutes)) + ":"
+    If clockSeconds < 10 Then clockText$ = clockText$ + "0"
+    clockText$ = clockText$ + LTrim$(Str$(clockSeconds))
+    Print "Score: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 0))); "."
+    If currHalf <= 2 Then Print "Half "; LTrim$(Str$(currHalf)); ", "; clockText$; " remaining." Else Print "Overtime "; LTrim$(Str$(currHalf - 2)); ", "; clockText$; " remaining."
+    Print "Possession: "; AccessibleTeamDisplay$(gameTeams$(P)); "."
+    If sClockVal > 0 Then Print "Shot clock: "; LTrim$(Str$(shotClock)); "."
+
+End Sub
+
+
+Sub AccessibleQueuePbp (teamIdx, eventText$)
+
+    If eventText$ = "" Then Exit Sub
+    If accessiblePbpGroupCount > 0 And teamIdx <> accessiblePbpGroupTeam Then Call AccessibleFlushPbp
+    If accessiblePbpGroupCount = 0 Then accessiblePbpGroupTeam = teamIdx
+    accessiblePbpGroupCount = accessiblePbpGroupCount + 1
+    accessiblePbpGroup$(accessiblePbpGroupCount) = eventText$
+    accessibleLastPbp$ = eventText$
+    If accessiblePbpGroupCount >= 3 Then Call AccessibleFlushPbp
+
+End Sub
+
+
+Sub AccessibleFlushPbp ()
+
+    If accessiblePbpGroupCount = 0 Then Exit Sub
+    If accessiblePauseEvents = 1 Then Cls
+    Print "Play-by-play: "; AccessibleTeamDisplay$(gameTeams$(accessiblePbpGroupTeam)); "."
+    For eventIdx = 1 To accessiblePbpGroupCount
+        Print accessiblePbpGroup$(eventIdx)
+    Next eventIdx
+    If accessiblePauseEvents = 1 Then Line Input "Press Enter to continue: "; accessibleContinue$
+    accessiblePbpGroupCount = 0
+    accessiblePbpGroupTeam = -1
+    Erase accessiblePbpGroup$
 
 End Sub
 
