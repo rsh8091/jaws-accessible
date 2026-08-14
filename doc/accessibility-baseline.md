@@ -44,14 +44,13 @@ Visitor and home season IDs are stored independently, so cross-season matchups l
 
 Some historical companion files, including 1987, contain blank player-position fields. Accessible output reports these as `position not provided in this season's data` instead of reading an empty label; it does not invent a position that is absent from the source data.
 
-The accessible path now plays a bounded six-possession test using selected starters and original player ratings. It supports numbered passing targets, pass steals and turnovers, two- and three-point attempts, assists, offensive rebounds, defensive rebounds, status, and lineup review. It announces ball carrier, events, score, game clock, possession, and shot clock as complete lines. Human offenses receive a numbered menu; descriptive command words remain aliases. Computer-controlled offenses choose automatically. The bounded loop allows focused testing before fouls, free throws, substitutions, and full-half play are adapted.
+The accessible path now runs a bounded six-possession validation through the original simulator. Accessible mode supplies team and rules configuration, then adapts the simulator's play-by-play to complete command-line lines for JAWS. The original engine remains responsible for coaching, passing, shots, turnovers, fouls, rebounds, scoring, timing, and all other basketball calculations. This milestone uses computer coaching for both teams so the engine/UI boundary can be tested before accessible human play-call input is connected.
 
 After building, run the accessible main-menu transcript test with:
 
 ```powershell
 .\scripts\test-accessible-menu.ps1
 .\scripts\test-accessible-team-selection.ps1
-.\scripts\test-accessible-offense-menu.ps1
 ```
 
 Windows may mark executables extracted from a downloaded archive as blocked. After verifying the official release checksum, clear that marker if necessary:

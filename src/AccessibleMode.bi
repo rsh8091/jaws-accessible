@@ -14,8 +14,6 @@ Declare Function AccessibleChooseLineup% (gameIdx, roleName$, computerControlled
 Declare Sub AccessibleAutoLineup (gameIdx)
 Declare Sub AccessiblePrintLineup (gameIdx, roleName$)
 Declare Sub AccessiblePlayOpeningPossession ()
-Declare Function AccessibleTeamIsComputer% (gameIdx) Static
-Declare Sub AccessibleAnnounceStatus ()
 Declare Function AccessiblePlayerPosition$ (gameIdx, playerIdx) Static
 Declare Function AccessibleLineupRole$ (slot) Static
 Declare Function AccessiblePlayerMatchesRole% (gameIdx, playerIdx, slot) Static

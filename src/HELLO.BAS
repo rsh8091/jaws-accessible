@@ -845,7 +845,7 @@ Sub COLHOOP ()
 
     Randomize Timer
 
-    Call InitVar
+    If accessiblePreparedGame = 0 Then Call InitVar
 
     '----------------------------------------
     '         DETERMINE GAME OPTIONS
@@ -940,7 +940,7 @@ Sub COLHOOP ()
     End If
 
     'Load game in-progress, if there is one
-    If _FileExists(cfgPath$ + "GAME82") Then
+    If accessiblePreparedGame = 0 And _FileExists(cfgPath$ + "GAME82") Then
 
         Open cfgPath$ + "GAME82" For Input As #6
 
@@ -1006,7 +1006,7 @@ Sub COLHOOP ()
 
     End If
 
-    If _FileExists(cfgPath$ + "TOURNEY") Then
+    If accessiblePreparedGame = 0 And _FileExists(cfgPath$ + "TOURNEY") Then
 
         Open cfgPath$ + "TOURNEY" For Input As #8
 
@@ -1092,7 +1092,7 @@ Sub COLHOOP ()
     End If
 
     'AUTOSETUP will reset tourneyPlay = 0 in many circumstances
-    If autoPlay <> 1 And tourneyPlay <> 1 Then
+    If autoPlay <> 1 And tourneyPlay <> 1 And accessiblePreparedGame = 0 Then
 
         ' USER SELECTION OF OPTIONS
         'gameLoc = 1 is neutral site
@@ -1327,6 +1327,28 @@ Sub COLHOOP ()
         Exit Sub
     End If
 
+    If accessiblePreparedGame = 1 Then
+        autoPlay = 0
+        tourneyPlay = 0
+        playerOpt = 3
+        threePtOpt = accessibleThreePoint
+        gameLoc = accessibleGameLoc
+        foulsToDQ = accessibleFoulsToDQ
+        pbpDelay! = 0
+        coachOpt = 1
+        ft10thFoul = 1
+        ft3PtFoul = 1
+        ft6FloorFouls = 0
+        pbpOpt = 0
+        sndOpt = 0
+        Select Case accessibleShotClock
+            Case 45: sClockVal = 1
+            Case 35: sClockVal = 2
+            Case 30: sClockVal = 3
+            Case Else: sClockVal = 0
+        End Select
+    End If
+
     '----------------------------------------
     '    AUTO-DETERMINE OTHER OPTIONS
     '----------------------------------------
@@ -1369,7 +1391,7 @@ Sub COLHOOP ()
         End If
     Next I
 
-    Call ChangeContributions
+    If accessiblePreparedGame = 0 Then Call ChangeContributions
     Call LOADSTATS
 
     If teamRat_GAME(1, 0) = teamRat_GAME(0, 0) And teamRat_GAME(1, 1) = teamRat_GAME(0, 1) Then
@@ -1432,7 +1454,9 @@ Sub COLHOOP ()
 
         Call SETSTAMINA
 
-        If (playerMode = 1 And team = compTeam) Or playerMode = 2 Then
+        If accessiblePreparedGame = 1 Then
+            Call ComputerStrategy
+        ElseIf (playerMode = 1 And team = compTeam) Or playerMode = 2 Then
             Call ComputerCoach(team)
         Else
             Call ChooseLineup(team)
@@ -1759,6 +1783,18 @@ Sub COLHOOP ()
     ' ### LAST SECONDS OF GAME ###
 
     300 '
+    If accessibleEngineMode = 1 And P <> accessibleEngineLastTeam Then
+        accessibleEnginePossessions = accessibleEnginePossessions + 1
+        If accessibleEnginePossessions > accessibleEngineLimit Then
+            Print
+            Print "Six original-simulator possessions completed."
+            Print "Score: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 0))); "."
+            Exit Sub
+        End If
+        accessibleEngineLastTeam = P
+        Print
+        Print "Possession "; LTrim$(Str$(accessibleEnginePossessions)); " of "; LTrim$(Str$(accessibleEngineLimit)); ": "; AccessibleTeamDisplay$(gameTeams$(P)); "."
+    End If
     'Last 5 secs, no timeout, offense is ahead
     If gameClock! <= 5 And timeouts(D) <= 0 And score(P, 0) > score(D, 0) Then
 
@@ -6250,6 +6286,8 @@ End Sub
 'pbp delay.
 Sub DELAY ()
 
+    If accessibleEngineMode = 1 Then Exit Sub
+
     _Delay pbpDelay!
 
 End Sub
@@ -6264,6 +6302,11 @@ End Sub
 'text window. No text is placed if the
 'delay is 0.
 Sub PBP (teamIdx)
+
+    If accessibleEngineMode = 1 Then
+        Print RTrim$(pbpString$)
+        Exit Sub
+    End If
 
     M$ = InKey$
 
@@ -9625,6 +9668,8 @@ End Sub
 'by the SCOREBOARD routine.
 Sub UPDATESCREEN ()
 
+    If accessibleEngineMode = 1 Then Exit Sub
+
     Call TICKERUPDATE
 
     'Game Clock - Minutes
@@ -9811,6 +9856,8 @@ End Sub
 'for the game interface, including a frame,
 'scoreboard, team options and rosters
 Sub SCOREBOARD ()
+
+    If accessibleEngineMode = 1 Then Exit Sub
 
     Cls
 
@@ -15950,6 +15997,8 @@ End Sub
 'Allows user to silently press a key
 '(no prompt) when the game is not autoplay
 Sub GetKeyWhenNoDelay ()
+
+    If accessibleEngineMode = 1 Then Exit Sub
 
     'If we're not in autoplay
     If Not (autoPlay = 1 And playerMode = 2) Then

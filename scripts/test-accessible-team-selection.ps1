@@ -39,9 +39,11 @@ $expectedText = @(
     '3. First forward:',
     '5. Center:',
     'Ready for tipoff.',
-    'Tipoff',
-    'Score: DUKE 0, SYRACUSE 0.',
-    'Six-possession gameplay test complete.',
+    'Original simulator validation.',
+    'The original game engine will coach both teams for six possessions.',
+    'Possession 1 of 6:',
+    'Six original-simulator possessions completed.',
+    'Original simulator validation complete.',
     'Exiting Courtside College Basketball.'
 )
 

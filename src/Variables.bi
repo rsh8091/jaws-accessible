@@ -12,6 +12,8 @@ Dim Shared teamIndex(MAX_TEAMS)
 ' Accessible single-game configuration, retained for the gameplay phase.
 Dim Shared accessiblePlayerOpt, accessibleGameLoc, accessibleShotClock
 Dim Shared accessibleThreePoint, accessibleFoulsToDQ
+Dim Shared accessiblePreparedGame, accessibleEngineMode
+Dim Shared accessibleEnginePossessions, accessibleEngineLastTeam, accessibleEngineLimit
 
 ' *** Reading Stat Data ***
 ' -------------------------
