@@ -1501,6 +1501,11 @@ Sub COLHOOP ()
         impactTeam = gameLoc
     End If
 
+    If accessibleEngineMode = 1 And IsAccessibleHalftimeTestMode% = 1 And currHalf = 1 Then
+        gameClock! = 0
+        GoTo 170
+    End If
+
     250 '
     'Jump Ball !!!
     Select Case currHalf
@@ -1564,7 +1569,13 @@ Sub COLHOOP ()
     currHalf = currHalf + 1
 
     If accessibleEngineMode = 1 And currHalf = 2 Then
-        Call AccessibleHalftimeMenu
+        continueSecondHalf = AccessibleHalftimeMenu%
+        If continueSecondHalf = 0 Then Exit Sub
+        accessibleEngineStopRequested = 0
+    End If
+
+    If accessibleEngineMode = 1 And currHalf = 3 Then
+        Call AccessiblePrintRegulationSummary
         Exit Sub
     End If
 
@@ -1573,7 +1584,7 @@ Sub COLHOOP ()
     offStatus = 0
     XS = 1
 
-    If currHalf = 2 Then
+    If currHalf = 2 And accessibleEngineMode = 0 Then
 
         pbpString$ = "END OF HALF"
 
@@ -1655,7 +1666,7 @@ Sub COLHOOP ()
         Call SCOREBOARD
 
         ballCarrier = -1
-        Call STOPPAGE(takeTO)
+        If accessibleEngineMode = 0 Then Call STOPPAGE(takeTO)
 
         gameClock! = 1200
         Call UPDATESCREEN
@@ -1789,6 +1800,11 @@ Sub COLHOOP ()
     ' ### LAST SECONDS OF GAME ###
 
     300 '
+    If accessibleEngineMode = 1 And IsAccessibleHalftimeTestMode% = 1 And currHalf = 2 Then
+        Print "Second-half possession reached after halftime substitution."
+        Call AccessiblePrintGameStatus
+        Exit Sub
+    End If
     If accessibleEngineMode = 1 And P <> accessibleEngineLastTeam Then
         Call AccessibleFlushPbp
         If accessibleEngineStopRequested = 1 Or (accessibleEngineStopClock > 0 And gameClock! <= accessibleEngineStopClock) Then

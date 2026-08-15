@@ -29,6 +29,20 @@ Function IsAccessibleTestMode% Static
 End Function
 
 
+Function IsAccessibleHalftimeTestMode% Static
+
+    IsAccessibleHalftimeTestMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--accessible-halftime-test" Then
+            IsAccessibleHalftimeTestMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
 Function AccessibleReadCommand$ (promptText$) Static
 
     Print promptText$;
@@ -141,7 +155,11 @@ Sub AccessibleRunGame ()
 
     Print
     Print "Original simulator validation."
-    If accessiblePlayerOpt = 3 Then
+    If IsAccessibleHalftimeTestMode% = 1 Then
+        Print "Automated halftime transition validation."
+        accessibleEngineLimit = 0
+        accessibleEngineStopClock = 0
+    ElseIf accessiblePlayerOpt = 3 Then
         Print "The original game engine will coach both teams for six possessions."
         accessibleEngineLimit = 6
         accessibleEngineStopClock = 0
@@ -151,8 +169,8 @@ Sub AccessibleRunGame ()
             accessibleEngineLimit = 2
             accessibleEngineStopClock = 0
         Else
-            Print "The original game engine will play the complete first half."
-            Print "The segment ends at halftime."
+            Print "The original game engine will play through the end of regulation."
+            Print "Halftime includes an accessible review before the second half begins."
             accessibleEngineLimit = 0
             accessibleEngineStopClock = 0
         End If
@@ -190,22 +208,25 @@ Sub AccessiblePrintHalftimeSummary ()
 End Sub
 
 
-Sub AccessibleHalftimeMenu ()
+Function AccessibleHalftimeMenu% Static
 
     Call AccessibleFlushPbp
+    AccessibleHalftimeMenu% = 0
     Do
         Cls
         Call AccessiblePrintHalftimeSummary
         Print
         Print "Halftime options"
-        Print "1. Finish this first-half segment."
+        Print "1. Start the second half."
         Print "2. Hear the visiting lineup."
         Print "3. Hear the home lineup."
         If accessiblePlayerOpt < 3 Then Print "4. Make a halftime substitution."
+        Print "5. End the game segment at halftime."
         commandValue$ = AccessibleReadCommand$("Enter choice: ")
 
         Select Case commandValue$
-            Case "1", "finish", "end", "continue"
+            Case "1", "continue", "start", "second half"
+                AccessibleHalftimeMenu% = 1
                 Exit Do
             Case "2", "visitor", "visiting"
                 Call AccessiblePrintLineup(0, "Visiting")
@@ -229,11 +250,28 @@ Sub AccessibleHalftimeMenu ()
                     Print "Both teams are computer controlled."
                     commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
                 End If
+                Print "Halftime substitution review complete. Returning to halftime options."
+                Print "Choose 1 when you are ready to start the second half."
+                commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
+            Case "5", "finish", "end", "quit", "exit"
+                Exit Do
             Case Else
-                If accessiblePlayerOpt < 3 Then Print "Enter a choice from 1 through 4." Else Print "Enter a choice from 1 through 3."
+                Print "Enter a choice from 1 through 5."
                 commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
         End Select
     Loop
+
+End Function
+
+
+Sub AccessiblePrintRegulationSummary ()
+
+    Call AccessibleFlushPbp
+    Cls
+    Print "End of regulation."
+    Print "Final regulation score: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 0))); "."
+    If score(0, 0) = score(1, 0) Then Print "The score is tied. Overtime support is the next development stage."
+    Print "Timeouts remaining: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(timeouts(0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(timeouts(1))); "."
 
 End Sub
 
@@ -426,9 +464,10 @@ Sub AccessibleDeadBallMenu (humanTeam, userTakeTO)
         Print "1. Continue play."
         Print "2. Make a substitution."
         Print "3. Hear the current lineup."
-        Print "4. Change defensive style."
-        Print "5. Call timeout."
-        Print "6. End this test segment."
+        Print "4. Change offensive style."
+        Print "5. Change defensive style."
+        Print "6. Call timeout."
+        Print "7. End this game segment."
         commandValue$ = AccessibleReadCommand$("Enter choice: ")
         Select Case commandValue$
             Case "1", "continue", "play", "enter"
@@ -439,10 +478,13 @@ Sub AccessibleDeadBallMenu (humanTeam, userTakeTO)
                 If humanTeam = 0 Then roleName$ = "Visiting" Else roleName$ = "Home"
                 Call AccessiblePrintLineup(humanTeam, roleName$)
                 commandValue$ = AccessibleReadCommand$("Press Enter to return to dead-ball options: ")
-            Case "4", "defense", "defensive style", "strategy"
+            Case "4", "offense", "offensive style"
+                ignoredChoice = AccessibleChooseOffense%(humanTeam)
+                commandValue$ = AccessibleReadCommand$("Press Enter to return to dead-ball options: ")
+            Case "5", "defense", "defensive style", "strategy"
                 ignoredChoice = AccessibleChooseDefense%(humanTeam)
                 commandValue$ = AccessibleReadCommand$("Press Enter to return to dead-ball options: ")
-            Case "5", "timeout", "time out"
+            Case "6", "timeout", "time out"
                 If timeouts(humanTeam) > 0 Then
                     Call TimeoutCalled(humanTeam)
                     userTakeTO = 1
@@ -452,11 +494,11 @@ Sub AccessibleDeadBallMenu (humanTeam, userTakeTO)
                     Print "Your team has no timeouts remaining."
                     commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
                 End If
-            Case "6", "end", "quit", "exit", "q"
+            Case "7", "end", "quit", "exit", "q"
                 accessibleEngineStopRequested = 1
                 Exit Do
             Case Else
-                Print "Enter a choice from 1 through 6."
+                Print "Enter a choice from 1 through 7."
                 commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
         End Select
     Loop
@@ -686,6 +728,7 @@ Function AccessibleChooseStartingLineups% Static
         If accessiblePlayerOpt = 1 And gameIdx = 0 Then computerControlled = 1
         If accessiblePlayerOpt = 2 And gameIdx = 1 Then computerControlled = 1
         If computerControlled = 0 Then
+            If AccessibleChooseOffense%(gameIdx) = 0 Then Exit Function
             If AccessibleChooseDefense%(gameIdx) = 0 Then Exit Function
         End If
     Next gameIdx
@@ -766,6 +809,53 @@ Function AccessibleChooseLineup% (gameIdx, roleName$, computerControlled) Static
     Call AccessiblePrintLineup(gameIdx, roleName$)
     commandValue$ = AccessibleReadCommand$("Enter confirm to accept this lineup, or back: ")
     If commandValue$ = "confirm" Or commandValue$ = "yes" Or commandValue$ = "y" Or commandValue$ = "1" Then AccessibleChooseLineup% = 1
+
+End Function
+
+
+Function AccessibleChooseOffense% (gameIdx) Static
+
+    AccessibleChooseOffense% = 0
+    Do
+        Print
+        Print "Offensive style for "; AccessibleTeamDisplay$(gameTeams$(gameIdx)); "."
+        Print "Current style: "; offStylesNew$(offStrat(gameIdx)); "."
+        For offenseIdx = 0 To 15
+            Print LTrim$(Str$(offenseIdx + 1)); ". "; offStylesNew$(offenseIdx); "."
+        Next offenseIdx
+        commandValue$ = AccessibleReadCommand$("Choose an offensive style from 1 through 16, or back: ")
+        If commandValue$ = "back" Or commandValue$ = "cancel" Then Exit Function
+        selectedNumber = Val(commandValue$)
+        If selectedNumber >= 1 And selectedNumber <= 16 And LTrim$(Str$(selectedNumber)) = commandValue$ Then
+            selectedOffense = selectedNumber - 1
+            invalidReason$ = ""
+            If (selectedOffense = 9 Or selectedOffense = 10 Or selectedOffense = 13 Or selectedOffense = 15) And (currHalf < 2 Or gameClock! > 180) Then invalidReason$ = "That offensive style is only available during the last three minutes of the second half or overtime."
+            If selectedOffense = 14 And defCoverage(1 - gameIdx) <> 2 Then invalidReason$ = "Hold ball is only available against a passive zone."
+            If selectedOffense = 10 And score(gameIdx, 0) - score(1 - gameIdx, 0) > -11 Then invalidReason$ = "Delay offense is only available when trailing by at least 11 points."
+            If selectedOffense = 15 And threePtOpt = 0 Then invalidReason$ = "Shoot only three-pointers is unavailable because the three-point shot is disabled."
+            If selectedOffense = 11 And sClockVal = 0 Then invalidReason$ = "Milk the clock is unavailable because the shot clock is disabled."
+            If selectedOffense = 13 And score(gameIdx, 0) - score(1 - gameIdx, 0) <= 0 Then invalidReason$ = "Total stall is only available while leading."
+            If invalidReason$ <> "" Then
+                Print invalidReason$
+            Else
+                offStrat(gameIdx) = selectedOffense
+                crashBoards(gameIdx) = 0
+                Print "Offensive style set to "; offStylesNew$(selectedOffense); "."
+                If currHalf >= 2 And gameClock! <= 120 Then
+                    Do
+                        commandValue$ = AccessibleReadCommand$("Crash the offensive boards during the last two minutes, yes or no: ")
+                        If commandValue$ <> "yes" And commandValue$ <> "y" And commandValue$ <> "1" And commandValue$ <> "no" And commandValue$ <> "n" And commandValue$ <> "0" Then Print "Enter yes or no."
+                    Loop Until commandValue$ = "yes" Or commandValue$ = "y" Or commandValue$ = "1" Or commandValue$ = "no" Or commandValue$ = "n" Or commandValue$ = "0"
+                    If commandValue$ = "yes" Or commandValue$ = "y" Or commandValue$ = "1" Then crashBoards(gameIdx) = 1
+                    If crashBoards(gameIdx) = 1 Then Print "The team will crash the offensive boards." Else Print "The team will not crash the offensive boards."
+                End If
+                AccessibleChooseOffense% = 1
+                Exit Function
+            End If
+        Else
+            Print "Enter a displayed offensive-style number from 1 through 16, or back."
+        End If
+    Loop
 
 End Function
 
