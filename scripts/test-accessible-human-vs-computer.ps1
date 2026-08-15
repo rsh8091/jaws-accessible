@@ -8,7 +8,7 @@ $executablePath = (Resolve-Path -LiteralPath $Executable).Path
 $scriptedInput = [System.Collections.Generic.List[string]]::new()
 @(
     '1', '2025', 'duke', '1', '2003', 'syracuse', '1', '1',
-    '2', '1', '1', 'confirm', 'continue', 'continue', 'auto', '1'
+    '2', '1', '1', 'confirm', 'continue', 'continue', 'auto', '1', '1'
 ) | ForEach-Object { $scriptedInput.Add($_) }
 
 # Two is a valid second-player pass target and a two-point-shot choice.
@@ -47,6 +47,8 @@ $expectedText = @(
     '3. Attempt a three-point shot.',
     '5. Hear score, clock, and possession.',
     '6. Hear lineup condition.',
+    'Offensive style for SYRACUSE.',
+    'Offensive style set to MOTION.',
     'Defensive style for SYRACUSE.',
     'Defensive style set to SOLID MAN-TO-MAN.',
     '2 original-simulator possessions completed.',

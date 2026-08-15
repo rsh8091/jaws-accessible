@@ -46,7 +46,7 @@ Some historical companion files, including 1987, contain blank player-position f
 
 The accessible path now runs bounded validation through the original simulator. Accessible mode supplies team and rules configuration, then adapts the simulator's play-by-play to complete command-line lines for JAWS. The original engine remains responsible for coaching, passing, shots, turnovers, fouls, rebounds, scoring, timing, and all other basketball calculations. Computer-versus-computer validation runs six possessions.
 
-Interactive human-controlled games now run through the complete first half. Computer possessions provide detailed original-engine play-by-play. Human possessions pause at the simulator's existing decision points for accessible numbered pass and shot menus. Each decision announces the current shot clock and the original simulator's adjusted shot chance for the current opportunity. Commands remain available to hear full status or request the current lineup's stamina and effective fatigue without advancing play. Human-controlled teams select from the original simulator's defensive styles before tipoff and may change that style from accessible dead-ball options. At the original engine's halftime boundary, accessible mode reports the score, first-half team fouls, and remaining timeouts, then offers lineup review and halftime substitutions before ending the segment.
+Interactive human-controlled games now run through both halves and stop at the end of regulation. Computer possessions provide detailed original-engine play-by-play. Human possessions pause at the simulator's existing decision points for accessible numbered pass and shot menus. Each decision announces the current shot clock and the original simulator's adjusted shot chance for the current opportunity. Commands remain available to hear full status or request the current lineup's stamina and effective fatigue without advancing play. Human-controlled teams select from the original simulator's offensive and defensive styles before tipoff and may change either style from accessible dead-ball options. The accessible offensive menu enforces the original clock, score, shot-clock, opposing-defense, and three-point restrictions. At halftime, accessible mode reports the score, first-half team fouls, and remaining timeouts, then offers lineup review and substitutions before continuing through the original second-half reset. Regulation ends with an accessible score summary; overtime and the complete postgame box score remain future stages.
 
 The hidden automated transcript mode remains intentionally short: it runs at least one possession for each team and continues until a human decision prompt has been exercised. This keeps regression tests fast while interactive JAWS testing covers the full half.
 
@@ -58,6 +58,7 @@ After building, run the accessible main-menu transcript test with:
 .\scripts\test-accessible-menu.ps1
 .\scripts\test-accessible-team-selection.ps1
 .\scripts\test-accessible-human-vs-computer.ps1
+.\scripts\test-accessible-halftime.ps1
 ```
 
 Windows may mark executables extracted from a downloaded archive as blocked. After verifying the official release checksum, clear that marker if necessary:
