@@ -151,10 +151,10 @@ Sub AccessibleRunGame ()
             accessibleEngineLimit = 2
             accessibleEngineStopClock = 0
         Else
-            Print "The original game engine will play the first 10 minutes of the first half."
-            Print "The segment ends when the game clock reaches 10:00."
+            Print "The original game engine will play the complete first half."
+            Print "The segment ends at halftime."
             accessibleEngineLimit = 0
-            accessibleEngineStopClock = 600
+            accessibleEngineStopClock = 0
         End If
         Print "Computer play runs continuously. Your team pauses when a decision is required."
     End If
@@ -176,6 +176,64 @@ Sub AccessibleRunGame ()
     accessibleEngineMode = 0
     accessiblePreparedGame = 0
     Print "Original simulator validation complete."
+
+End Sub
+
+
+Sub AccessiblePrintHalftimeSummary ()
+
+    Print "Halftime."
+    Print "Score: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 0))); "."
+    Print "First-half team fouls: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(teamFouls(0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(teamFouls(1))); "."
+    Print "Timeouts remaining: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(timeouts(0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(timeouts(1))); "."
+
+End Sub
+
+
+Sub AccessibleHalftimeMenu ()
+
+    Call AccessibleFlushPbp
+    Do
+        Cls
+        Call AccessiblePrintHalftimeSummary
+        Print
+        Print "Halftime options"
+        Print "1. Finish this first-half segment."
+        Print "2. Hear the visiting lineup."
+        Print "3. Hear the home lineup."
+        If accessiblePlayerOpt < 3 Then Print "4. Make a halftime substitution."
+        commandValue$ = AccessibleReadCommand$("Enter choice: ")
+
+        Select Case commandValue$
+            Case "1", "finish", "end", "continue"
+                Exit Do
+            Case "2", "visitor", "visiting"
+                Call AccessiblePrintLineup(0, "Visiting")
+                commandValue$ = AccessibleReadCommand$("Press Enter to return to halftime options: ")
+            Case "3", "home"
+                Call AccessiblePrintLineup(1, "Home")
+                commandValue$ = AccessibleReadCommand$("Press Enter to return to halftime options: ")
+            Case "4", "sub", "substitute", "substitution"
+                If accessiblePlayerOpt = 0 Then
+                    Print "Choose the team to change."
+                    Print "1. Visiting team."
+                    Print "2. Home team."
+                    teamChoice$ = AccessibleReadCommand$("Enter choice, or back: ")
+                    If teamChoice$ = "1" Or teamChoice$ = "visitor" Or teamChoice$ = "visiting" Then Call AccessibleSubstitutionMenu(0)
+                    If teamChoice$ = "2" Or teamChoice$ = "home" Then Call AccessibleSubstitutionMenu(1)
+                ElseIf accessiblePlayerOpt = 1 Then
+                    Call AccessibleSubstitutionMenu(1)
+                ElseIf accessiblePlayerOpt = 2 Then
+                    Call AccessibleSubstitutionMenu(0)
+                Else
+                    Print "Both teams are computer controlled."
+                    commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
+                End If
+            Case Else
+                If accessiblePlayerOpt < 3 Then Print "Enter a choice from 1 through 4." Else Print "Enter a choice from 1 through 3."
+                commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
+        End Select
+    Loop
 
 End Sub
 
@@ -222,6 +280,7 @@ End Function
 
 Function AccessibleReadPlayChoice% (teamIdx) Static
 
+    Shared threePtShotChance
     accessibleEngineHumanPrompted = 1
     Do
         'Keep pending simulator narration and the resulting human decision on one
@@ -234,6 +293,12 @@ Function AccessibleReadPlayChoice% (teamIdx) Static
         Print
         Print "Your team, "; AccessibleTeamDisplay$(gameTeams$(teamIdx)); ", is on offense."
         Print players$(teamIdx, lineupIdx(teamIdx, ballCarrier)); " has the ball."
+        If sClockVal > 0 Then Print "Shot clock: "; LTrim$(Str$(shotClock)); " seconds remaining."
+        If shotType = 4 Then
+            Print "Current three-point shot chance: "; LTrim$(Str$(threePtShotChance)); " percent."
+        Else
+            Print "Current two-point shot chance: "; LTrim$(Str$(CInt(shotChance!))); " percent."
+        End If
         Select Case shotType
             Case 1
                 Print "Current situation: tightly guarded."
@@ -252,7 +317,7 @@ Function AccessibleReadPlayChoice% (teamIdx) Static
         If threePtOpt = 1 Then Print "3. Attempt a three-point shot."
         Print "4. Call timeout."
         Print "5. Hear score, clock, and possession."
-        Print "6. Hear the current lineup."
+        Print "6. Hear lineup condition."
         commandValue$ = AccessibleReadCommand$("Enter choice: ")
 
         Select Case commandValue$
@@ -278,15 +343,27 @@ Function AccessibleReadPlayChoice% (teamIdx) Static
                 End If
             Case "5", "status", "score", "clock"
                 Call AccessiblePrintGameStatus
-            Case "6", "lineup", "roster"
-                If teamIdx = 0 Then roleName$ = "Visiting" Else roleName$ = "Home"
-                Call AccessiblePrintLineup(teamIdx, roleName$)
+            Case "6", "lineup", "condition", "fatigue", "stamina"
+                Call AccessiblePrintLineupCondition(teamIdx)
+                commandValue$ = AccessibleReadCommand$("Press Enter to return to offensive choices: ")
             Case Else
                 If threePtOpt = 1 Then Print "Enter a choice from 1 through 6." Else Print "Enter 1, 2, 4, 5, or 6."
         End Select
     Loop
 
 End Function
+
+
+Sub AccessiblePrintLineupCondition (teamIdx)
+
+    Print
+    Print "Lineup condition for "; AccessibleTeamDisplay$(gameTeams$(teamIdx)); "."
+    For slot = 0 To 4
+        playerIdx = lineupIdx(teamIdx, slot)
+        Print AccessibleLineupRole$(slot); ": "; players$(teamIdx, playerIdx); ", stamina "; LTrim$(Str$(playerStamina%(teamIdx, playerIdx))); ", fatigue "; LTrim$(Str$(Abs(tmFatigue(teamIdx, playerIdx)))); " of 5."
+    Next slot
+
+End Sub
 
 
 Sub AccessiblePrintGameStatus ()

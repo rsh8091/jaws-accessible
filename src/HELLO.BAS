@@ -1562,6 +1562,12 @@ Sub COLHOOP ()
     gameClock! = 0
     Call QUARTERTOTAL
     currHalf = currHalf + 1
+
+    If accessibleEngineMode = 1 And currHalf = 2 Then
+        Call AccessibleHalftimeMenu
+        Exit Sub
+    End If
+
     gameClock! = 1200
 
     offStatus = 0

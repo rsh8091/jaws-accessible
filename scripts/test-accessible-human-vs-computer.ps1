@@ -37,11 +37,16 @@ $expectedText = @(
     'SHOT %',
     'Offensive choices',
     'Your team, SYRACUSE, is on offense.',
+    'Shot clock:',
+    'seconds remaining.',
+    'shot chance:',
+    'percent.',
     'Current situation:',
     '1. Pass.',
     '2. Attempt a two-point shot.',
     '3. Attempt a three-point shot.',
     '5. Hear score, clock, and possession.',
+    '6. Hear lineup condition.',
     '2 original-simulator possessions completed.',
     'Original simulator validation complete.'
 )
