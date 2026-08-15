@@ -426,8 +426,9 @@ Sub AccessibleDeadBallMenu (humanTeam, userTakeTO)
         Print "1. Continue play."
         Print "2. Make a substitution."
         Print "3. Hear the current lineup."
-        Print "4. Call timeout."
-        Print "5. End this test segment."
+        Print "4. Change defensive style."
+        Print "5. Call timeout."
+        Print "6. End this test segment."
         commandValue$ = AccessibleReadCommand$("Enter choice: ")
         Select Case commandValue$
             Case "1", "continue", "play", "enter"
@@ -438,7 +439,10 @@ Sub AccessibleDeadBallMenu (humanTeam, userTakeTO)
                 If humanTeam = 0 Then roleName$ = "Visiting" Else roleName$ = "Home"
                 Call AccessiblePrintLineup(humanTeam, roleName$)
                 commandValue$ = AccessibleReadCommand$("Press Enter to return to dead-ball options: ")
-            Case "4", "timeout", "time out"
+            Case "4", "defense", "defensive style", "strategy"
+                ignoredChoice = AccessibleChooseDefense%(humanTeam)
+                commandValue$ = AccessibleReadCommand$("Press Enter to return to dead-ball options: ")
+            Case "5", "timeout", "time out"
                 If timeouts(humanTeam) > 0 Then
                     Call TimeoutCalled(humanTeam)
                     userTakeTO = 1
@@ -448,11 +452,11 @@ Sub AccessibleDeadBallMenu (humanTeam, userTakeTO)
                     Print "Your team has no timeouts remaining."
                     commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
                 End If
-            Case "5", "end", "quit", "exit", "q"
+            Case "6", "end", "quit", "exit", "q"
                 accessibleEngineStopRequested = 1
                 Exit Do
             Case Else
-                Print "Enter a choice from 1 through 5."
+                Print "Enter a choice from 1 through 6."
                 commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
         End Select
     Loop
@@ -675,6 +679,16 @@ Function AccessibleChooseStartingLineups% Static
     Print "Confirmed starting lineups"
     Call AccessiblePrintLineup(0, "Visiting")
     Call AccessiblePrintLineup(1, "Home")
+
+    For gameIdx = 0 To 1
+        computerControlled = 0
+        If accessiblePlayerOpt = 3 Then computerControlled = 1
+        If accessiblePlayerOpt = 1 And gameIdx = 0 Then computerControlled = 1
+        If accessiblePlayerOpt = 2 And gameIdx = 1 Then computerControlled = 1
+        If computerControlled = 0 Then
+            If AccessibleChooseDefense%(gameIdx) = 0 Then Exit Function
+        End If
+    Next gameIdx
     AccessibleChooseStartingLineups% = 1
 
 End Function
@@ -752,6 +766,38 @@ Function AccessibleChooseLineup% (gameIdx, roleName$, computerControlled) Static
     Call AccessiblePrintLineup(gameIdx, roleName$)
     commandValue$ = AccessibleReadCommand$("Enter confirm to accept this lineup, or back: ")
     If commandValue$ = "confirm" Or commandValue$ = "yes" Or commandValue$ = "y" Or commandValue$ = "1" Then AccessibleChooseLineup% = 1
+
+End Function
+
+
+Function AccessibleChooseDefense% (gameIdx) Static
+
+    AccessibleChooseDefense% = 0
+    Do
+        Print
+        Print "Defensive style for "; AccessibleTeamDisplay$(gameTeams$(gameIdx)); "."
+        Print "Current style: "; defStyles$(defStrat(gameIdx)); "."
+        For defenseIdx = 0 To 17
+            Print LTrim$(Str$(defenseIdx + 1)); ". "; defStyles$(defenseIdx); "."
+        Next defenseIdx
+        commandValue$ = AccessibleReadCommand$("Choose a defensive style from 1 through 18, or back: ")
+        If commandValue$ = "back" Or commandValue$ = "cancel" Then Exit Function
+        selectedNumber = Val(commandValue$)
+        If selectedNumber >= 1 And selectedNumber <= 18 And LTrim$(Str$(selectedNumber)) = commandValue$ Then
+            selectedDefense = selectedNumber - 1
+            If selectedDefense = 14 And (currHalf < 2 Or gameClock! > 180) Then
+                Print "Full-court denial is only available during the last three minutes of the second half or overtime."
+            Else
+                defStrat(gameIdx) = selectedDefense
+                Call CategorizeDefense(gameIdx)
+                Print "Defensive style set to "; defStyles$(selectedDefense); "."
+                AccessibleChooseDefense% = 1
+                Exit Function
+            End If
+        Else
+            Print "Enter a displayed defensive-style number from 1 through 18, or back."
+        End If
+    Loop
 
 End Function
 
