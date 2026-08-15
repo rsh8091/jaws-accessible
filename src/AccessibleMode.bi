@@ -19,10 +19,13 @@ Declare Function AccessibleReadPassChoice% (teamIdx) Static
 Declare Function AccessibleReadDefenderChoice% (teamIdx) Static
 Declare Function AccessibleReadPlayChoice% (teamIdx) Static
 Declare Sub AccessiblePrintGameStatus ()
+Declare Sub AccessiblePrintLineupCondition (teamIdx)
 Declare Sub AccessibleQueuePbp (teamIdx, eventText$)
 Declare Sub AccessibleFlushPbp ()
 Declare Sub AccessibleDeadBallMenu (humanTeam, userTakeTO)
 Declare Sub AccessibleSubstitutionMenu (humanTeam)
+Declare Sub AccessibleHalftimeMenu ()
+Declare Sub AccessiblePrintHalftimeSummary ()
 Declare Function AccessiblePlayerPosition$ (gameIdx, playerIdx) Static
 Declare Function AccessibleLineupRole$ (slot) Static
 Declare Function AccessiblePlayerMatchesRole% (gameIdx, playerIdx, slot) Static
