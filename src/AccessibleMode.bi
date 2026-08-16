@@ -2,6 +2,10 @@ Declare Function IsAccessibleMode% Static
 Declare Function IsAccessibleTestMode% Static
 Declare Function IsAccessibleHalftimeTestMode% Static
 Declare Function IsAccessibleComputerSubsTestMode% Static
+Declare Function IsAccessibleBoxscoreTestMode% Static
+Declare Function IsAccessibleBoxscoreTransitionTestMode% Static
+Declare Function IsAccessibleBoxscoreHtmlTestMode% Static
+Declare Function AccessibleHtml$ (value$) Static
 Declare Function AccessibleReadCommand$ (promptText$) Static
 Declare Sub AccessibleMainMenu ()
 Declare Sub AccessibleShowHelp ()
@@ -31,6 +35,17 @@ Declare Sub AccessibleSubstitutionMenu (humanTeam)
 Declare Function AccessibleHalftimeMenu% Static
 Declare Sub AccessiblePrintHalftimeSummary ()
 Declare Sub AccessiblePrintRegulationSummary ()
+Declare Sub AccessiblePostgameMenu ()
+Declare Sub AccessiblePrintGameSummary ()
+Declare Sub AccessibleTeamBoxscoreMenu (teamIdx)
+Declare Sub AccessiblePrintTeamTotals (teamIdx)
+Declare Sub AccessiblePrintPlayerList (teamIdx)
+Declare Sub AccessiblePlayerBoxscoreMenu (teamIdx)
+Declare Sub AccessiblePrintPlayerStats (teamIdx, playerIdx)
+Declare Sub AccessibleLoadBoxscoreFixture ()
+Declare Sub AccessibleWriteHtmlBoxscore (htmlPath$)
+Declare Sub AccessibleWriteHtmlTeamTable (htmlFile, teamIdx)
+Declare Sub AccessibleOpenHtmlBoxscore ()
 Declare Function AccessiblePlayerPosition$ (gameIdx, playerIdx) Static
 Declare Function AccessibleLineupRole$ (slot) Static
 Declare Function AccessiblePlayerMatchesRole% (gameIdx, playerIdx, slot) Static

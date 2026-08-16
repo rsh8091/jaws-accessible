@@ -1615,6 +1615,7 @@ Sub COLHOOP ()
 
     If accessibleEngineMode = 1 And currHalf = 3 Then
         Call AccessiblePrintRegulationSummary
+        Call AccessiblePostgameMenu
         Exit Sub
     End If
 

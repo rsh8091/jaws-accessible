@@ -50,6 +50,8 @@ Interactive human-controlled games now run through both halves and stop at the e
 
 The final-score summary explicitly announces that the game is over and waits for Enter before returning to the accessible main menu.
 
+Postgame options provide spoken player and team box scores and can generate a semantic local HTML box score. The HTML option opens the dynamically determined game folder, identifies `accessible-boxscore.html` by name, and pauses the game until the user returns and presses Enter. No development-machine path is embedded in the game or generated page.
+
 The hidden automated transcript mode remains intentionally short: it runs at least one possession for each team and continues until a human decision prompt has been exercised. This keeps regression tests fast while interactive JAWS testing covers the full half.
 
 Accessible gameplay clears the console at each new possession and again before a human offensive decision. Original-engine play-by-play is presented consistently for both teams in groups of up to three adjacent messages, with a single Enter press to advance each group. Partial groups are presented before a human decision or possession change. Human decision screens repeat the latest play description, then announce the current team, player with the ball, and complete choice menu. This prevents a screen reader from needing to track an indefinitely scrolling console buffer or racing against computer play.
@@ -62,6 +64,7 @@ After building, run the accessible main-menu transcript test with:
 .\scripts\test-accessible-human-vs-computer.ps1
 .\scripts\test-accessible-halftime.ps1
 .\scripts\test-accessible-timeout.ps1
+.\scripts\test-accessible-boxscore.ps1
 ```
 
 Windows may mark executables extracted from a downloaded archive as blocked. After verifying the official release checksum, clear that marker if necessary:
