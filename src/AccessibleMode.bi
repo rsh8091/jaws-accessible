@@ -1,6 +1,7 @@
 Declare Function IsAccessibleMode% Static
 Declare Function IsAccessibleTestMode% Static
 Declare Function IsAccessibleHalftimeTestMode% Static
+Declare Function IsAccessibleComputerSubsTestMode% Static
 Declare Function AccessibleReadCommand$ (promptText$) Static
 Declare Sub AccessibleMainMenu ()
 Declare Sub AccessibleShowHelp ()
