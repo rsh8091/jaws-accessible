@@ -287,6 +287,8 @@ Sub AccessiblePrintRegulationSummary ()
     Print "Final regulation score: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 0))); "."
     If score(0, 0) = score(1, 0) Then Print "The score is tied. Overtime support is the next development stage."
     Print "Timeouts remaining: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(timeouts(0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(timeouts(1))); "."
+    Print "The game is over."
+    commandValue$ = AccessibleReadCommand$("Press Enter to return to the main menu: ")
 
 End Sub
 
