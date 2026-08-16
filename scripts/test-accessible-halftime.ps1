@@ -8,7 +8,7 @@ $executablePath = (Resolve-Path -LiteralPath $Executable).Path
 $scriptedInput = @(
     '1', '2025', 'duke', '1', '2003', 'syracuse', '1', '1',
     '2', '1', '1', 'confirm', 'continue', 'continue', 'auto', '1', '1',
-    '4', '5', '5', '', '', '1', '3'
+    '3', '', '4', '5', '5', '', '', '1', '3'
 )
 
 Push-Location (Split-Path -Parent $executablePath)
@@ -26,6 +26,9 @@ if ($LASTEXITCODE -ne 0) {
 $expectedText = @(
     'Automated halftime transition validation.',
     'Halftime.',
+    'Halftime rest applied. Temporary fatigue has been reset.',
+    'Lineup condition for SYRACUSE.',
+    'G.MCNAMARA, stamina 13, fatigue 0 of 5.',
     '4. Make a halftime substitution.',
     'Current lineup for SYRACUSE.',
     'B.EDELIN replaces C.FORTH as center.',

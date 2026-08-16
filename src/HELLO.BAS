@@ -1502,8 +1502,44 @@ Sub COLHOOP ()
     End If
 
     If accessibleEngineMode = 1 And IsAccessibleHalftimeTestMode% = 1 And currHalf = 1 Then
+        For testTeam = 0 To 1
+            For testPlayer = 0 To 13
+                tmFatigue(testTeam, testPlayer) = -5
+            Next testPlayer
+        Next testTeam
         gameClock! = 0
         GoTo 170
+    End If
+
+    If accessibleEngineMode = 1 And IsAccessibleComputerSubsTestMode% = 1 Then
+        P = 1 - compTeam
+        D = compTeam
+        testStarter0 = lineupIdx(compTeam, 0)
+        testStarter1 = lineupIdx(compTeam, 1)
+        testStarter2 = lineupIdx(compTeam, 2)
+        testStarter3 = lineupIdx(compTeam, 3)
+        testStarter4 = lineupIdx(compTeam, 4)
+        gameClock! = 900
+        For testSlot = 0 To 4
+            testStarter = lineupIdx(compTeam, testSlot)
+            plyrOff_GAME!(compTeam, testStarter, 7) = plyrOff_GAME!(compTeam, testStarter, 3) + 1
+        Next testSlot
+        offStatus = 0
+        computerTimeout = 1
+        Call TimeoutCalled(P)
+        accessibleTimeoutMenuPending = 1
+        Call STOPPAGE(takeTO)
+        testSubMade = 0
+        For testSlot = 0 To 4
+            testCurrent = lineupIdx(compTeam, testSlot)
+            If testCurrent <> testStarter0 And testCurrent <> testStarter1 And testCurrent <> testStarter2 And testCurrent <> testStarter3 And testCurrent <> testStarter4 Then testSubMade = 1
+        Next testSlot
+        If testSubMade = 1 Then
+            Print "Computer first-half substitution validation passed."
+        Else
+            Print "Computer first-half substitution validation failed."
+        End If
+        Exit Sub
     End If
 
     250 '
@@ -1569,6 +1605,9 @@ Sub COLHOOP ()
     currHalf = currHalf + 1
 
     If accessibleEngineMode = 1 And currHalf = 2 Then
+        'Apply the original simulator's halftime recovery before the
+        'accessible lineup and substitution review.
+        Erase tmFatigue
         continueSecondHalf = AccessibleHalftimeMenu%
         If continueSecondHalf = 0 Then Exit Sub
         accessibleEngineStopRequested = 0
@@ -12368,7 +12407,7 @@ Sub DEADBALLOPTIONS (userTakeTO)
     userTakeTO = 0
 
     If accessibleEngineMode = 1 Then
-        If accessiblePauseEvents = 1 Then
+        If accessiblePauseEvents = 1 Or accessibleTimeoutMenuPending = 1 Then
             If playerMode = 1 Then humanTeam = 1 - compTeam Else humanTeam = P
             Call AccessibleDeadBallMenu(humanTeam, userTakeTO)
         End If
@@ -12497,7 +12536,19 @@ Sub STOPPAGE (userTakeTO)
     userTakeTO = 0
 
     If accessibleEngineMode = 1 Then
-        If accessiblePauseEvents = 1 Then
+        'Keep the original simulator's computer substitution and fatigue
+        'evaluation before presenting accessible coaching options.
+        If playerMode = 2 Then
+            Call EvaluateSubs(0)
+            Call FATIGUE(0)
+            Call EvaluateSubs(1)
+            Call FATIGUE(1)
+        End If
+        If playerMode = 1 Then
+            Call EvaluateSubs(compTeam)
+            Call FATIGUE(compTeam)
+        End If
+        If accessiblePauseEvents = 1 Or accessibleTimeoutMenuPending = 1 Then
             If playerMode = 1 Then humanTeam = 1 - compTeam Else humanTeam = P
             Call AccessibleDeadBallMenu(humanTeam, userTakeTO)
         End If

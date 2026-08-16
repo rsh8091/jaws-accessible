@@ -17,6 +17,7 @@ Dim Shared accessibleEnginePossessions, accessibleEngineLastTeam, accessibleEngi
 Dim Shared accessibleEngineHumanPrompted
 Dim Shared accessibleEngineStopClock, accessibleEngineStopRequested
 Dim Shared accessiblePauseEvents
+Dim Shared accessibleTimeoutMenuPending
 Dim Shared accessibleLastPbp$
 Dim Shared accessiblePbpGroupCount, accessiblePbpGroupTeam
 Dim Shared accessiblePbpGroup$(1 To 3)

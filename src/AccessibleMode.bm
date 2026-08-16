@@ -43,6 +43,20 @@ Function IsAccessibleHalftimeTestMode% Static
 End Function
 
 
+Function IsAccessibleComputerSubsTestMode% Static
+
+    IsAccessibleComputerSubsTestMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--accessible-computer-subs-test" Then
+            IsAccessibleComputerSubsTestMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
 Function AccessibleReadCommand$ (promptText$) Static
 
     Print promptText$;
@@ -204,6 +218,7 @@ Sub AccessiblePrintHalftimeSummary ()
     Print "Score: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 0))); "."
     Print "First-half team fouls: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(teamFouls(0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(teamFouls(1))); "."
     Print "Timeouts remaining: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(timeouts(0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(timeouts(1))); "."
+    Print "Halftime rest applied. Temporary fatigue has been reset."
 
 End Sub
 
@@ -229,10 +244,10 @@ Function AccessibleHalftimeMenu% Static
                 AccessibleHalftimeMenu% = 1
                 Exit Do
             Case "2", "visitor", "visiting"
-                Call AccessiblePrintLineup(0, "Visiting")
+                Call AccessiblePrintLineupCondition(0)
                 commandValue$ = AccessibleReadCommand$("Press Enter to return to halftime options: ")
             Case "3", "home"
-                Call AccessiblePrintLineup(1, "Home")
+                Call AccessiblePrintLineupCondition(1)
                 commandValue$ = AccessibleReadCommand$("Press Enter to return to halftime options: ")
             Case "4", "sub", "substitute", "substitution"
                 If accessiblePlayerOpt = 0 Then
@@ -374,6 +389,7 @@ Function AccessibleReadPlayChoice% (teamIdx) Static
                 End If
             Case "4", "timeout", "time out"
                 If timeouts(teamIdx) > 0 Then
+                    accessibleTimeoutMenuPending = 1
                     AccessibleReadPlayChoice% = 2
                     Exit Function
                 Else
@@ -415,6 +431,8 @@ Sub AccessiblePrintGameStatus ()
     If currHalf <= 2 Then Print "Half "; LTrim$(Str$(currHalf)); ", "; clockText$; " remaining." Else Print "Overtime "; LTrim$(Str$(currHalf - 2)); ", "; clockText$; " remaining."
     Print "Possession: "; AccessibleTeamDisplay$(gameTeams$(P)); "."
     If sClockVal > 0 Then Print "Shot clock: "; LTrim$(Str$(shotClock)); "."
+    Print "Offensive strategy: "; AccessibleTeamDisplay$(gameTeams$(P)); " is running "; _Trim$(offStylesNew$(offStrat(P))); "."
+    Print "Defensive strategy: "; AccessibleTeamDisplay$(gameTeams$(D)); " is running "; _Trim$(defStyles$(defStrat(D))); "."
 
 End Sub
 
@@ -457,9 +475,15 @@ Sub AccessibleDeadBallMenu (humanTeam, userTakeTO)
 
     Call AccessibleFlushPbp
     userTakeTO = 0
+    timeoutCharged = accessibleTimeoutMenuPending
     Do
         Cls
-        Print "Dead-ball options for "; AccessibleTeamDisplay$(gameTeams$(humanTeam)); "."
+        If timeoutCharged = 1 Then
+            Print "Timeout options for "; AccessibleTeamDisplay$(gameTeams$(humanTeam)); "."
+            Print "You may make substitutions before continuing play."
+        Else
+            Print "Dead-ball options for "; AccessibleTeamDisplay$(gameTeams$(humanTeam)); "."
+        End If
         Call AccessiblePrintGameStatus
         Print "1. Continue play."
         Print "2. Make a substitution."
@@ -487,9 +511,10 @@ Sub AccessibleDeadBallMenu (humanTeam, userTakeTO)
             Case "6", "timeout", "time out"
                 If timeouts(humanTeam) > 0 Then
                     Call TimeoutCalled(humanTeam)
-                    userTakeTO = 1
+                    timeoutCharged = 1
                     Print "Timeout charged to "; AccessibleTeamDisplay$(gameTeams$(humanTeam)); "."
-                    Exit Do
+                    Print "You may now make a substitution or choose another timeout option."
+                    commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
                 Else
                     Print "Your team has no timeouts remaining."
                     commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
@@ -502,6 +527,7 @@ Sub AccessibleDeadBallMenu (humanTeam, userTakeTO)
                 commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
         End Select
     Loop
+    accessibleTimeoutMenuPending = 0
 
 End Sub
 
