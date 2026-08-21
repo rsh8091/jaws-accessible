@@ -1511,6 +1511,38 @@ Sub COLHOOP ()
         GoTo 170
     End If
 
+    If accessibleEngineMode = 1 And IsAccessibleOvertimeTestMode% = 1 And currHalf = 1 Then
+        Print "Automated accessible overtime validation."
+        score(0, 1) = 35: score(0, 2) = 35: score(0, 0) = 70
+        score(1, 1) = 35: score(1, 2) = 35: score(1, 0) = 70
+        currHalf = 2
+        gameClock! = 0
+        GoTo 170
+    End If
+
+    If accessibleEngineMode = 1 And IsAccessibleIntentionalFoulTestMode% = 1 Then
+        Print "Automated late-game strategic foul validation."
+        currHalf = 2
+        gameClock! = 180
+        P = compTeam
+        D = 1 - compTeam
+        ballCarrier = 0
+        teamFouls(D) = 6
+        testFouler = lineupIdx(D, 0)
+        testFoulsBefore = plyrOff_GAME!(D, testFouler, 12)
+        strategicFoul = 1
+        foulPlayer = 0
+        Call FoulCalled(0)
+        Print "Strategic foul recorded; exercising the seven-foul one-and-one path."
+        Call FreeThrow_OneAndOne(missedLast)
+        If teamFouls(D) = 7 And plyrOff_GAME!(D, testFouler, 12) = testFoulsBefore + 1 And strategicFoul = 0 Then
+            Print "Strategic foul engine validation passed."
+        Else
+            Print "Strategic foul engine validation failed."
+        End If
+        Exit Sub
+    End If
+
     If accessibleEngineMode = 1 And IsAccessibleComputerSubsTestMode% = 1 Then
         P = 1 - compTeam
         D = compTeam
@@ -1613,10 +1645,27 @@ Sub COLHOOP ()
         accessibleEngineStopRequested = 0
     End If
 
-    If accessibleEngineMode = 1 And currHalf = 3 Then
-        Call AccessiblePrintRegulationSummary
-        Call AccessiblePostgameMenu
-        Exit Sub
+    If accessibleEngineMode = 1 And currHalf >= 3 Then
+        If score(0, 0) = score(1, 0) Then
+            overtimeNumber = currHalf - 2
+            timeouts(0) = timeouts(0) + 1
+            timeouts(1) = timeouts(1) + 1
+            Call AccessiblePrintOvertimeTransition(overtimeNumber)
+            gameClock! = 300
+            Erase tmFatigue
+            For testTeam = 0 To 1
+                For testPlayer = 0 To 13
+                    playerTime(testTeam, testPlayer) = 300
+                Next testPlayer
+            Next testTeam
+            ballCarrier = -1
+            accessibleEngineLastTeam = -1
+            GoTo 250
+        Else
+            Call AccessiblePrintRegulationSummary
+            Call AccessiblePostgameMenu
+            Exit Sub
+        End If
     End If
 
     gameClock! = 1200
@@ -1840,6 +1889,13 @@ Sub COLHOOP ()
     ' ### LAST SECONDS OF GAME ###
 
     300 '
+    If accessibleEngineMode = 1 And IsAccessibleOvertimeTestMode% = 1 And currHalf = 3 Then
+        Print "Overtime possession reached through the original simulator."
+        score(1, 3) = 2
+        score(1, 0) = score(1, 0) + 2
+        gameClock! = 0
+        GoTo 170
+    End If
     If accessibleEngineMode = 1 And IsAccessibleHalftimeTestMode% = 1 And currHalf = 2 Then
         Print "Second-half possession reached after halftime substitution."
         Call AccessiblePrintGameStatus
@@ -2389,7 +2445,7 @@ Sub COLHOOP ()
             C1 = 2
             P9 = D
 
-            pbpString$ = "DESIGNATED FOULER (0-4)"
+            pbpString$ = "DESIGNATED FOULER (1-5)"
             Call SELECTPBP(D, 1)
 
             skipInbound% = 0
@@ -2401,8 +2457,8 @@ Sub COLHOOP ()
             Else
                 Do
                     I$ = GetKeyPress$
-                    desigFouler = Val(I$)
-                Loop Until desigFouler >= 0 And desigFouler <= 4
+                    desigFouler = Val(I$) - 1
+                Loop Until Len(I$) = 1 And I$ >= "1" And I$ <= "5"
 
             End If
 
@@ -3682,7 +3738,7 @@ Sub COLHOOP ()
     End Select
 
     'Foul was chosen | Computer on offense and last 4 minutes of game
-    If Val(I$) = 3 And (playerMode = 0 Or playerMode = 1 And P = compTeam) And currHalf >= 4 And gameClock! < 240 Then
+    If I$ = "3" And (playerMode = 0 Or playerMode = 1 And P = compTeam) And currHalf >= 2 And gameClock! < 240 Then
         playChoice = 3
     End If
 
@@ -4251,6 +4307,7 @@ Sub COLHOOP ()
         Case 4
             ' *** FOUL ***
             foulOnPlay = 99
+            strategicFoul = 1
 
             Call LASTSHOT
             If gameClock! <= 0 Then 170
@@ -4258,7 +4315,7 @@ Sub COLHOOP ()
             C1 = 2
             P9 = D
 
-            pbpString$ = "DESIGNATED FOULER (0-4)"
+            pbpString$ = "DESIGNATED FOULER (1-5)"
             Call SELECTPBP(P, 1)
 
             If IsDefensePC Then
@@ -4268,8 +4325,8 @@ Sub COLHOOP ()
             Else
                 Do
                     I$ = GetKeyPress$
-                    desigFouler = Val(I$)
-                Loop Until desigFouler >= 0 And desigFouler <= 4
+                    desigFouler = Val(I$) - 1
+                Loop Until Len(I$) = 1 And I$ >= "1" And I$ <= "5"
             End If
 
             ' ** Intentional foul / designated player **
@@ -5377,6 +5434,7 @@ Sub COLHOOP ()
         Else
 
             'Not in bonus
+            strategicFoul = 0
             If gameClock! <= 0 Then 170
 
             Call DEADBALLOPTIONS(deadballTO)
@@ -8858,7 +8916,7 @@ Sub FoulCalled (randomFouler)
 
     Call UPDATESCREEN
 
-    If playerStamina%(D, foulPlayer) = 0 Then
+    If playerStamina%(D, lineupIdx(D, foulPlayer)) = 0 Then
         plyrOff_GAME!(D, lineupIdx(D, foulPlayer), 3) = plyrOff_GAME!(D, lineupIdx(D, foulPlayer), 3) + 1
     End If
 
@@ -8934,8 +8992,12 @@ Sub FoulCalled (randomFouler)
         If playerMode = 0 Or playerMode = 1 And compTeam <> D Then
             P9 = D
             C1 = 1
-            Call ChooseLineup(D)
-            Call CHANGESTRATEGY(D)
+            If accessibleEngineMode = 1 Then
+                Call AccessibleReplaceFouledOutPlayer(D, foulPlayer)
+            Else
+                Call ChooseLineup(D)
+                Call CHANGESTRATEGY(D)
+            End If
             Call DefPlaySafeNormal(D)
         End If
 
@@ -14006,7 +14068,7 @@ Sub FreeThrow_OneAndOne (missedLastFT)
 
     offStatus = 50
 
-    Call STOPPAGE(takeTO)
+    If strategicFoul = 0 Then Call STOPPAGE(takeTO)
 
     For I = 0 To 1
         If defCategory(I) = 0 Then
@@ -14043,7 +14105,6 @@ Sub FreeThrow_OneAndOne (missedLastFT)
         playerBaseFTPct = plyrOff_GAME!(P, lineupIdx(P, ballCarrier), 1)
 
         ftShotChance = playerBaseFTPct
-        Print #11, "BASE FT CHANCE:"; Str$(ftShotChance);
 
         'Consider playoff pressure
         If tourneyPlay = 1 Then
@@ -14053,7 +14114,6 @@ Sub FreeThrow_OneAndOne (missedLastFT)
 
             If crunchLevel > 0 Then
 
-                Print #11, ", CRUNCH:YES";
                 'Pressure only on players below 75%, scales with how far below
                 ftPressurePenalty = (75 - playerBaseFTPct) * .10 * crunchLevel
                 ftShotChance = playerBaseFTPct - MAX(ftPressurePenalty, 0)
@@ -14064,20 +14124,14 @@ Sub FreeThrow_OneAndOne (missedLastFT)
 
         'Tired shooter
         If tmFatigue(P, lineupIdx(P, ballCarrier)) <= -5 Then
-            Print #11, ", FATIGUED:YES";
             ftShotChance = CInt(ftShotChance * .9)
-        Else
-            Print #11, ", FATIGUED:NO";
         End If
-
-        Print #11, ", ROLL:"; Str$(shotRoll); ", CHANCE:"; Str$(ftShotChance)
 
         If shotRoll <= ftShotChance Then
 
             'Increase FTM
             plyrOff_GAME!(P, lineupIdx(P, ballCarrier), 10) = plyrOff_GAME!(P, lineupIdx(P, ballCarrier), 10) + 1
 
-            Print #11, "RESULT: MADE FREE THROW!"
             If pbpOpt = 0 Then
                 Call THREEFT(freethrow)
             Else
@@ -14089,8 +14143,6 @@ Sub FreeThrow_OneAndOne (missedLastFT)
             End If
 
         Else
-
-            Print #11, "RESULT: MISSED FREE THROW!"
 
             If pbpOpt = 1 Then
                 Call MISSFT(freethrow)
@@ -14117,6 +14169,8 @@ Sub FreeThrow_OneAndOne (missedLastFT)
         missedLastFT = 0
     End If
 
+    strategicFoul = 0
+
 End Sub
 
 
@@ -14131,7 +14185,10 @@ Sub FreeThrows (ftCount, missedLastFT)
     
     offStatus = 50
 
-    Call STOPPAGE(takeTO)
+    'Intentional fouls already provide a coaching stoppage after both free throws.
+    'Stopping here as well consumed a second key immediately after defender selection;
+    'a buffered/repeated "1" could be interpreted as SUB and open the roster screen.
+    If intentional = 0 And strategicFoul = 0 Then Call STOPPAGE(takeTO)
 
     For I = 0 To 1
         If defCategory(I) = 0 Then
@@ -14208,6 +14265,8 @@ Sub FreeThrows (ftCount, missedLastFT)
     Else
         missedLastFT = 0
     End If
+
+    strategicFoul = 0
 
 End Sub
 
