@@ -99,6 +99,34 @@ Function IsAccessibleBoxscoreHtmlTestMode% Static
 End Function
 
 
+Function IsAccessibleOvertimeTestMode% Static
+
+    IsAccessibleOvertimeTestMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--accessible-overtime-test" Then
+            IsAccessibleOvertimeTestMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
+Function IsAccessibleIntentionalFoulTestMode% Static
+
+    IsAccessibleIntentionalFoulTestMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--accessible-intentional-foul-test" Then
+            IsAccessibleIntentionalFoulTestMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
 Function AccessibleHtml$ (value$) Static
 
     htmlValue$ = String.Replace$(value$, "&", "&amp;")
@@ -371,12 +399,34 @@ Sub AccessiblePrintRegulationSummary ()
 
     Call AccessibleFlushPbp
     Cls
-    Print "End of regulation."
-    Print "Final regulation score: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 0))); "."
-    If score(0, 0) = score(1, 0) Then Print "The score is tied. Overtime support is the next development stage."
+    If currHalf > 3 Then
+        Print "End of overtime "; LTrim$(Str$(currHalf - 3)); "."
+        Print "Final score: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 0))); "."
+    Else
+        Print "End of regulation."
+        Print "Final regulation score: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 0))); "."
+    End If
     Print "Timeouts remaining: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(timeouts(0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(timeouts(1))); "."
     Print "The game is over."
     commandValue$ = AccessibleReadCommand$("Press Enter to continue to postgame options: ")
+
+End Sub
+
+
+Sub AccessiblePrintOvertimeTransition (overtimeNumber)
+
+    Call AccessibleFlushPbp
+    Cls
+    If overtimeNumber = 1 Then
+        Print "End of regulation."
+        Print "The score is tied: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 0))); "."
+    Else
+        Print "End of overtime "; LTrim$(Str$(overtimeNumber - 1)); "."
+        Print "The score remains tied: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 0))); "."
+    End If
+    Print "Overtime "; LTrim$(Str$(overtimeNumber)); " will be five minutes."
+    Print "Each team receives one additional timeout."
+    commandValue$ = AccessibleReadCommand$("Press Enter to begin overtime: ")
 
 End Sub
 
@@ -458,7 +508,13 @@ Sub AccessibleWriteHtmlBoxscore (htmlPath$)
     Print #htmlFile, "<section aria-labelledby=" + Chr$(34) + "summary-heading" + Chr$(34) + "><h2 id=" + Chr$(34) + "summary-heading" + Chr$(34) + ">Game summary</h2>"
     Print #htmlFile, "<p><strong>" + AccessibleHtml$(resultText$) + "</strong></p>"
     Print #htmlFile, "<ul><li>First half: " + AccessibleHtml$(gameTeams$(0)) + " " + LTrim$(Str$(score(0, 1))) + ", " + AccessibleHtml$(gameTeams$(1)) + " " + LTrim$(Str$(score(1, 1))) + ".</li>"
-    Print #htmlFile, "<li>Second half: " + AccessibleHtml$(gameTeams$(0)) + " " + LTrim$(Str$(score(0, 2))) + ", " + AccessibleHtml$(gameTeams$(1)) + " " + LTrim$(Str$(score(1, 2))) + ".</li></ul></section>"
+    Print #htmlFile, "<li>Second half: " + AccessibleHtml$(gameTeams$(0)) + " " + LTrim$(Str$(score(0, 2))) + ", " + AccessibleHtml$(gameTeams$(1)) + " " + LTrim$(Str$(score(1, 2))) + ".</li>"
+    If currHalf > 3 Then
+        For overtimeIdx = 3 To currHalf - 1
+            Print #htmlFile, "<li>Overtime " + LTrim$(Str$(overtimeIdx - 2)) + ": " + AccessibleHtml$(gameTeams$(0)) + " " + LTrim$(Str$(score(0, overtimeIdx))) + ", " + AccessibleHtml$(gameTeams$(1)) + " " + LTrim$(Str$(score(1, overtimeIdx))) + ".</li>"
+        Next overtimeIdx
+    End If
+    Print #htmlFile, "</ul></section>"
     Print #htmlFile, "<p id=" + Chr$(34) + "table-help" + Chr$(34) + ">Each table uses player names as row headings and statistics as column headings. DNP means did not play.</p>"
     Call AccessibleWriteHtmlTeamTable(htmlFile, 0)
     Call AccessibleWriteHtmlTeamTable(htmlFile, 1)
@@ -531,6 +587,11 @@ Sub AccessiblePrintGameSummary ()
     End If
     Print "First-half score: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 1))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 1))); "."
     Print "Second-half scoring: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 2))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 2))); "."
+    If currHalf > 3 Then
+        For overtimeIdx = 3 To currHalf - 1
+            Print "Overtime "; LTrim$(Str$(overtimeIdx - 2)); " scoring: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, overtimeIdx))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, overtimeIdx))); "."
+        Next overtimeIdx
+    End If
 
 End Sub
 
@@ -1066,7 +1127,18 @@ Sub AccessibleSubstitutionMenu (humanTeam)
     commandValue$ = AccessibleReadCommand$("Choose a displayed substitute number, or back: ")
     If commandValue$ = "back" Or commandValue$ = "cancel" Then Exit Sub
     selectedPlayer = Val(commandValue$) - 1
-    If selectedPlayer < 0 Or selectedPlayer > 13 Or LTrim$(Str$(selectedPlayer + 1)) <> commandValue$ Or playerActive%(humanTeam, selectedPlayer) = 0 Or playerInLineup%(humanTeam, selectedPlayer) = 1 Or plyrOff_GAME!(humanTeam, selectedPlayer, 12) >= foulsToDQ Or players$(humanTeam, selectedPlayer) = "" Or UCase$(players$(humanTeam, selectedPlayer)) = "XXX" Then
+    validSelection = 1
+    If selectedPlayer < 0 Or selectedPlayer > 13 Then validSelection = 0
+    If validSelection = 1 Then
+        If LTrim$(Str$(selectedPlayer + 1)) <> commandValue$ Then validSelection = 0
+    End If
+    If validSelection = 1 Then
+        If playerActive%(humanTeam, selectedPlayer) = 0 Then validSelection = 0
+        If playerInLineup%(humanTeam, selectedPlayer) = 1 Then validSelection = 0
+        If plyrOff_GAME!(humanTeam, selectedPlayer, 12) >= foulsToDQ Then validSelection = 0
+        If players$(humanTeam, selectedPlayer) = "" Or UCase$(players$(humanTeam, selectedPlayer)) = "XXX" Then validSelection = 0
+    End If
+    If validSelection = 0 Then
         Print "That player is not an available substitute."
         commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
         Exit Sub
@@ -1076,6 +1148,43 @@ Sub AccessibleSubstitutionMenu (humanTeam)
     lineupIdx(humanTeam, selectedSlot) = selectedPlayer
     Print players$(humanTeam, selectedPlayer); " replaces "; players$(humanTeam, outgoingPlayer); " as "; LCase$(AccessibleLineupRole$(selectedSlot)); "."
     If AccessiblePlayerMatchesRole%(humanTeam, selectedPlayer, selectedSlot) = 0 Then Print "Warning: the substitute's recorded position does not match this lineup role."
+    commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
+
+End Sub
+
+
+Sub AccessibleReplaceFouledOutPlayer (humanTeam, fouledSlot)
+
+    outgoingPlayer = lineupIdx(humanTeam, fouledSlot)
+    Do
+        Cls
+        Print players$(humanTeam, outgoingPlayer); " has fouled out."
+        Print "Choose a replacement for "; LCase$(AccessibleLineupRole$(fouledSlot)); "."
+        Print "Available substitutes"
+        For playerIdx = 0 To 13
+            If playerActive%(humanTeam, playerIdx) = 1 And playerInLineup%(humanTeam, playerIdx) = 0 And plyrOff_GAME!(humanTeam, playerIdx, 12) < foulsToDQ And players$(humanTeam, playerIdx) <> "" And UCase$(players$(humanTeam, playerIdx)) <> "XXX" Then
+                Print LTrim$(Str$(playerIdx + 1)); ". "; players$(humanTeam, playerIdx); ", "; AccessiblePlayerPosition$(humanTeam, playerIdx); ", fouls "; LTrim$(Str$(plyrOff_GAME!(humanTeam, playerIdx, 12))); "."
+            End If
+        Next playerIdx
+
+        commandValue$ = AccessibleReadCommand$("Choose a displayed substitute number: ")
+        selectedPlayer = Val(commandValue$) - 1
+        validSelection = 1
+        If selectedPlayer < 0 Or selectedPlayer > 13 Then validSelection = 0
+        If validSelection = 1 Then
+            If LTrim$(Str$(selectedPlayer + 1)) <> commandValue$ Then validSelection = 0
+        End If
+        If validSelection = 1 Then
+            If playerActive%(humanTeam, selectedPlayer) = 0 Then validSelection = 0
+            If playerInLineup%(humanTeam, selectedPlayer) = 1 Then validSelection = 0
+            If plyrOff_GAME!(humanTeam, selectedPlayer, 12) >= foulsToDQ Then validSelection = 0
+            If players$(humanTeam, selectedPlayer) = "" Or UCase$(players$(humanTeam, selectedPlayer)) = "XXX" Then validSelection = 0
+        End If
+        If validSelection = 0 Then Print "That player is not an available substitute."
+    Loop Until validSelection = 1
+
+    lineupIdx(humanTeam, fouledSlot) = selectedPlayer
+    Print players$(humanTeam, selectedPlayer); " replaces "; players$(humanTeam, outgoingPlayer); " as "; LCase$(AccessibleLineupRole$(fouledSlot)); "."
     commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
 
 End Sub

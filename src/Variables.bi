@@ -306,7 +306,7 @@ Dim Shared C1, D, MJ, P, P9
 Dim Shared autoPlay, ballCarrier, coachOpt, currHalf
 Dim Shared clockSecs, compTeam, computerTimeout, currGame
 Dim Shared gameOver, goaltendTOs, earlyExit, endAllGames
-Dim Shared fastBreak, forcedThree, foulPlayer
+Dim Shared fastBreak, forcedThree, foulPlayer, strategicFoul
 Dim Shared ft3PtFoul, ft6FloorFouls, ft10thFoul
 Dim Shared foulOnPlay, foulsToDQ
 Dim Shared gameAvgTmStamina, gameLoc, guardNbr

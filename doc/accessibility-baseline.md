@@ -48,6 +48,8 @@ The accessible path now runs bounded validation through the original simulator. 
 
 Interactive human-controlled games now run through both halves and stop at the end of regulation. Computer possessions provide detailed original-engine play-by-play. Human possessions pause at the simulator's existing decision points for accessible numbered pass and shot menus. Each possession and requested status announces the same current offensive and defensive strategies shown on the sighted scoreboard, using full strategy names. Each human decision announces the current shot clock and the original simulator's adjusted shot chance for the current opportunity. Commands remain available to hear full status or request the current lineup's stamina and effective fatigue without advancing play. Human-controlled teams select from the original simulator's offensive and defensive styles before tipoff and may change either style from accessible dead-ball options. At stoppages, computer-controlled teams run the original simulator's substitution and defensive-fatigue evaluation before accessible coaching options appear. The accessible offensive menu enforces the original clock, score, shot-clock, opposing-defense, and three-point restrictions. At halftime, accessible mode applies the original temporary-fatigue reset before reporting the score, first-half team fouls, remaining timeouts, lineup condition, and substitution options. The stamina number remains the original simulator's full-game contribution budget rather than a halftime-rest meter. Regulation ends with an accessible score summary; overtime and the complete postgame box score remain future stages.
 
+Accessible play now continues tied games through the original simulator's five-minute overtime periods until there is a winner. Each overtime transition announces the tied score and additional timeout, waits for Enter, and includes period scoring in spoken and HTML postgame summaries.
+
 The final-score summary explicitly announces that the game is over and waits for Enter before returning to the accessible main menu.
 
 Postgame options provide spoken player and team box scores and can generate a semantic local HTML box score. The HTML option opens the dynamically determined game folder, identifies `accessible-boxscore.html` by name, and pauses the game until the user returns and presses Enter. No development-machine path is embedded in the game or generated page.
@@ -65,6 +67,7 @@ After building, run the accessible main-menu transcript test with:
 .\scripts\test-accessible-halftime.ps1
 .\scripts\test-accessible-timeout.ps1
 .\scripts\test-accessible-boxscore.ps1
+.\scripts\test-accessible-overtime.ps1
 ```
 
 Windows may mark executables extracted from a downloaded archive as blocked. After verifying the official release checksum, clear that marker if necessary:
