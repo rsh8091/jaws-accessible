@@ -1,5 +1,7 @@
 # Accessibility baseline
 
+> **Historical baseline:** This document records the reproducible upstream starting point and the incremental development baseline for accessible mode. For the current architecture, completed functionality, integration map, test inventory, scope, and handoff guidance, see [Accessible mode implementation and handoff specification](accessibility-implementation-spec.md).
+
 ## Known-good upstream build
 
 - Source commit: `38e15f215fec8a032fda3e1b5b66360e875e9936`
@@ -46,7 +48,7 @@ Some historical companion files, including 1987, contain blank player-position f
 
 The accessible path now runs bounded validation through the original simulator. Accessible mode supplies team and rules configuration, then adapts the simulator's play-by-play to complete command-line lines for JAWS. The original engine remains responsible for coaching, passing, shots, turnovers, fouls, rebounds, scoring, timing, and all other basketball calculations. Computer-versus-computer validation runs six possessions.
 
-Interactive human-controlled games now run through both halves and stop at the end of regulation. Computer possessions provide detailed original-engine play-by-play. Human possessions pause at the simulator's existing decision points for accessible numbered pass and shot menus. Each possession and requested status announces the same current offensive and defensive strategies shown on the sighted scoreboard, using full strategy names. Each human decision announces the current shot clock and the original simulator's adjusted shot chance for the current opportunity. Commands remain available to hear full status or request the current lineup's stamina and effective fatigue without advancing play. Human-controlled teams select from the original simulator's offensive and defensive styles before tipoff and may change either style from accessible dead-ball options. At stoppages, computer-controlled teams run the original simulator's substitution and defensive-fatigue evaluation before accessible coaching options appear. The accessible offensive menu enforces the original clock, score, shot-clock, opposing-defense, and three-point restrictions. At halftime, accessible mode applies the original temporary-fatigue reset before reporting the score, first-half team fouls, remaining timeouts, lineup condition, and substitution options. The stamina number remains the original simulator's full-game contribution budget rather than a halftime-rest meter. Regulation ends with an accessible score summary; overtime and the complete postgame box score remain future stages.
+Interactive human-controlled games now run through both halves and stop at the end of regulation. Computer possessions provide detailed original-engine play-by-play. Human possessions pause at the simulator's existing decision points for accessible numbered pass and shot menus. Each possession and requested status announces the same current offensive and defensive strategies shown on the sighted scoreboard, using full strategy names. Each human decision announces the current shot clock and the original simulator's adjusted shot chance for the current opportunity. Commands remain available to hear full status or request the current lineup's stamina and effective fatigue without advancing play. Human-controlled teams select from the original simulator's offensive and defensive styles before tipoff and may change either style from accessible dead-ball options. At stoppages, computer-controlled teams run the original simulator's substitution and defensive-fatigue evaluation before accessible coaching options appear. The accessible offensive menu enforces the original clock, score, shot-clock, opposing-defense, and three-point restrictions. At halftime, accessible mode applies the original temporary-fatigue reset before reporting the score, first-half team fouls, remaining timeouts, lineup condition, and substitution options. The stamina number remains the original simulator's full-game contribution budget rather than a halftime-rest meter. Regulation ends with an accessible score summary; tied games continue through overtime, and complete spoken and HTML postgame box scores are available.
 
 Accessible play now continues tied games through the original simulator's five-minute overtime periods until there is a winner. Each overtime transition announces the tied score and additional timeout, waits for Enter, and includes period scoring in spoken and HTML postgame summaries.
 
@@ -68,6 +70,9 @@ After building, run the accessible main-menu transcript test with:
 .\scripts\test-accessible-timeout.ps1
 .\scripts\test-accessible-boxscore.ps1
 .\scripts\test-accessible-overtime.ps1
+.\scripts\test-accessible-intentional-foul.ps1
+.\scripts\test-intentional-foul-regression.ps1
+.\scripts\test-accessible-strategy-ownership.ps1
 ```
 
 Windows may mark executables extracted from a downloaded archive as blocked. After verifying the official release checksum, clear that marker if necessary:
@@ -76,9 +81,9 @@ Windows may mark executables extracted from a downloaded archive as blocked. Aft
 Get-ChildItem .tools\qb64pe -Recurse -File | Unblock-File
 ```
 
-## First accessible vertical slice
+## First accessible vertical slice (completed milestone)
 
-The first milestone is one complete single game using sequential command-line input and output:
+The first completed milestone was one complete single game using sequential command-line input and output:
 
 1. Start in accessible mode.
 2. Select visiting and home teams.
