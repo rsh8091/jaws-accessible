@@ -1455,7 +1455,21 @@ Sub COLHOOP ()
         Call SETSTAMINA
 
         If accessiblePreparedGame = 1 Then
-            Call ComputerStrategy
+            'Accessible setup has already collected each human team's strategy.
+            'Only computer-controlled teams should have those choices replaced by AI.
+            computerControlled = 0
+            If accessiblePlayerOpt = 3 Then computerControlled = 1
+            If accessiblePlayerOpt = 1 And team = 0 Then computerControlled = 1
+            If accessiblePlayerOpt = 2 And team = 1 Then computerControlled = 1
+
+            If computerControlled = 1 Then
+                'ComputerStrategy still targets the legacy P9 team variable.
+                P9 = team
+                Call ComputerStrategy
+            Else
+                'Keep the human-selected defense and refresh its engine categories.
+                Call CategorizeDefense(team)
+            End If
         ElseIf (playerMode = 1 And team = compTeam) Or playerMode = 2 Then
             Call ComputerCoach(team)
         Else
@@ -1530,6 +1544,13 @@ Sub COLHOOP ()
         teamFouls(D) = 6
         testFouler = lineupIdx(D, 0)
         testFoulsBefore = plyrOff_GAME!(D, testFouler, 12)
+        testNoFoul = AccessibleReadStrategicFoulChoice%(D)
+        testCommitFoul = AccessibleReadStrategicFoulChoice%(D)
+        If testNoFoul <> 0 Or testCommitFoul <> 1 Then
+            Print "Strategic foul prompt validation failed."
+            Exit Sub
+        End If
+        Print "Strategic foul prompt validation passed."
         strategicFoul = 1
         foulPlayer = 0
         Call FoulCalled(0)
@@ -3576,18 +3597,21 @@ Sub COLHOOP ()
         '2nd Half | Overtime, 4 mins left, Offense Ahead, Computer is Visitor / On Offense
         If (currHalf >= 2 And gameClock! <= 240 And scoreDiff > 0 And playerMode = 1 And P = compTeam) Then
 
-            '985
-            pbpString$ = Str$(plyrOff_GAME!(P, lineupIdx(P, ballCarrier), 1)) + " FT%  INTENTIONAL FOUL? (Y/N)"
-
-            Call SELECTPBP(P, 0)
-
-            Do
-                I$ = GetKeyPress$
-            Loop Until UCase$(I$) = "Y" Or UCase$(I$) = "N" Or UCase$(I$) = "3"
-
-            If UCase$(I$) = "Y" Or I$ = "3" Then
-                playChoice = 3
-                GoTo 532
+            If accessibleEngineMode = 1 Then
+                If AccessibleReadStrategicFoulChoice%(D) = 1 Then
+                    playChoice = 3
+                    GoTo 532
+                End If
+            Else
+                pbpString$ = Str$(plyrOff_GAME!(P, lineupIdx(P, ballCarrier), 1)) + " FT%  INTENTIONAL FOUL? (Y/N)"
+                Call SELECTPBP(P, 0)
+                Do
+                    I$ = GetKeyPress$
+                Loop Until UCase$(I$) = "Y" Or UCase$(I$) = "N" Or UCase$(I$) = "3"
+                If UCase$(I$) = "Y" Or I$ = "3" Then
+                    playChoice = 3
+                    GoTo 532
+                End If
             End If
 
         Else

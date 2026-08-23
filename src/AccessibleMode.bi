@@ -27,6 +27,7 @@ Declare Sub AccessiblePrintLineup (gameIdx, roleName$)
 Declare Sub AccessibleRunGame ()
 Declare Function AccessibleReadPassChoice% (teamIdx) Static
 Declare Function AccessibleReadDefenderChoice% (teamIdx) Static
+Declare Function AccessibleReadStrategicFoulChoice% (defendingTeam) Static
 Declare Function AccessibleReadPlayChoice% (teamIdx) Static
 Declare Sub AccessiblePrintGameStatus ()
 Declare Sub AccessiblePrintLineupCondition (teamIdx)
