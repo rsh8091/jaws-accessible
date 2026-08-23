@@ -897,6 +897,34 @@ Function AccessibleReadDefenderChoice% (teamIdx) Static
 End Function
 
 
+Function AccessibleReadStrategicFoulChoice% (defendingTeam) Static
+
+    AccessibleReadStrategicFoulChoice% = 0
+    Call AccessibleFlushPbp
+    Do
+        Cls
+        Print "Late-game defensive decision."
+        Call AccessiblePrintGameStatus
+        Print AccessibleTeamDisplay$(gameTeams$(P)); " has the ball and is ahead."
+        Print "Should "; AccessibleTeamDisplay$(gameTeams$(defendingTeam)); " foul to stop the clock?"
+        Print "1. Continue defending without fouling."
+        Print "2. Foul and choose the defender."
+        commandValue$ = AccessibleReadCommand$("Enter choice: ")
+        Select Case commandValue$
+            Case "1", "no", "n", "continue", "defend"
+                Exit Function
+            Case "2", "yes", "y", "foul"
+                AccessibleReadStrategicFoulChoice% = 1
+                Exit Function
+            Case Else
+                Print "Enter 1 to continue defending or 2 to foul."
+                commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
+        End Select
+    Loop
+
+End Function
+
+
 Function AccessibleReadPlayChoice% (teamIdx) Static
 
     Shared threePtShotChance
