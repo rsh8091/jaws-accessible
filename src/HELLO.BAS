@@ -1534,6 +1534,10 @@ Sub COLHOOP ()
         GoTo 170
     End If
 
+    If accessibleEngineMode = 1 And IsAccessibleJawsIntentionalFoulTestMode% = 1 Then
+        If AccessiblePrepareJawsIntentionalFoulTest% = 1 Then GoTo 529 Else Exit Sub
+    End If
+
     If accessibleEngineMode = 1 And IsAccessibleIntentionalFoulTestMode% = 1 Then
         Print "Automated late-game strategic foul validation."
         currHalf = 2
@@ -1542,8 +1546,6 @@ Sub COLHOOP ()
         D = 1 - compTeam
         ballCarrier = 0
         teamFouls(D) = 6
-        testFouler = lineupIdx(D, 0)
-        testFoulsBefore = plyrOff_GAME!(D, testFouler, 12)
         testNoFoul = AccessibleReadStrategicFoulChoice%(D)
         testCommitFoul = AccessibleReadStrategicFoulChoice%(D)
         If testNoFoul <> 0 Or testCommitFoul <> 1 Then
@@ -1551,8 +1553,16 @@ Sub COLHOOP ()
             Exit Sub
         End If
         Print "Strategic foul prompt validation passed."
+        testDefender = AccessibleReadDefenderChoice%(D)
+        If testDefender <> 2 Then
+            Print "Strategic foul defender validation failed."
+            Exit Sub
+        End If
+        Print "Strategic foul defender validation passed."
+        testFouler = lineupIdx(D, testDefender)
+        testFoulsBefore = plyrOff_GAME!(D, testFouler, 12)
         strategicFoul = 1
-        foulPlayer = 0
+        foulPlayer = testDefender
         Call FoulCalled(0)
         Print "Strategic foul recorded; exercising the seven-foul one-and-one path."
         Call FreeThrow_OneAndOne(missedLast)
@@ -2471,10 +2481,10 @@ Sub COLHOOP ()
 
             skipInbound% = 0
 
-            If IsDefensePC Then
-                desigFouler = Int(Rnd(1) * 5)
-            ElseIf accessibleEngineMode = 1 Then
+            If accessibleEngineMode = 1 And (playerMode = 0 Or playerMode = 1 And D <> compTeam) Then
                 desigFouler = AccessibleReadDefenderChoice%(D)
+            ElseIf IsDefensePC Then
+                desigFouler = Int(Rnd(1) * 5)
             Else
                 Do
                     I$ = GetKeyPress$
@@ -4342,10 +4352,10 @@ Sub COLHOOP ()
             pbpString$ = "DESIGNATED FOULER (1-5)"
             Call SELECTPBP(P, 1)
 
-            If IsDefensePC Then
-                desigFouler = Int(Rnd(1) * 5)
-            ElseIf accessibleEngineMode = 1 Then
+            If accessibleEngineMode = 1 And (playerMode = 0 Or playerMode = 1 And D <> compTeam) Then
                 desigFouler = AccessibleReadDefenderChoice%(D)
+            ElseIf IsDefensePC Then
+                desigFouler = Int(Rnd(1) * 5)
             Else
                 Do
                     I$ = GetKeyPress$
