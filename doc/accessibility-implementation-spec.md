@@ -100,6 +100,8 @@ Existing period transitions flush accessible narration before changing game stag
 
 `FreeThrow_OneAndOne` and `FreeThrows` preserve the original free-throw calculations while preventing intentional or strategic fouls from creating an extra coaching stoppage between the foul and its free throws. Accessible mode supplies the late-game foul decision and designated defender before entering these existing routines.
 
+The defender menu lists the five current lineup roles and player names, accepts `repeat` or `list`, and confirms the selected player by name before the foul enters the engine. The manual JAWS test hook prepares a late-game state and then rejoins the normal `COLHOOP` decision path; it does not implement a separate foul or continuation path.
+
 ### Dead-ball and stoppage handling
 
 `DEADBALLOPTIONS` and `STOPPAGE` call the accessible coaching menu at supported review points while retaining computer substitution evaluation, defensive-fatigue evaluation, timeouts, clock checks, and steal or pressure adjustments. This is a high-risk integration area because an extra or missing stoppage can change possession flow or invoke coaching twice.
@@ -110,7 +112,7 @@ Existing period transitions flush accessible narration before changing game stag
 
 ### Automated test hooks
 
-`COLHOOP` contains narrowly scoped branches for accessible halftime, overtime, intentional-foul, and computer-substitution test modes. These branches arrange deterministic engine states and exit after their target transition. They must remain gated by explicit test arguments and must never run during an ordinary game.
+`COLHOOP` contains narrowly scoped branches for accessible halftime, overtime, intentional-foul, and computer-substitution test modes. Automated branches arrange deterministic engine states and exit after their target transition. The manual JAWS intentional-foul branch only prepares the late-game state before rejoining the normal engine path for the remainder of the game. All test branches must remain gated by explicit test arguments and must never run during an ordinary game.
 
 ## 5. Implemented user experience
 
@@ -142,7 +144,7 @@ Halftime announces the score, first-half team fouls, timeouts, and lineup condit
 
 ### Fouls and disqualification
 
-Accessible mode presents late-game strategic-foul decisions and allows the player to choose the defender who commits the foul. Foul recording, bonus rules, free throws, and disqualification remain in the original engine. Human teams receive an accessible replacement prompt after a foul-out, while computer teams use the original substitution evaluation.
+Accessible mode presents late-game strategic-foul decisions and allows the player to choose the defender who commits the foul. The defender list can be repeated and confirms the selected player by name. Foul recording, bonus rules, free throws, and disqualification remain in the original engine. Human teams receive an accessible replacement prompt after a foul-out, while computer teams use the original substitution evaluation.
 
 ### Postgame reporting
 
@@ -162,6 +164,7 @@ The following table identifies where a new maintainer should look when changing 
 | `scripts/install-team-data.ps1` | Installation of the upstream team-data dependency | Team data is not maintained by the accessibility layer |
 | `scripts/test-*.ps1` | Automated transcript tests and source-level regression guards | Tests should be updated whenever an integration boundary changes |
 | `doc/accessibility-baseline.md` | Historical upstream baseline and initial development record | Retains reproducibility details that are not repeated here |
+| `AGENTS.md` | Persistent project build instructions | Requires the sole executable output to remain `bin\HELLO.exe` |
 
 ## 7. Important implementation details
 
@@ -246,6 +249,16 @@ Automated transcripts supplement rather than replace testing with a real screen 
 10. Confirm that prompts remain available and do not depend on cursor position, color, graphics, or sound.
 11. Start the program without an accessibility option and smoke-test the original graphical mode.
 
+The intentional-foul interaction can also be tested with JAWS without playing a complete game:
+
+```powershell
+.\bin\HELLO.exe --accessible --jaws-intentional-foul-test
+```
+
+Choose a human-versus-computer control option during setup. The game then jumps to a late second-half foul decision, supports repeating the five-defender list, confirms the selected player, and rejoins the normal engine path for the foul, free throws, possession change, and remaining game.
+
+Manual JAWS verification completed on August 23, 2026. The defender menu, repeat command, selected-player confirmation, foul assignment, free throws, possession transition, and continued gameplay were exercised successfully.
+
 ## 10. Known risks and beta work
 
 - Compare turnover, foul, scoring, possession, and other game totals between accessible and graphical computer-versus-computer runs to detect integration drift.
@@ -274,7 +287,7 @@ The documented build uses QB64-PE 4.6.0 on Windows x64. Extract the compiler int
 .\scripts\build.ps1
 ```
 
-The executable is written to `bin/HELLO.exe`. Start accessible mode with:
+The executable is written to `bin/HELLO.exe`. This is the project's only permitted executable build output; do not create alternate, temporary, or test executables. If it is locked, identify the process before rebuilding and do not close a user's interactive game. Start accessible mode with:
 
 ```powershell
 .\bin\HELLO.exe --accessible
@@ -295,3 +308,4 @@ Generated executables, compiler files, runtime configuration, team-data installa
 7. Add or extend a regression test whenever an integration bug is fixed.
 8. Test meaningful workflow changes with JAWS, not only with captured console transcripts.
 9. Update this specification when functionality, architectural boundaries, commands, dependencies, tests, known risks, or scope changes.
+10. Build only `bin\HELLO.exe`; never create a second executable for testing or as a workaround for a locked file.

@@ -127,6 +127,20 @@ Function IsAccessibleIntentionalFoulTestMode% Static
 End Function
 
 
+Function IsAccessibleJawsIntentionalFoulTestMode% Static
+
+    IsAccessibleJawsIntentionalFoulTestMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--jaws-intentional-foul-test" Then
+            IsAccessibleJawsIntentionalFoulTestMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
 Function AccessibleHtml$ (value$) Static
 
     htmlValue$ = String.Replace$(value$, "&", "&amp;")
@@ -326,6 +340,34 @@ Sub AccessibleRunGame ()
     Print "Original simulator validation complete."
 
 End Sub
+
+
+Function AccessiblePrepareJawsIntentionalFoulTest% () Static
+
+    AccessiblePrepareJawsIntentionalFoulTest% = 0
+    Print "Manual JAWS intentional-foul test."
+    If playerMode <> 1 Then
+        Print "This test requires one human-controlled team and one computer-controlled team."
+        Print "Restart the test and choose control option 2 or 3."
+        ignoredCommand$ = AccessibleReadCommand$("Press Enter to return to the accessible menu: ")
+        Exit Function
+    End If
+
+    currHalf = 2
+    gameClock! = 180
+    P = compTeam
+    D = 1 - compTeam
+    ballCarrier = 0
+    teamFouls(D) = 6
+    score(P, 0) = score(D, 0) + 1
+    score(P, 2) = score(P, 0)
+    shotChance! = 50
+    threePtShotChance = 35
+    Print "The game is prepared with the computer ahead by one point and holding the ball with three minutes remaining."
+    Print "The normal game engine will handle the foul, free throws, possession change, and all remaining play."
+    AccessiblePrepareJawsIntentionalFoulTest% = 1
+
+End Function
 
 
 Sub AccessiblePrintHalftimeSummary ()
@@ -879,19 +921,24 @@ End Function
 
 Function AccessibleReadDefenderChoice% (teamIdx) Static
 
-    Print
-    Print "Choose the defender for "; AccessibleTeamDisplay$(gameTeams$(teamIdx)); "."
-    For slot = 0 To 4
-        Print LTrim$(Str$(slot + 1)); ". "; AccessibleLineupRole$(slot); ": "; players$(teamIdx, lineupIdx(teamIdx, slot)); "."
-    Next slot
     Do
-        commandValue$ = AccessibleReadCommand$("Enter a defender number: ")
+        Print
+        Print "Choose the defender for "; AccessibleTeamDisplay$(gameTeams$(teamIdx)); "."
+        For slot = 0 To 4
+            Print LTrim$(Str$(slot + 1)); ". "; AccessibleLineupRole$(slot); ": "; players$(teamIdx, lineupIdx(teamIdx, slot)); "."
+        Next slot
+        commandValue$ = AccessibleReadCommand$("Enter a defender number, or repeat: ")
+        If commandValue$ = "repeat" Or commandValue$ = "list" Then
+            Print "Repeating the defender choices."
+            _Continue
+        End If
         selectedNumber = Val(commandValue$)
         If selectedNumber >= 1 And selectedNumber <= 5 And LTrim$(Str$(selectedNumber)) = commandValue$ Then
             AccessibleReadDefenderChoice% = selectedNumber - 1
+            Print "Selected "; players$(teamIdx, lineupIdx(teamIdx, selectedNumber - 1)); " to commit the foul."
             Exit Function
         End If
-        Print "Enter a displayed defender number from 1 through 5."
+        Print "Enter a displayed defender number from 1 through 5, or repeat."
     Loop
 
 End Function
