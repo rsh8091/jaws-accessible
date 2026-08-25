@@ -246,6 +246,57 @@ Sub AccessibleResetPeriodDefense ()
 End Sub
 
 
+Sub AccessibleResetTurnoverDiagnostic ()
+
+    accessibleTurnoverReason = 0
+    Erase accessibleDiagDirect, accessibleDiagSteals, accessibleDiagOffensiveFouls
+    Erase accessibleDiagShotClock, accessibleDiagInbound, accessibleDiagGoaltend, accessibleDiagHeldBall
+    Erase accessibleDiagChecks, accessibleDiagThresholdTotal, accessibleDiagChecksAfterFirstPass, accessibleDiagMaxPasses
+    Erase accessibleDiagMotionPressureChecks, accessibleDiagMotionPressureTurnovers
+
+End Sub
+
+
+Sub AccessibleRecordTurnoverCheck (teamIdx, threshold, passNumber)
+
+    If accessibleTurnoverDiagnosticActive = 0 Then Exit Sub
+    accessibleDiagChecks(teamIdx) = accessibleDiagChecks(teamIdx) + 1
+    accessibleDiagThresholdTotal(teamIdx) = accessibleDiagThresholdTotal(teamIdx) + threshold
+    If passNumber > 1 Then accessibleDiagChecksAfterFirstPass(teamIdx) = accessibleDiagChecksAfterFirstPass(teamIdx) + 1
+    If passNumber > accessibleDiagMaxPasses(teamIdx) Then accessibleDiagMaxPasses(teamIdx) = passNumber
+    If offStrat(teamIdx) = 0 And defCoverage(1 - teamIdx) = 1 Then accessibleDiagMotionPressureChecks(teamIdx) = accessibleDiagMotionPressureChecks(teamIdx) + 1
+
+End Sub
+
+
+Sub AccessibleRecordTurnover (teamIdx, reasonCode)
+
+    If accessibleTurnoverDiagnosticActive = 0 Then Exit Sub
+    Select Case reasonCode
+        Case 1: accessibleDiagDirect(teamIdx) = accessibleDiagDirect(teamIdx) + 1
+        Case 2: accessibleDiagSteals(teamIdx) = accessibleDiagSteals(teamIdx) + 1
+        Case 3: accessibleDiagOffensiveFouls(teamIdx) = accessibleDiagOffensiveFouls(teamIdx) + 1
+        Case 4: accessibleDiagShotClock(teamIdx) = accessibleDiagShotClock(teamIdx) + 1
+        Case 5: accessibleDiagInbound(teamIdx) = accessibleDiagInbound(teamIdx) + 1
+        Case 6: accessibleDiagGoaltend(teamIdx) = accessibleDiagGoaltend(teamIdx) + 1
+        Case 7: accessibleDiagHeldBall(teamIdx) = accessibleDiagHeldBall(teamIdx) + 1
+    End Select
+    If offStrat(teamIdx) = 0 And defCoverage(1 - teamIdx) = 1 Then accessibleDiagMotionPressureTurnovers(teamIdx) = accessibleDiagMotionPressureTurnovers(teamIdx) + 1
+
+End Sub
+
+
+Sub AccessiblePrintTurnoverDiagnostic ()
+
+    Print "TURNOVER_DIAGNOSTIC visitor="; LTrim$(Str$(turnovers(0))); " home="; LTrim$(Str$(turnovers(1))); " possessions="; LTrim$(Str$(accessibleEnginePossessions)); " visitor_score="; LTrim$(Str$(score(0, 0))); " home_score="; LTrim$(Str$(score(1, 0)))
+    For teamIdx = 0 To 1
+        If accessibleDiagChecks(teamIdx) > 0 Then averageThreshold = accessibleDiagThresholdTotal(teamIdx) / accessibleDiagChecks(teamIdx) Else averageThreshold = 0
+        Print "TURNOVER_DETAIL team="; LTrim$(Str$(teamIdx)); " direct="; LTrim$(Str$(accessibleDiagDirect(teamIdx))); " steals="; LTrim$(Str$(accessibleDiagSteals(teamIdx))); " offensive_fouls="; LTrim$(Str$(accessibleDiagOffensiveFouls(teamIdx))); " shot_clock="; LTrim$(Str$(accessibleDiagShotClock(teamIdx))); " inbound="; LTrim$(Str$(accessibleDiagInbound(teamIdx))); " goaltend="; LTrim$(Str$(accessibleDiagGoaltend(teamIdx))); " held_ball="; LTrim$(Str$(accessibleDiagHeldBall(teamIdx))); " checks="; LTrim$(Str$(accessibleDiagChecks(teamIdx))); " checks_after_first_pass="; LTrim$(Str$(accessibleDiagChecksAfterFirstPass(teamIdx))); " max_passes="; LTrim$(Str$(accessibleDiagMaxPasses(teamIdx))); " average_threshold="; LTrim$(Str$(CInt(averageThreshold))); " motion_pressure_checks="; LTrim$(Str$(accessibleDiagMotionPressureChecks(teamIdx))); " motion_pressure_turnovers="; LTrim$(Str$(accessibleDiagMotionPressureTurnovers(teamIdx)))
+    Next teamIdx
+
+End Sub
+
+
 Function AccessibleHtml$ (value$) Static
 
     htmlValue$ = String.Replace$(value$, "&", "&amp;")
@@ -433,6 +484,8 @@ Sub AccessibleRunGame ()
 
     accessiblePreparedGame = 1
     accessibleEngineMode = 1
+    accessibleTurnoverDiagnosticActive = IsAccessibleTurnoverDiagnosticMode%
+    If accessibleTurnoverDiagnosticActive = 1 Then Call AccessibleResetTurnoverDiagnostic
     accessibleEnginePossessions = 0
     accessibleEngineLastTeam = -1
     accessibleEngineHumanPrompted = 0
@@ -446,6 +499,7 @@ Sub AccessibleRunGame ()
 
     accessibleEngineMode = 0
     accessiblePreparedGame = 0
+    accessibleTurnoverDiagnosticActive = 0
     Print "Original simulator validation complete."
 
 End Sub

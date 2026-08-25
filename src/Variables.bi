@@ -18,6 +18,11 @@ Dim Shared accessibleEngineHumanPrompted
 Dim Shared accessibleEngineStopClock, accessibleEngineStopRequested
 Dim Shared accessiblePauseEvents
 Dim Shared accessibleTimeoutMenuPending
+Dim Shared accessibleTurnoverDiagnosticActive, accessibleTurnoverReason
+Dim Shared accessibleDiagDirect(1), accessibleDiagSteals(1), accessibleDiagOffensiveFouls(1)
+Dim Shared accessibleDiagShotClock(1), accessibleDiagInbound(1), accessibleDiagGoaltend(1), accessibleDiagHeldBall(1)
+Dim Shared accessibleDiagChecks(1), accessibleDiagThresholdTotal(1), accessibleDiagChecksAfterFirstPass(1), accessibleDiagMaxPasses(1)
+Dim Shared accessibleDiagMotionPressureChecks(1), accessibleDiagMotionPressureTurnovers(1)
 Dim Shared accessibleLastPbp$
 Dim Shared accessiblePbpGroupCount, accessiblePbpGroupTeam
 Dim Shared accessiblePbpGroup$(1 To 3)

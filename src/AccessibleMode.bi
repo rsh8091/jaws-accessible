@@ -13,6 +13,10 @@ Declare Function IsAccessibleTurnoverDiagnosticMode% Static
 Declare Function AccessibleComputerControlsTeam% (teamIdx) Static
 Declare Function AccessibleRunStrategyOwnershipTest% () Static
 Declare Sub AccessibleResetPeriodDefense ()
+Declare Sub AccessibleResetTurnoverDiagnostic ()
+Declare Sub AccessibleRecordTurnoverCheck (teamIdx, threshold, passNumber)
+Declare Sub AccessibleRecordTurnover (teamIdx, reasonCode)
+Declare Sub AccessiblePrintTurnoverDiagnostic ()
 Declare Function AccessibleHtml$ (value$) Static
 Declare Function AccessibleReadCommand$ (promptText$) Static
 Declare Sub AccessibleMainMenu ()

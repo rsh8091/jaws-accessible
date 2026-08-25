@@ -217,7 +217,7 @@ The test suite combines runtime transcript validation with source-level guards f
 | `test-accessible-halftime.ps1` | Runtime transcript | Halftime summary, substitutions, fatigue transition, and second-half resumption |
 | `test-accessible-timeout.ps1` | Runtime transcript | Accessible timeout flow and computer substitution evaluation |
 | `test-accessible-strategy-ownership.ps1` | Runtime transcript and source guard | Human offense and defense remain unchanged across computer coaching, substitution, fatigue, halftime-style, timeout, and late-game evaluation paths |
-| `diagnose-turnovers.ps1` | Multi-game diagnostic | Runs complete computer-controlled 1999 Syracuse-Pitt games and summarizes team turnovers, combined turnovers, possessions, and scores without changing simulation formulas |
+| `diagnose-turnovers.ps1` | Multi-game diagnostic | Runs complete computer-controlled 1999 Syracuse-Pitt games and summarizes turnovers by source, turnover checks, repeat-pass checks, possessions, strategies, and scores without changing simulation formulas or random-number sequencing |
 | `test-accessible-overtime.ps1` | Runtime transcript | Tied regulation, overtime transition, added timeout, and continued play |
 | `test-accessible-boxscore.ps1` | Runtime transcript | Spoken box scores and semantic HTML report generation |
 | `test-accessible-intentional-foul.ps1` | Runtime transcript | Strategic-foul decision, defender selection, free throws, and engine transition |
