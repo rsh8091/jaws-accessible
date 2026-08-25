@@ -62,6 +62,8 @@ A focused manual JAWS scenario is available through `--jaws-intentional-foul-tes
 
 Accessible gameplay clears the console at each new possession and again before a human offensive decision. Original-engine play-by-play is presented consistently for both teams in groups of up to three adjacent messages, with a single Enter press to advance each group. Partial groups are presented before a human decision or possession change. Human decision screens repeat the latest play description, then announce the current team, player with the ball, and complete choice menu. This prevents a screen reader from needing to track an indefinitely scrolling console buffer or racing against computer play.
 
+Human strategy ownership is protected at the original computer-coaching entry points. During accessible games, computer strategy selection, automatic substitution evaluation, and fatigue-driven defensive changes cannot target a human-controlled team. An automated strategy-ownership regression exercises these paths for both the human and computer teams.
+
 After building, run the accessible main-menu transcript test with:
 
 ```powershell

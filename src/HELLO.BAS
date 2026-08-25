@@ -1538,6 +1538,11 @@ Sub COLHOOP ()
         If AccessiblePrepareJawsIntentionalFoulTest% = 1 Then GoTo 529 Else Exit Sub
     End If
 
+    If accessibleEngineMode = 1 And IsAccessibleStrategyOwnershipTestMode% = 1 Then
+        testStrategyOwnership = AccessibleRunStrategyOwnershipTest%
+        Exit Sub
+    End If
+
     If accessibleEngineMode = 1 And IsAccessibleIntentionalFoulTestMode% = 1 Then
         Print "Automated late-game strategic foul validation."
         currHalf = 2
@@ -9176,6 +9181,8 @@ End Sub
 'for a computer team.
 Sub ComputerCoach (teamIdx)
 
+    If accessibleEngineMode = 1 And AccessibleComputerControlsTeam%(teamIdx) = 0 Then Exit Sub
+
     Shared rosterCandidateIdx()
     Shared sortedStamina(), staminaRosterIdx()
 
@@ -10912,6 +10919,8 @@ End Sub
 'automatically handle player substitution
 Sub EvaluateSubs (teamIdx)
 
+    If accessibleEngineMode = 1 And AccessibleComputerControlsTeam%(teamIdx) = 0 Then Exit Sub
+
     Dim contribPct As Single, remainingContribPct As Single
     Dim badPlayers, disabledPlayers
     Dim exhaustedPlayers, foulPlayers, tiredPlayers
@@ -11026,6 +11035,8 @@ End Sub
 'This subroutine picks the appropriate
 'defense for the computer team.
 Sub FATIGUE (teamIdx)
+
+    If accessibleEngineMode = 1 And AccessibleComputerControlsTeam%(teamIdx) = 0 Then Exit Sub
 
     'COMPUTER DEFENSE FOR FATIGUE
     FD% = 0
@@ -13032,6 +13043,8 @@ End Sub
 'This subroutine guides the computer AI
 'in how to handle it's strategy.
 Sub ComputerStrategy ()
+
+    If accessibleEngineMode = 1 And AccessibleComputerControlsTeam%(P9) = 0 Then Exit Sub
 
     'P9 is the current team being assigned strategy
     opposeTeam = 1 - P9
