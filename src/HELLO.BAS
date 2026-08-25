@@ -1666,7 +1666,11 @@ Sub COLHOOP ()
     '----- NOODLE -----
 
     170 '
-    Erase defStrat, defCoverage, defCategory
+    If accessibleEngineMode = 1 Then
+        Call AccessibleResetPeriodDefense
+    Else
+        Erase defStrat, defCoverage, defCategory
+    End If
 
     gameClock! = 0
     Call QUARTERTOTAL
@@ -1676,7 +1680,11 @@ Sub COLHOOP ()
         'Apply the original simulator's halftime recovery before the
         'accessible lineup and substitution review.
         Erase tmFatigue
-        continueSecondHalf = AccessibleHalftimeMenu%
+        If IsAccessibleTurnoverDiagnosticMode% = 1 Then
+            continueSecondHalf = 1
+        Else
+            continueSecondHalf = AccessibleHalftimeMenu%
+        End If
         If continueSecondHalf = 0 Then Exit Sub
         accessibleEngineStopRequested = 0
     End If
@@ -1686,7 +1694,7 @@ Sub COLHOOP ()
             overtimeNumber = currHalf - 2
             timeouts(0) = timeouts(0) + 1
             timeouts(1) = timeouts(1) + 1
-            Call AccessiblePrintOvertimeTransition(overtimeNumber)
+            If IsAccessibleTurnoverDiagnosticMode% = 0 Then Call AccessiblePrintOvertimeTransition(overtimeNumber)
             gameClock! = 300
             Erase tmFatigue
             For testTeam = 0 To 1
@@ -1698,8 +1706,12 @@ Sub COLHOOP ()
             accessibleEngineLastTeam = -1
             GoTo 250
         Else
-            Call AccessiblePrintRegulationSummary
-            Call AccessiblePostgameMenu
+            If IsAccessibleTurnoverDiagnosticMode% = 1 Then
+                Print "TURNOVER_DIAGNOSTIC visitor="; LTrim$(Str$(turnovers(0))); " home="; LTrim$(Str$(turnovers(1))); " possessions="; LTrim$(Str$(accessibleEnginePossessions)); " visitor_score="; LTrim$(Str$(score(0, 0))); " home_score="; LTrim$(Str$(score(1, 0)))
+            Else
+                Call AccessiblePrintRegulationSummary
+                Call AccessiblePostgameMenu
+            End If
             Exit Sub
         End If
     End If

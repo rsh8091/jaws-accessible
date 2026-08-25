@@ -9,8 +9,10 @@ Declare Function IsAccessibleOvertimeTestMode% Static
 Declare Function IsAccessibleIntentionalFoulTestMode% Static
 Declare Function IsAccessibleJawsIntentionalFoulTestMode% Static
 Declare Function IsAccessibleStrategyOwnershipTestMode% Static
+Declare Function IsAccessibleTurnoverDiagnosticMode% Static
 Declare Function AccessibleComputerControlsTeam% (teamIdx) Static
 Declare Function AccessibleRunStrategyOwnershipTest% () Static
+Declare Sub AccessibleResetPeriodDefense ()
 Declare Function AccessibleHtml$ (value$) Static
 Declare Function AccessibleReadCommand$ (promptText$) Static
 Declare Sub AccessibleMainMenu ()
