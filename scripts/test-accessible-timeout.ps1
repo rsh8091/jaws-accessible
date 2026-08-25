@@ -26,6 +26,7 @@ if ($LASTEXITCODE -ne 0) {
 $expectedText = @(
     'Timeout options for SYRACUSE.',
     'You may make substitutions before continuing play.',
+    'Timeouts remaining:',
     '2. Make a substitution.',
     'B.EDELIN replaces C.FORTH as center.',
     'Computer first-half substitution validation passed.',
@@ -36,6 +37,10 @@ foreach ($expected in $expectedText) {
     if (-not $transcript.Contains($expected)) {
         throw "Accessible timeout transcript did not contain: $expected`n$transcript"
     }
+}
+
+if ($transcript.Contains('Press Enter to return to dead-ball options:')) {
+    throw "Accessible timeout transcript still contains a redundant return prompt.`n$transcript"
 }
 
 Write-Output 'Accessible timeout substitution test passed.'
