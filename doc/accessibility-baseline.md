@@ -64,6 +64,8 @@ Accessible gameplay clears the console at each new possession and again before a
 
 Human strategy ownership is protected at the original computer-coaching entry points. During accessible games, computer strategy selection, automatic substitution evaluation, and fatigue-driven defensive changes cannot target a human-controlled team. An automated strategy-ownership regression exercises these paths for both the human and computer teams.
 
+Accessible period transitions preserve human-selected defenses while the original engine clears and rebuilds its defensive state. This prevents the halftime transition from silently reverting a human-controlled defense to its zero-valued default.
+
 After building, run the accessible main-menu transcript test with:
 
 ```powershell

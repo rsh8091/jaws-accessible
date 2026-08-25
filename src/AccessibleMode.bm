@@ -155,6 +155,20 @@ Function IsAccessibleStrategyOwnershipTestMode% Static
 End Function
 
 
+Function IsAccessibleTurnoverDiagnosticMode% Static
+
+    IsAccessibleTurnoverDiagnosticMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--accessible-turnover-diagnostic" Then
+            IsAccessibleTurnoverDiagnosticMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
 Function AccessibleComputerControlsTeam% (teamIdx) Static
 
     AccessibleComputerControlsTeam% = 0
@@ -199,6 +213,8 @@ Function AccessibleRunStrategyOwnershipTest% () Static
     Call EvaluateSubs(compTeam)
     Call FATIGUE(compTeam)
 
+    Call AccessibleResetPeriodDefense
+
     If offStrat(humanTeam) <> savedHumanOffense Or defStrat(humanTeam) <> savedHumanDefense Then
         Print "Human strategy ownership validation failed."
         Print "Expected offense "; LTrim$(Str$(savedHumanOffense)); " and defense "; LTrim$(Str$(savedHumanDefense)); "."
@@ -210,6 +226,24 @@ Function AccessibleRunStrategyOwnershipTest% () Static
     AccessibleRunStrategyOwnershipTest% = 1
 
 End Function
+
+
+Sub AccessibleResetPeriodDefense ()
+
+    savedDefense0 = defStrat(0)
+    savedDefense1 = defStrat(1)
+    Erase defStrat, defCoverage, defCategory
+
+    If AccessibleComputerControlsTeam%(0) = 0 Then
+        defStrat(0) = savedDefense0
+        Call CategorizeDefense(0)
+    End If
+    If AccessibleComputerControlsTeam%(1) = 0 Then
+        defStrat(1) = savedDefense1
+        Call CategorizeDefense(1)
+    End If
+
+End Sub
 
 
 Function AccessibleHtml$ (value$) Static
@@ -370,7 +404,11 @@ Sub AccessibleRunGame ()
 
     Print
     Print "Original simulator validation."
-    If IsAccessibleHalftimeTestMode% = 1 Then
+    If IsAccessibleTurnoverDiagnosticMode% = 1 Then
+        Print "Automated full-game turnover diagnostic."
+        accessibleEngineLimit = 0
+        accessibleEngineStopClock = 0
+    ElseIf IsAccessibleHalftimeTestMode% = 1 Then
         Print "Automated halftime transition validation."
         accessibleEngineLimit = 0
         accessibleEngineStopClock = 0
