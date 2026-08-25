@@ -138,6 +138,8 @@ Play-by-play is grouped into short sets of complete lines. Partial groups are fl
 
 Human-controlled teams may change supported offensive or defensive strategies, make substitutions, review lineup condition, and call timeouts at appropriate stoppages. Computer-controlled teams continue using the original substitution, strategy, fatigue, and defensive evaluation routines. Accessible coaching must not replace a human strategy with an AI choice.
 
+When a timeout opens the accessible coaching menu, the timeout announcement and coaching choices are presented as one interaction. The menu reports both teams' remaining timeouts and does not require a separate Enter press for queued timeout narration. Reviewing the lineup, changing strategy, calling a timeout, or correcting an invalid choice returns directly to the coaching choices without an additional return prompt. The original timeout charge, clock restoration, fatigue recovery, and play-resumption routines remain authoritative.
+
 ### Halftime and overtime
 
 Halftime announces the score, first-half team fouls, timeouts, and lineup condition. The original temporary-fatigue reset is applied before the second half, and the player may make accessible halftime substitutions. Tied games continue through the simulator's five-minute overtime periods until a winner is determined. Each overtime transition announces the tied score and added timeout and waits for the player before continuing.

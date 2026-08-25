@@ -385,8 +385,8 @@ Function AccessibleHalftimeMenu% Static
 
     Call AccessibleFlushPbp
     AccessibleHalftimeMenu% = 0
+    Cls
     Do
-        Cls
         Call AccessiblePrintHalftimeSummary
         Print
         Print "Halftime options"
@@ -1114,14 +1114,24 @@ End Sub
 
 Sub AccessibleDeadBallMenu (humanTeam, userTakeTO)
 
-    Call AccessibleFlushPbp
     userTakeTO = 0
     timeoutCharged = accessibleTimeoutMenuPending
+    If timeoutCharged = 1 Then
+        'The timeout menu immediately confirms the stoppage, so do not require a
+        'separate Enter press for the queued timeout play-by-play message.
+        savedPauseEvents = accessiblePauseEvents
+        accessiblePauseEvents = 0
+        Call AccessibleFlushPbp
+        accessiblePauseEvents = savedPauseEvents
+    Else
+        Call AccessibleFlushPbp
+    End If
     Do
         Cls
         If timeoutCharged = 1 Then
             Print "Timeout options for "; AccessibleTeamDisplay$(gameTeams$(humanTeam)); "."
             Print "You may make substitutions before continuing play."
+            Print "Timeouts remaining: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(timeouts(0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(timeouts(1))); "."
         Else
             Print "Dead-ball options for "; AccessibleTeamDisplay$(gameTeams$(humanTeam)); "."
         End If
@@ -1142,30 +1152,24 @@ Sub AccessibleDeadBallMenu (humanTeam, userTakeTO)
             Case "3", "lineup", "roster"
                 If humanTeam = 0 Then roleName$ = "Visiting" Else roleName$ = "Home"
                 Call AccessiblePrintLineup(humanTeam, roleName$)
-                commandValue$ = AccessibleReadCommand$("Press Enter to return to dead-ball options: ")
             Case "4", "offense", "offensive style"
                 ignoredChoice = AccessibleChooseOffense%(humanTeam)
-                commandValue$ = AccessibleReadCommand$("Press Enter to return to dead-ball options: ")
             Case "5", "defense", "defensive style", "strategy"
                 ignoredChoice = AccessibleChooseDefense%(humanTeam)
-                commandValue$ = AccessibleReadCommand$("Press Enter to return to dead-ball options: ")
             Case "6", "timeout", "time out"
                 If timeouts(humanTeam) > 0 Then
                     Call TimeoutCalled(humanTeam)
                     timeoutCharged = 1
                     Print "Timeout charged to "; AccessibleTeamDisplay$(gameTeams$(humanTeam)); "."
                     Print "You may now make a substitution or choose another timeout option."
-                    commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
                 Else
                     Print "Your team has no timeouts remaining."
-                    commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
                 End If
             Case "7", "end", "quit", "exit", "q"
                 accessibleEngineStopRequested = 1
                 Exit Do
             Case Else
                 Print "Enter a choice from 1 through 7."
-                commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
         End Select
     Loop
     accessibleTimeoutMenuPending = 0
