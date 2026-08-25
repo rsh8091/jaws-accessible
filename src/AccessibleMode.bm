@@ -141,6 +141,77 @@ Function IsAccessibleJawsIntentionalFoulTestMode% Static
 End Function
 
 
+Function IsAccessibleStrategyOwnershipTestMode% Static
+
+    IsAccessibleStrategyOwnershipTestMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--accessible-strategy-ownership-test" Then
+            IsAccessibleStrategyOwnershipTestMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
+Function AccessibleComputerControlsTeam% (teamIdx) Static
+
+    AccessibleComputerControlsTeam% = 0
+    If playerMode = 2 Then AccessibleComputerControlsTeam% = 1
+    If playerMode = 1 And teamIdx = compTeam Then AccessibleComputerControlsTeam% = 1
+
+End Function
+
+
+Function AccessibleRunStrategyOwnershipTest% () Static
+
+    AccessibleRunStrategyOwnershipTest% = 0
+    If playerMode <> 1 Then
+        Print "Strategy ownership validation requires one human team and one computer team."
+        Exit Function
+    End If
+
+    humanTeam = 1 - compTeam
+    savedHumanOffense = offStrat(humanTeam)
+    savedHumanDefense = defStrat(humanTeam)
+    Print "Automated accessible strategy ownership validation."
+    Print "Human strategy baseline: "; offStylesNew$(savedHumanOffense); " and "; defStyles$(savedHumanDefense); "."
+
+    P9 = humanTeam
+    Call ComputerStrategy
+    Call ComputerCoach(humanTeam)
+    currHalf = 2
+    gameClock! = 45
+    score(humanTeam, 0) = 50
+    score(compTeam, 0) = 53
+    computerTimeout = 1
+    Call EvaluateSubs(humanTeam)
+    For testSlot = 0 To 4
+        tmFatigue(humanTeam, lineupIdx(humanTeam, testSlot)) = -5
+    Next testSlot
+    Call FATIGUE(humanTeam)
+
+    P9 = compTeam
+    Call ComputerStrategy
+    Call ComputerCoach(compTeam)
+    computerTimeout = 1
+    Call EvaluateSubs(compTeam)
+    Call FATIGUE(compTeam)
+
+    If offStrat(humanTeam) <> savedHumanOffense Or defStrat(humanTeam) <> savedHumanDefense Then
+        Print "Human strategy ownership validation failed."
+        Print "Expected offense "; LTrim$(Str$(savedHumanOffense)); " and defense "; LTrim$(Str$(savedHumanDefense)); "."
+        Print "Actual offense "; LTrim$(Str$(offStrat(humanTeam))); " and defense "; LTrim$(Str$(defStrat(humanTeam))); "."
+        Exit Function
+    End If
+
+    Print "Human strategy ownership validation passed."
+    AccessibleRunStrategyOwnershipTest% = 1
+
+End Function
+
+
 Function AccessibleHtml$ (value$) Static
 
     htmlValue$ = String.Replace$(value$, "&", "&amp;")
