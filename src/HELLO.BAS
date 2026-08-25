@@ -1707,7 +1707,7 @@ Sub COLHOOP ()
             GoTo 250
         Else
             If IsAccessibleTurnoverDiagnosticMode% = 1 Then
-                Print "TURNOVER_DIAGNOSTIC visitor="; LTrim$(Str$(turnovers(0))); " home="; LTrim$(Str$(turnovers(1))); " possessions="; LTrim$(Str$(accessibleEnginePossessions)); " visitor_score="; LTrim$(Str$(score(0, 0))); " home_score="; LTrim$(Str$(score(1, 0)))
+                Call AccessiblePrintTurnoverDiagnostic
             Else
                 Call AccessiblePrintRegulationSummary
                 Call AccessiblePostgameMenu
@@ -2543,6 +2543,7 @@ Sub COLHOOP ()
 
                             pbpString$ = "5 SECOND VIOLATION...TURNOVER"
                             shotViolation = 1
+                            accessibleTurnoverReason = 5
                             GoTo 517
 
                         End If
@@ -2553,6 +2554,7 @@ Sub COLHOOP ()
 
                         pbpString$ = "5 SECOND VIOLATION...TURNOVER"
                         shotViolation = 1
+                        accessibleTurnoverReason = 5
                         GoTo 517
 
                 End Select
@@ -2564,6 +2566,7 @@ Sub COLHOOP ()
                 'NOTE - defAdjVsPass(0, 4) is a value of 5
                 'toChance = 7 + defAdjVsPass(0, 4)
                 toChance = 12
+                Call AccessibleRecordTurnoverCheck(P, toChance, passes)
 
                 If RN1 <= toChance Then
 
@@ -2583,6 +2586,7 @@ Sub COLHOOP ()
 
                     Call LASTSHOT
 
+                    accessibleTurnoverReason = 1
                     GoTo 517
 
                 End If
@@ -2735,12 +2739,14 @@ Sub COLHOOP ()
             '   Def Foul Chance + Off TO Rating + Def TO Rating + Def TO Chance - Pressure Rating
             unforcedTOAdj = teamAdj(P, 5) + teamAdj(D, 6)
             toChance = defAdjVsPass(2, defCategory(D)) + unforcedTOAdj + defAdjVsPass(0, defCategory(D)) - pressureRating(D, 0) + 3
+            Call AccessibleRecordTurnoverCheck(P, toChance, passes)
 
             If resultRoll <= toChance Then
 
                 Call LASTSHOT
 
                 'Turnover
+                accessibleTurnoverReason = 1
                 GoTo 517
 
             End If
@@ -2838,11 +2844,13 @@ Sub COLHOOP ()
             '   Def Foul Chance + Off TO Rating + Def TO Rating + Def TO Chance + OY%
             unforcedTOAdj = teamAdj(P, 5) + teamAdj(D, 6)
             toChance = defAdjVsShot(4, defCoverage(D)) + unforcedTOAdj + defAdjVsShot(2, defCoverage(D)) + OY%
+            Call AccessibleRecordTurnoverCheck(P, toChance, passes)
 
             If resultRoll <= toChance Then
 
                 Call LASTSHOT
 
+                accessibleTurnoverReason = 1
                 GoTo 517
 
             End If
@@ -3211,6 +3219,7 @@ Sub COLHOOP ()
 
     If RN0 = 13 Then
 
+        accessibleTurnoverReason = 0
         GoTo TIEUP
 
     Else
@@ -3218,6 +3227,8 @@ Sub COLHOOP ()
         'Increase player and team TO's
         plyrOff_GAME!(P, lineupIdx(P, ballCarrier), 23) = plyrOff_GAME!(P, lineupIdx(P, ballCarrier), 23) + 1
         turnovers(P) = turnovers(P) + 1
+        Call AccessibleRecordTurnover(P, accessibleTurnoverReason)
+        accessibleTurnoverReason = 0
 
         If shotViolation = 0 Then
             pbpType = 1
@@ -3365,6 +3376,7 @@ Sub COLHOOP ()
 
                     Call LASTSHOT
 
+                    accessibleTurnoverReason = 4
                     GoTo 517
 
                 End If
@@ -4693,6 +4705,7 @@ Sub COLHOOP ()
         Call DELAY
 
         turnovers(D) = turnovers(D) + 1
+        Call AccessibleRecordTurnover(D, 3)
 
         Call UPDATESCREEN
 
@@ -4813,6 +4826,7 @@ Sub COLHOOP ()
             Else
 
                 turnovers(P) = turnovers(P) + 1
+                Call AccessibleRecordTurnover(P, 6)
                 goaltendTOs = goaltendTOs + 1
 
                 pbpString$ = "OFFENSIVE GOAL TENDING"
@@ -5361,6 +5375,7 @@ Sub COLHOOP ()
     If possArrow = D Then
 
         turnovers(P) = turnovers(P) + 1
+        Call AccessibleRecordTurnover(P, 7)
 
         Call DEADBALLOPTIONS(deadballTO)
         If deadballTO = 1 Then
@@ -14507,6 +14522,7 @@ Sub StealOccurred (defPlayer)
 
     plyrOff_GAME!(D, lineupIdx(D, defPlayer), 13) = plyrOff_GAME!(D, lineupIdx(D, defPlayer), 13) + 1
     turnovers(P) = turnovers(P) + 1
+    Call AccessibleRecordTurnover(P, 2)
 
     Call UPDATESCREEN
 
