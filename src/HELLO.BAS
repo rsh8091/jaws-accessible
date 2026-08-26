@@ -40,6 +40,7 @@ DefInt A-Z
 
 '-- TEMPORARY USE --
 Dim possCount(8)
+Dim Shared matchPace
 Dim Shared totalDrawFouls, totalIntFouls, totalLBFouls, totalOffFouls, totalPerFouls, totalShotFouls
 Dim Shared totalPlayers&, totalCX&, totalMatchPace&, totalMatches&
 
@@ -821,7 +822,8 @@ Sub COLHOOP ()
 
     _Title "Courtside College Basketball v" + GAME_VERSION$ + " - COURT'S LIVE!"
 
-    Dim goodShot, invalid3FG, matchPace
+    Dim goodShot, invalid3FG
+    Shared matchPace
     Dim playChoice, pbpType
 
     Shared actualAttendance&
@@ -8638,9 +8640,10 @@ Function GoodShotChance%
         teamTO = teamStats_GAME(X, 15)
         teamFTA = teamStats_GAME(X, 5)
         teamGames = teamStats_GAME(X, 0)
-        'Older team files may not contain aggregate actual statistics.
-        'Detect that condition before dividing by games played,
-        'so the era-based fallback receives a valid zero pace factor.
+
+        'Older team files may not contain aggregate actual statistics. Detect
+        'that condition before dividing by games played so the existing
+        'era-based fallback receives a valid zero pace factor.
         If teamGames <= 0 Or teamFGA <= 0 Then
             paceDataAvailable = 0
             nbrPoss(X) = 0
@@ -8648,7 +8651,6 @@ Function GoodShotChance%
             'Ken Pom: Average team possessions / game
             nbrPoss(X) = ((teamFGA - teamOR) + teamTO + (yFactor! * teamFTA)) / teamGames
         End If
-
 
     Next X
 
@@ -8658,7 +8660,7 @@ Function GoodShotChance%
     Else
         paceFactor! = 0
     End If
-    
+
     If paceFactor! = 0 Then
 
         'This represents a baseline SHOOT probability
