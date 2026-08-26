@@ -1610,6 +1610,36 @@ Sub COLHOOP ()
         Exit Sub
     End If
 
+    If accessibleEngineMode = 1 And IsAccessibleFoulOutSubsTestMode% = 1 Then
+        Print "Automated computer foul-out substitution validation."
+        currHalf = 2
+        gameClock! = 240
+        P = 1 - compTeam
+        D = compTeam
+        foulPlayer = 0
+        testFouledOut = lineupIdx(compTeam, foulPlayer)
+        plyrOff_GAME!(compTeam, testFouledOut, 12) = foulsToDQ - 1
+        Call FoulCalled(0)
+
+        testDisqualifiedSelected = 0
+        testDuplicateSelected = 0
+        For testSlot = 0 To 4
+            If lineupIdx(compTeam, testSlot) = testFouledOut Then testDisqualifiedSelected = 1
+            For testOtherSlot = testSlot + 1 To 4
+                If lineupIdx(compTeam, testSlot) = lineupIdx(compTeam, testOtherSlot) Then testDuplicateSelected = 1
+            Next testOtherSlot
+        Next testSlot
+
+        If testDisqualifiedSelected = 0 And testDuplicateSelected = 0 Then
+            Print "Computer foul-out substitution validation passed."
+        Else
+            Print "Computer foul-out substitution validation failed."
+            Print "Disqualified player selected: "; testDisqualifiedSelected; "."
+            Print "Duplicate lineup player selected: "; testDuplicateSelected; "."
+        End If
+        Exit Sub
+    End If
+
     250 '
     'Jump Ball !!!
     Select Case currHalf

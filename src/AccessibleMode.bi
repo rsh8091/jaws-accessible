@@ -2,6 +2,7 @@ Declare Function IsAccessibleMode% Static
 Declare Function IsAccessibleTestMode% Static
 Declare Function IsAccessibleHalftimeTestMode% Static
 Declare Function IsAccessibleComputerSubsTestMode% Static
+Declare Function IsAccessibleFoulOutSubsTestMode% Static
 Declare Function IsAccessibleBoxscoreTestMode% Static
 Declare Function IsAccessibleBoxscoreTransitionTestMode% Static
 Declare Function IsAccessibleBoxscoreHtmlTestMode% Static

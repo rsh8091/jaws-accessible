@@ -57,6 +57,20 @@ Function IsAccessibleComputerSubsTestMode% Static
 End Function
 
 
+Function IsAccessibleFoulOutSubsTestMode% Static
+
+    IsAccessibleFoulOutSubsTestMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--accessible-foul-out-subs-test" Then
+            IsAccessibleFoulOutSubsTestMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
 Function IsAccessibleBoxscoreTestMode% Static
 
     IsAccessibleBoxscoreTestMode% = 0
