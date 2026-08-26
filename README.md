@@ -1,5 +1,23 @@
 # LH Games Courtside College Basketball #
 
+## About This Accessibility Fork
+
+This repository is a fork of [Jason Leonard's LH Games Courtside College Basketball project](https://github.com/jleonard2099/LHG_CollegeBB). Jason's work brings the original Courtside College Basketball source code into a modern, cross-platform environment with the permission of Lance Haffner. We are grateful to Lance Haffner for creating the original game and to Jason Leonard for preserving, modernizing, and continuing its development.
+
+The purpose of this fork is to add an optional accessible interface for blind players and players who use screen readers such as JAWS. The accessibility work is designed as a layer around the existing game: it gathers choices through sequential text prompts, passes those choices to the original simulation engine, and presents the engine's events and results as screen-reader-friendly text. It does not replace or independently reimplement the basketball simulation.
+
+Our goals are to:
+
+- Preserve the existing graphical interface as the default experience.
+- Provide complete prompts and numbered choices that do not depend on graphics, color, sound, mouse interaction, or cursor position.
+- Make team and rule selection, lineups, coaching decisions, complete games, overtime, and postgame box scores usable with a screen reader.
+- Keep shots, passes, turnovers, fouls, rebounds, fatigue, scoring, timing, and other basketball calculations in the original simulator.
+- Keep accessibility changes focused and reviewable so they can potentially contribute back to the upstream project.
+
+Accessible mode is enabled explicitly with `--accessible`, `-a`, or `/accessible`. Starting the game normally continues to use the original graphical interface. The accessible interface is approaching beta quality and continues to receive automated regression testing and hands-on testing with JAWS. More technical detail is available in the [accessible-mode implementation and handoff specification](doc/accessibility-implementation-spec.md).
+
+The remainder of this README preserves the upstream project's description, history, installation guidance, credits, and acknowledgments.
+
 ### Game Description ###
 Courtside College Basketball is a fast-paced simulator, allowing you to recreate original seasons or conjure up the tournament match of your dreams! Several styles of offense and defense give you the choice to strategize each moment. Save and compile stats, input your own teams or draft or trade players. Play against a friend, against the computer, or watch simulations at your own pace. Teams and players are rated in several categories using real-world stats, so the outcomes are not only possible - they feel real.
 
