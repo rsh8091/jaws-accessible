@@ -8,7 +8,7 @@ $executablePath = (Resolve-Path -LiteralPath $Executable).Path
 $scriptedInput = @(
     '1', '2025', 'duke', '1', '2003', 'syracuse', '1', '1',
     '2', '1', '1', 'confirm', 'continue', 'continue', 'auto', '1', '1',
-    '3', '', '4', '5', '5', '', '', '1', '3'
+    '3', '', '4', '5', '5', '1', '3'
 )
 
 Push-Location (Split-Path -Parent $executablePath)
@@ -32,8 +32,6 @@ $expectedText = @(
     '4. Make a halftime substitution.',
     'Current lineup for SYRACUSE.',
     'B.EDELIN replaces C.FORTH as center.',
-    'Halftime substitution review complete.',
-    'Choose 1 when you are ready to start the second half.',
     'Second-half possession reached after halftime substitution.',
     'Half 2, ',
     'Original simulator validation complete.',
@@ -44,6 +42,14 @@ foreach ($expected in $expectedText) {
     if (-not $transcript.Contains($expected)) {
         throw "Accessible halftime transcript did not contain: $expected`n$transcript"
     }
+}
+
+if ([regex]::Matches($transcript, 'Halftime rest applied\. Temporary fatigue has been reset\.').Count -ne 1) {
+    throw "The halftime summary was read more than once.`n$transcript"
+}
+
+if ($transcript.Contains('Halftime substitution review complete.') -or $transcript.Contains('Choose 1 when you are ready to start the second half.')) {
+    throw "The obsolete halftime substitution return prompts were displayed.`n$transcript"
 }
 
 Write-Output 'Accessible halftime substitution and second-half transition test passed.'

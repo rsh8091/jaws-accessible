@@ -140,7 +140,7 @@ Human-controlled teams may change supported offensive or defensive strategies, m
 
 Strategy ownership is enforced at the entry points to the original computer coaching, computer strategy, automatic substitution evaluation, and fatigue-driven defense routines. In accessible mode those routines return without changing state when their target is a human-controlled team. This protects the player's selected offense and defense during ordinary possessions, stoppages, halftime, timeouts, and late-game evaluation while leaving computer-controlled teams on the original AI paths.
 
-The original period transition clears defensive strategy arrays before rebuilding them through the graphical coaching flow. Accessible mode preserves each human-controlled defense across that reset and recalculates its engine coverage category, preventing halftime from silently reverting the player's defense to solid man-to-man.
+The original period transition clears defensive strategy arrays before rebuilding them through the graphical coaching flow. Accessible mode preserves each human-controlled defense across that reset and recalculates its engine coverage category, preventing halftime from silently reverting the player's defense to solid man-to-man. The halftime summary is announced once. After a halftime substitution, the replacement confirmation returns directly to the halftime options without an extra acknowledgment prompt or a repeated summary.
 
 When a timeout opens the accessible coaching menu, the timeout announcement and coaching choices are presented as one interaction. The menu reports both teams' remaining timeouts and does not require a separate Enter press for queued timeout narration. Reviewing the lineup, changing strategy, calling a timeout, or correcting an invalid choice returns directly to the coaching choices without an additional return prompt. The original timeout charge, clock restoration, fatigue recovery, and play-resumption routines remain authoritative.
 
@@ -219,6 +219,7 @@ The test suite combines runtime transcript validation with source-level guards f
 | `test-accessible-foul-out-substitution.ps1` | Runtime transcript | Computer-controlled teams remove a disqualified player and retain five distinct lineup entries |
 | `test-accessible-strategy-ownership.ps1` | Runtime transcript and source guard | Human offense and defense remain unchanged across computer coaching, substitution, fatigue, halftime-style, timeout, and late-game evaluation paths |
 | `diagnose-turnovers.ps1` | Multi-game diagnostic | Runs complete computer-controlled 1999 Syracuse-Pitt games and summarizes turnovers by source, turnover checks, repeat-pass checks, possessions, strategies, and scores without changing simulation formulas or random-number sequencing |
+| `test-older-team-shot-pacing.ps1` | Runtime transcript and source guard | Older teams without aggregate actual statistics complete a game while retaining the engine's guarded era-based pace fallback and shared match-pace input |
 | `test-accessible-overtime.ps1` | Runtime transcript | Tied regulation, overtime transition, added timeout, and continued play |
 | `test-accessible-boxscore.ps1` | Runtime transcript | Spoken box scores and semantic HTML report generation |
 | `test-accessible-intentional-foul.ps1` | Runtime transcript | Strategic-foul decision, defender selection, free throws, and engine transition |
@@ -241,6 +242,7 @@ Build before running runtime transcript tests:
 .\scripts\test-accessible-intentional-foul.ps1
 .\scripts\test-intentional-foul-regression.ps1
 .\scripts\test-accessible-strategy-ownership.ps1
+.\scripts\test-older-team-shot-pacing.ps1
 ```
 
 ## 9. Manual testing
