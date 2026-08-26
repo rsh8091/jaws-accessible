@@ -34,7 +34,7 @@ $expectedText = @(
     'Home team: SYRACUSE',
     'The computer selected this lineup.',
     'Home starting lineup for SYRACUSE.',
-    'Confirmed starting lineups',
+    'Starting lineups confirmed. Next, choose your offensive and defensive styles.',
     '1. First guard:',
     '3. First forward:',
     '5. Center:',
@@ -51,6 +51,10 @@ foreach ($expected in $expectedText) {
     if (-not $transcript.Contains($expected)) {
         throw "Accessible team-selection transcript did not contain: $expected`n$transcript"
     }
+}
+
+if ([regex]::Matches($transcript, 'Visiting lineup:').Count -ne 1 -or [regex]::Matches($transcript, 'Home lineup:').Count -ne 1) {
+    throw "Starting lineups were read more than once.`n$transcript"
 }
 
 Write-Output 'Accessible team-selection transcript test passed.'

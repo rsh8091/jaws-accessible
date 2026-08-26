@@ -46,7 +46,7 @@ Declare Sub AccessiblePrintLineupCondition (teamIdx)
 Declare Sub AccessibleQueuePbp (teamIdx, eventText$)
 Declare Sub AccessibleFlushPbp ()
 Declare Sub AccessibleDeadBallMenu (humanTeam, userTakeTO)
-Declare Sub AccessibleSubstitutionMenu (humanTeam)
+Declare Sub AccessibleSubstitutionMenu (humanTeam, returnDirectly)
 Declare Sub AccessibleReplaceFouledOutPlayer (humanTeam, fouledSlot)
 Declare Function AccessibleHalftimeMenu% Static
 Declare Sub AccessiblePrintHalftimeSummary ()

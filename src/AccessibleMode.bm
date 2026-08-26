@@ -302,7 +302,10 @@ End Sub
 
 Sub AccessiblePrintTurnoverDiagnostic ()
 
+    Shared matchPace
+
     Print "TURNOVER_DIAGNOSTIC visitor="; LTrim$(Str$(turnovers(0))); " home="; LTrim$(Str$(turnovers(1))); " possessions="; LTrim$(Str$(accessibleEnginePossessions)); " visitor_score="; LTrim$(Str$(score(0, 0))); " home_score="; LTrim$(Str$(score(1, 0)))
+    Print "PACE_DIAGNOSTIC match_pace="; LTrim$(Str$(matchPace))
     For teamIdx = 0 To 1
         If accessibleDiagChecks(teamIdx) > 0 Then averageThreshold = accessibleDiagThresholdTotal(teamIdx) / accessibleDiagChecks(teamIdx) Else averageThreshold = 0
         Print "TURNOVER_DETAIL team="; LTrim$(Str$(teamIdx)); " direct="; LTrim$(Str$(accessibleDiagDirect(teamIdx))); " steals="; LTrim$(Str$(accessibleDiagSteals(teamIdx))); " offensive_fouls="; LTrim$(Str$(accessibleDiagOffensiveFouls(teamIdx))); " shot_clock="; LTrim$(Str$(accessibleDiagShotClock(teamIdx))); " inbound="; LTrim$(Str$(accessibleDiagInbound(teamIdx))); " goaltend="; LTrim$(Str$(accessibleDiagGoaltend(teamIdx))); " held_ball="; LTrim$(Str$(accessibleDiagHeldBall(teamIdx))); " checks="; LTrim$(Str$(accessibleDiagChecks(teamIdx))); " checks_after_first_pass="; LTrim$(Str$(accessibleDiagChecksAfterFirstPass(teamIdx))); " max_passes="; LTrim$(Str$(accessibleDiagMaxPasses(teamIdx))); " average_threshold="; LTrim$(Str$(CInt(averageThreshold))); " motion_pressure_checks="; LTrim$(Str$(accessibleDiagMotionPressureChecks(teamIdx))); " motion_pressure_turnovers="; LTrim$(Str$(accessibleDiagMotionPressureTurnovers(teamIdx)))
@@ -563,8 +566,8 @@ Function AccessibleHalftimeMenu% Static
     Call AccessibleFlushPbp
     AccessibleHalftimeMenu% = 0
     Cls
+    Call AccessiblePrintHalftimeSummary
     Do
-        Call AccessiblePrintHalftimeSummary
         Print
         Print "Halftime options"
         Print "1. Start the second half."
@@ -590,19 +593,16 @@ Function AccessibleHalftimeMenu% Static
                     Print "1. Visiting team."
                     Print "2. Home team."
                     teamChoice$ = AccessibleReadCommand$("Enter choice, or back: ")
-                    If teamChoice$ = "1" Or teamChoice$ = "visitor" Or teamChoice$ = "visiting" Then Call AccessibleSubstitutionMenu(0)
-                    If teamChoice$ = "2" Or teamChoice$ = "home" Then Call AccessibleSubstitutionMenu(1)
+                    If teamChoice$ = "1" Or teamChoice$ = "visitor" Or teamChoice$ = "visiting" Then Call AccessibleSubstitutionMenu(0, 1)
+                    If teamChoice$ = "2" Or teamChoice$ = "home" Then Call AccessibleSubstitutionMenu(1, 1)
                 ElseIf accessiblePlayerOpt = 1 Then
-                    Call AccessibleSubstitutionMenu(1)
+                    Call AccessibleSubstitutionMenu(1, 1)
                 ElseIf accessiblePlayerOpt = 2 Then
-                    Call AccessibleSubstitutionMenu(0)
+                    Call AccessibleSubstitutionMenu(0, 1)
                 Else
                     Print "Both teams are computer controlled."
                     commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
                 End If
-                Print "Halftime substitution review complete. Returning to halftime options."
-                Print "Choose 1 when you are ready to start the second half."
-                commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
             Case "5", "finish", "end", "quit", "exit"
                 Exit Do
             Case Else
@@ -1325,7 +1325,7 @@ Sub AccessibleDeadBallMenu (humanTeam, userTakeTO)
             Case "1", "continue", "play", "enter"
                 Exit Do
             Case "2", "sub", "substitute", "substitution"
-                Call AccessibleSubstitutionMenu(humanTeam)
+                Call AccessibleSubstitutionMenu(humanTeam, 0)
             Case "3", "lineup", "roster"
                 If humanTeam = 0 Then roleName$ = "Visiting" Else roleName$ = "Home"
                 Call AccessiblePrintLineup(humanTeam, roleName$)
@@ -1354,7 +1354,7 @@ Sub AccessibleDeadBallMenu (humanTeam, userTakeTO)
 End Sub
 
 
-Sub AccessibleSubstitutionMenu (humanTeam)
+Sub AccessibleSubstitutionMenu (humanTeam, returnDirectly)
 
     Cls
     Print "Current lineup for "; AccessibleTeamDisplay$(gameTeams$(humanTeam)); "."
@@ -1404,7 +1404,7 @@ Sub AccessibleSubstitutionMenu (humanTeam)
     lineupIdx(humanTeam, selectedSlot) = selectedPlayer
     Print players$(humanTeam, selectedPlayer); " replaces "; players$(humanTeam, outgoingPlayer); " as "; LCase$(AccessibleLineupRole$(selectedSlot)); "."
     If AccessiblePlayerMatchesRole%(humanTeam, selectedPlayer, selectedSlot) = 0 Then Print "Warning: the substitute's recorded position does not match this lineup role."
-    commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
+    If returnDirectly = 0 Then commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
 
 End Sub
 
@@ -1540,6 +1540,8 @@ End Function
 
 Function AccessiblePrepareMatchup% (visitorYear$, homeYear$, visitorIdx, homeIdx) Static
 
+    Shared FY%()
+
     AccessiblePrepareMatchup% = 0
     Call InitVar
 
@@ -1614,9 +1616,7 @@ Function AccessibleChooseStartingLineups% Static
     Next gameIdx
 
     Print
-    Print "Confirmed starting lineups"
-    Call AccessiblePrintLineup(0, "Visiting")
-    Call AccessiblePrintLineup(1, "Home")
+    Print "Starting lineups confirmed. Next, choose your offensive and defensive styles."
 
     For gameIdx = 0 To 1
         computerControlled = 0
