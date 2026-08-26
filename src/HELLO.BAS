@@ -329,7 +329,7 @@ If (CanWriteLocally = 1) Or dirSeparator$ = "/" Then
     cfgPath$ = _CWD$
 Else
     ' Can't write locally - use AppData (Windows restricted scenario)
-    cfgPath$ = Environ$("LOCALAPPDATA") + "\LH Games\Courtside College\"
+    cfgPath$ = Environ$("LOCALAPPDATA") + "\LH Games\Courtside CBB\"
 End If
 
 'Read-in existing DEV.BAS
