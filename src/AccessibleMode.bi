@@ -26,6 +26,7 @@ Declare Sub AccessibleSingleGameSetup ()
 Declare Function AccessibleChooseTeam% (roleName$, yearNumber$, chosenIdx, teamName$) Static
 Declare Function AccessibleLoadTeams% (yearNumber$) Static
 Declare Function AccessibleTeamDisplay$ (teamName$) Static
+Declare Function AccessibleTeamSearchKey$ (teamName$) Static
 Declare Function AccessibleConfigureGame% () Static
 Declare Function AccessiblePrepareMatchup% (visitorYear$, homeYear$, visitorIdx, homeIdx) Static
 Declare Sub AccessibleShowLoadedTeam (gameIdx, roleName$)

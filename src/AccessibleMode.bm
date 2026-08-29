@@ -1917,7 +1917,7 @@ Function AccessibleChooseTeam% (roleName$, yearNumber$, chosenIdx, teamName$) St
 
                     matchCount = 0
                     For teamIdx = 1 To teamIndex(0)
-                        If searchValue$ = "list" Or searchValue$ = "" Or InStr(LCase$(teamNames$(teamIdx)), searchValue$) > 0 Then
+                        If searchValue$ = "list" Or searchValue$ = "" Or InStr(AccessibleTeamSearchKey$(teamNames$(teamIdx)), AccessibleTeamSearchKey$(searchValue$)) > 0 Then
                             matchCount = matchCount + 1
                             matchIndices(matchCount) = teamIdx
                         End If
@@ -1956,6 +1956,22 @@ Function AccessibleChooseTeam% (roleName$, yearNumber$, chosenIdx, teamName$) St
             Exit Function
         End If
     Loop
+
+End Function
+
+
+Function AccessibleTeamSearchKey$ (teamName$) Static
+
+    searchName$ = LCase$(_Trim$(AccessibleTeamDisplay$(teamName$)))
+    searchName$ = String.Replace$(searchName$, ".", "")
+    If Left$(searchName$, 2) = "n " Then searchName$ = "north " + Mid$(searchName$, 3)
+    If Left$(searchName$, 2) = "s " Then searchName$ = "south " + Mid$(searchName$, 3)
+    If Left$(searchName$, 2) = "e " Then searchName$ = "east " + Mid$(searchName$, 3)
+    If Left$(searchName$, 2) = "w " Then searchName$ = "west " + Mid$(searchName$, 3)
+    searchName$ = " " + searchName$ + " "
+    searchName$ = String.Replace$(searchName$, " state ", " st ")
+    searchName$ = String.Replace$(searchName$, " saint ", " st ")
+    AccessibleTeamSearchKey$ = _Trim$(searchName$)
 
 End Function
 

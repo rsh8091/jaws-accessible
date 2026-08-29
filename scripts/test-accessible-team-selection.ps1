@@ -5,7 +5,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $executablePath = (Resolve-Path -LiteralPath $Executable).Path
-$scriptedInput = @('1', '2025', 'duke', '1', '2003', 'syracuse', '1', '1', '4', '1', '1', 'confirm', 'continue', 'continue', '3')
+$scriptedInput = @('1', '2025', 'michigan state', '1', '2025', "saint mary's", '1', '1', '4', '1', '1', 'confirm', 'continue', 'continue', '3')
 Push-Location (Split-Path -Parent $executablePath)
 try {
     $transcript = $scriptedInput | & $executablePath --accessible --accessible-test 2>&1 | Out-String
@@ -20,20 +20,20 @@ if ($LASTEXITCODE -ne 0) {
 
 $expectedText = @(
     'Choose the visiting team.',
-    'Selected DUKE as the visiting team.',
+    'Selected MICHIGAN ST as the visiting team.',
     'Choose the home team.',
-    'Selected SYRACUSE as the home team.',
-    'Visitor: DUKE (2025)',
-    'Home: SYRACUSE (2003)',
-    'Matchup confirmed: DUKE at SYRACUSE.',
+    "Selected MT ST MARY'S as the home team.",
+    'Visitor: MICHIGAN ST (2025)',
+    "Home: MT ST MARY'S (2025)",
+    "Matchup confirmed: MICHIGAN ST at MT ST MARY'S.",
     'Control: computer controls both teams.',
     'Location: home-court advantage.',
     'Shot clock: 30 seconds.',
     'Teams loaded successfully.',
-    'Visiting team: DUKE',
-    'Home team: SYRACUSE',
+    'Visiting team: MICHIGAN ST',
+    "Home team: MT ST MARY'S",
     'The computer selected this lineup.',
-    'Home starting lineup for SYRACUSE.',
+    "Home starting lineup for MT ST MARY'S.",
     'Starting lineups confirmed. Next, choose your offensive and defensive styles.',
     '1. First guard:',
     '3. First forward:',
