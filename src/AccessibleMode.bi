@@ -11,6 +11,7 @@ Declare Function IsAccessibleIntentionalFoulTestMode% Static
 Declare Function IsAccessibleJawsIntentionalFoulTestMode% Static
 Declare Function IsAccessibleStrategyOwnershipTestMode% Static
 Declare Function IsAccessibleTurnoverDiagnosticMode% Static
+Declare Function IsAccessibleNarrationDiagnosticMode% Static
 Declare Function AccessibleComputerControlsTeam% (teamIdx) Static
 Declare Function AccessibleRunStrategyOwnershipTest% () Static
 Declare Sub AccessibleResetPeriodDefense ()
@@ -46,6 +47,8 @@ Declare Sub AccessiblePrintGameStatus ()
 Declare Sub AccessiblePrintLineupCondition (teamIdx)
 Declare Sub AccessibleQueuePbp (teamIdx, eventText$)
 Declare Sub AccessibleFlushPbp ()
+Declare Sub AccessibleStartNarrationDiagnostic ()
+Declare Sub AccessibleStopNarrationDiagnostic ()
 Declare Sub AccessibleDeadBallMenu (humanTeam, userTakeTO)
 Declare Sub AccessibleSubstitutionMenu (humanTeam, returnDirectly)
 Declare Sub AccessibleReplaceFouledOutPlayer (humanTeam, fouledSlot)

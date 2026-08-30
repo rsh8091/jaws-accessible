@@ -183,6 +183,20 @@ Function IsAccessibleTurnoverDiagnosticMode% Static
 End Function
 
 
+Function IsAccessibleNarrationDiagnosticMode% Static
+
+    IsAccessibleNarrationDiagnosticMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--accessible-narration-diagnostic" Then
+            IsAccessibleNarrationDiagnosticMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
 Function AccessibleComputerControlsTeam% (teamIdx) Static
 
     AccessibleComputerControlsTeam% = 0
@@ -511,8 +525,11 @@ Sub AccessibleRunGame ()
     accessiblePbpGroupCount = 0
     accessiblePbpGroupTeam = -1
     Erase accessiblePbpGroup$
+    Erase accessiblePbpGroupSequence&
+    Call AccessibleStartNarrationDiagnostic
     Call COLHOOP
     Call AccessibleFlushPbp
+    Call AccessibleStopNarrationDiagnostic
 
     accessibleEngineMode = 0
     accessiblePreparedGame = 0
@@ -1088,6 +1105,10 @@ Function AccessibleReadPassChoice% (teamIdx) Static
         selectedNumber = Val(commandValue$)
         If selectedNumber >= 1 And selectedNumber <= 5 And LTrim$(Str$(selectedNumber)) = commandValue$ Then
             AccessibleReadPassChoice% = selectedNumber - 1
+            'Remove the completed recipient list before the simulator narrates the
+            'resulting pass, preventing a screen reader from revisiting the list and
+            'the preceding play as part of the new console update.
+            Cls
             Exit Function
         End If
         Print "Enter a displayed player number from 1 through 5."
@@ -1154,10 +1175,10 @@ Function AccessibleReadPlayChoice% (teamIdx) Static
     Shared threePtShotChance
     accessibleEngineHumanPrompted = 1
     Do
-        'Keep pending simulator narration and the resulting human decision on one
-        'screen so a screen reader encounters the pass result before the next menu.
+        'The previous decision clears its completed screen before the simulator
+        'generates another play. Flush new narration onto that already-clean screen
+        'so a screen reader does not revisit the prior play during this refresh.
         savedPauseEvents = accessiblePauseEvents
-        Cls
         accessiblePauseEvents = 0
         Call AccessibleFlushPbp
         accessiblePauseEvents = savedPauseEvents
@@ -1194,13 +1215,16 @@ Function AccessibleReadPlayChoice% (teamIdx) Static
         Select Case commandValue$
             Case "1", "pass"
                 AccessibleReadPlayChoice% = 0
+                Cls
                 Exit Function
             Case "2", "shoot 2", "shoot2", "two"
                 AccessibleReadPlayChoice% = 1
+                Cls
                 Exit Function
             Case "3", "shoot 3", "shoot3", "three"
                 If threePtOpt = 1 Then
                     AccessibleReadPlayChoice% = 4
+                    Cls
                     Exit Function
                 Else
                     Print "The three-point shot is disabled for this game."
@@ -1209,6 +1233,7 @@ Function AccessibleReadPlayChoice% (teamIdx) Static
                 If timeouts(teamIdx) > 0 Then
                     accessibleTimeoutMenuPending = 1
                     AccessibleReadPlayChoice% = 2
+                    Cls
                     Exit Function
                 Else
                     Print "Your team has no timeouts remaining."
@@ -1221,6 +1246,7 @@ Function AccessibleReadPlayChoice% (teamIdx) Static
             Case Else
                 If threePtOpt = 1 Then Print "Enter a choice from 1 through 6." Else Print "Enter 1, 2, 4, 5, or 6."
         End Select
+        Cls
     Loop
 
 End Function
@@ -1262,7 +1288,12 @@ Sub AccessibleQueuePbp (teamIdx, eventText$)
     If accessiblePbpGroupCount > 0 And teamIdx <> accessiblePbpGroupTeam Then Call AccessibleFlushPbp
     If accessiblePbpGroupCount = 0 Then accessiblePbpGroupTeam = teamIdx
     accessiblePbpGroupCount = accessiblePbpGroupCount + 1
+    accessibleNarrationSequence& = accessibleNarrationSequence& + 1
     accessiblePbpGroup$(accessiblePbpGroupCount) = eventText$
+    accessiblePbpGroupSequence&(accessiblePbpGroupCount) = accessibleNarrationSequence&
+    If accessibleNarrationDiagnosticActive = 1 Then
+        Print #accessibleNarrationDiagnosticFile, "QUEUE|sequence="; LTrim$(Str$(accessibleNarrationSequence&)); "|possession="; LTrim$(Str$(accessibleEnginePossessions)); "|team="; LTrim$(Str$(teamIdx)); "|slot="; LTrim$(Str$(accessiblePbpGroupCount)); "|text="; eventText$
+    End If
     accessibleLastPbp$ = eventText$
     If accessiblePbpGroupCount >= 3 Then Call AccessibleFlushPbp
 
@@ -1272,10 +1303,16 @@ End Sub
 Sub AccessibleFlushPbp ()
 
     If accessiblePbpGroupCount = 0 Then Exit Sub
+    If accessibleNarrationDiagnosticActive = 1 Then
+        Print #accessibleNarrationDiagnosticFile, "FLUSH_BEGIN|possession="; LTrim$(Str$(accessibleEnginePossessions)); "|team="; LTrim$(Str$(accessiblePbpGroupTeam)); "|count="; LTrim$(Str$(accessiblePbpGroupCount))
+    End If
     If accessiblePauseEvents = 1 Then Cls
     Print "Play-by-play: "; AccessibleTeamDisplay$(gameTeams$(accessiblePbpGroupTeam)); "."
     For eventIdx = 1 To accessiblePbpGroupCount
         Print accessiblePbpGroup$(eventIdx)
+        If accessibleNarrationDiagnosticActive = 1 Then
+            Print #accessibleNarrationDiagnosticFile, "PRINT|sequence="; LTrim$(Str$(accessiblePbpGroupSequence&(eventIdx))); "|possession="; LTrim$(Str$(accessibleEnginePossessions)); "|team="; LTrim$(Str$(accessiblePbpGroupTeam)); "|text="; accessiblePbpGroup$(eventIdx)
+        End If
     Next eventIdx
     If accessiblePauseEvents = 1 Then
         Line Input "Press Enter to continue, or type end to finish this segment: "; accessibleContinue$
@@ -1285,6 +1322,32 @@ Sub AccessibleFlushPbp ()
     accessiblePbpGroupCount = 0
     accessiblePbpGroupTeam = -1
     Erase accessiblePbpGroup$
+    Erase accessiblePbpGroupSequence&
+    If accessibleNarrationDiagnosticActive = 1 Then Print #accessibleNarrationDiagnosticFile, "FLUSH_END"
+
+End Sub
+
+
+Sub AccessibleStartNarrationDiagnostic ()
+
+    accessibleNarrationDiagnosticActive = IsAccessibleNarrationDiagnosticMode%
+    accessibleNarrationSequence& = 0
+    If accessibleNarrationDiagnosticActive = 0 Then Exit Sub
+    accessibleNarrationDiagnosticFile = FreeFile
+    Open "accessible-narration.log" For Output As #accessibleNarrationDiagnosticFile
+    Print #accessibleNarrationDiagnosticFile, "Accessible narration diagnostic"
+    Print #accessibleNarrationDiagnosticFile, "Each sequence number should have one QUEUE record and one PRINT record."
+
+End Sub
+
+
+Sub AccessibleStopNarrationDiagnostic ()
+
+    If accessibleNarrationDiagnosticActive = 0 Then Exit Sub
+    Print #accessibleNarrationDiagnosticFile, "DIAGNOSTIC_END|sequences="; LTrim$(Str$(accessibleNarrationSequence&))
+    Close #accessibleNarrationDiagnosticFile
+    accessibleNarrationDiagnosticActive = 0
+    accessibleNarrationDiagnosticFile = 0
 
 End Sub
 

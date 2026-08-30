@@ -26,6 +26,9 @@ Dim Shared accessibleDiagMotionPressureChecks(1), accessibleDiagMotionPressureTu
 Dim Shared accessibleLastPbp$
 Dim Shared accessiblePbpGroupCount, accessiblePbpGroupTeam
 Dim Shared accessiblePbpGroup$(1 To 3)
+Dim Shared accessiblePbpGroupSequence&(1 To 3)
+Dim Shared accessibleNarrationDiagnosticActive, accessibleNarrationDiagnosticFile
+Dim Shared accessibleNarrationSequence&
 
 ' *** Reading Stat Data ***
 ' -------------------------
