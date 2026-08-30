@@ -1,0 +1,22 @@
+BETA TESTING AND FEEDBACK
+=========================
+
+Please try complete games, including team selection, substitutions, timeouts,
+halftime, box scores, and overtime when possible. The accessible mode is the main
+focus of this beta.
+
+Report problems by creating a new issue at:
+https://github.com/rsh8091/jaws-accessible/issues
+
+Please include:
+- Windows version and whether it is 64-bit.
+- Screen reader name and exact version. At the very least, if you use JAWS 2025, for example, we'll need to know that
+- Visiting and home teams, including season years.
+- The choices or keys used immediately before the problem.
+- What you heard, what you expected, and whether play could continue.
+- Whether the problem happens every time or only sometimes.
+
+For narration problems, quote only the shortest useful part of the repeated,
+missing, or unexpected announcement.
+
+Do not include private information in a public GitHub issue.

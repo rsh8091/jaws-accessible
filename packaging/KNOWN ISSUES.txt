@@ -1,0 +1,12 @@
+KNOWN ISSUES - ACCESSIBLE BETA
+==============================
+
+- This is beta software. Save or copy any notes you need before closing the game.
+- The team-data installer requires internet access to GitHub. Some managed school
+  or work networks may block the download.
+- Narration timing can vary with screen-reader speech settings and computer speed.
+  Please report repeated, skipped, or out-of-order announcements with the teams,
+  season years, and the action that triggered them.
+- Windows 10 version 22H2, 64-bit is supported on a best-effort basis. Windows 11,
+  64-bit is the primary tested platform.
+- Windows 7, Windows 8, Windows 8.1, and 32-bit Windows are not supported.

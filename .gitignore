@@ -3,6 +3,7 @@
 *.exe
 *.ini
 .tools/
+dist/
 bin/DEV.BAS
 bin/errlog
 bin/FOLDERS.CFG
