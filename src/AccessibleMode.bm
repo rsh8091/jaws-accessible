@@ -155,6 +155,20 @@ Function IsAccessibleJawsIntentionalFoulTestMode% Static
 End Function
 
 
+Function IsAccessibleJawsOvertimeTestMode% Static
+
+    IsAccessibleJawsOvertimeTestMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--jaws-overtime-test" Then
+            IsAccessibleJawsOvertimeTestMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
 Function IsAccessibleStrategyOwnershipTestMode% Static
 
     IsAccessibleStrategyOwnershipTestMode% = 0
@@ -565,6 +579,30 @@ Function AccessiblePrepareJawsIntentionalFoulTest% () Static
     AccessiblePrepareJawsIntentionalFoulTest% = 1
 
 End Function
+
+
+Sub AccessiblePrepareJawsOvertimeTest ()
+
+    Print "Manual JAWS overtime test."
+    Print "Regulation is ending with the score tied at 70."
+    Print "The normal simulator will handle the overtime transition and the complete overtime period."
+    score(0, 1) = 35
+    score(0, 2) = 35
+    score(0, 0) = 70
+    score(1, 1) = 35
+    score(1, 2) = 35
+    score(1, 0) = 70
+    'This shortcut runs before the opening tip normally initializes the simulator's
+    'offense and defense indexes. Give the artificial end-of-regulation state a
+    'valid pair so overtime status and strategy announcements name the correct team.
+    P = 0
+    D = 1
+    P9 = P
+    ballCarrier = -1
+    currHalf = 2
+    gameClock! = 0
+
+End Sub
 
 
 Sub AccessiblePrintHalftimeSummary ()

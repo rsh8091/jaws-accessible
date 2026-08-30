@@ -271,6 +271,14 @@ Choose a human-versus-computer control option during setup. The game then jumps 
 
 Manual JAWS verification completed on August 23, 2026. The defender menu, repeat command, selected-player confirmation, foul assignment, free throws, possession transition, and continued gameplay were exercised successfully.
 
+Overtime can be tested with JAWS without waiting for an organically tied game:
+
+```powershell
+.\bin\HELLO.exe --accessible --jaws-overtime-test
+```
+
+Complete normal matchup setup. The test ends regulation tied at 70, then uses the normal simulator for the overtime transition and the complete overtime period. This manual path is implemented in the accessibility adapter; ordinary gameplay and the existing automated overtime regression remain unchanged.
+
 ## 10. Known risks and beta work
 
 - Compare turnover, foul, scoring, possession, and other game totals between accessible and graphical computer-versus-computer runs to detect integration drift.

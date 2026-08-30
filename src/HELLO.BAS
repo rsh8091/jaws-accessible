@@ -1536,6 +1536,11 @@ Sub COLHOOP ()
         GoTo 170
     End If
 
+    If accessibleEngineMode = 1 And IsAccessibleJawsOvertimeTestMode% = 1 And currHalf = 1 Then
+        Call AccessiblePrepareJawsOvertimeTest
+        GoTo 170
+    End If
+
     If accessibleEngineMode = 1 And IsAccessibleJawsIntentionalFoulTestMode% = 1 Then
         If AccessiblePrepareJawsIntentionalFoulTest% = 1 Then GoTo 529 Else Exit Sub
     End If

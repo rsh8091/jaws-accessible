@@ -9,6 +9,7 @@ Declare Function IsAccessibleBoxscoreHtmlTestMode% Static
 Declare Function IsAccessibleOvertimeTestMode% Static
 Declare Function IsAccessibleIntentionalFoulTestMode% Static
 Declare Function IsAccessibleJawsIntentionalFoulTestMode% Static
+Declare Function IsAccessibleJawsOvertimeTestMode% Static
 Declare Function IsAccessibleStrategyOwnershipTestMode% Static
 Declare Function IsAccessibleTurnoverDiagnosticMode% Static
 Declare Function IsAccessibleNarrationDiagnosticMode% Static
@@ -39,6 +40,7 @@ Declare Sub AccessibleAutoLineup (gameIdx)
 Declare Sub AccessiblePrintLineup (gameIdx, roleName$)
 Declare Sub AccessibleRunGame ()
 Declare Function AccessiblePrepareJawsIntentionalFoulTest% () Static
+Declare Sub AccessiblePrepareJawsOvertimeTest ()
 Declare Function AccessibleReadPassChoice% (teamIdx) Static
 Declare Function AccessibleReadDefenderChoice% (teamIdx) Static
 Declare Function AccessibleReadStrategicFoulChoice% (defendingTeam) Static
