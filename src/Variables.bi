@@ -300,7 +300,7 @@ Dim Shared gameAvgTmStamina, gameLoc, guardNbr
 Dim Shared halfTime
 Dim Shared lastDefCheckDiff, lastOffCheckDiff
 Dim Shared lastTOHalf, lastTOClock
-Dim Shared nbrLines, offStatus
+Dim Shared matchPace, nbrLines, offStatus
 Dim Shared passes, periodEnd, playerMode, playerOpt, pbpOpt
 Dim Shared rebFoulChance, ruleOptType
 Dim Shared sClockVal, shotClock, shotType, sndOpt

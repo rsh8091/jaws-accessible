@@ -2268,7 +2268,6 @@ Sub COLHOOP ()
                     I$ = GetKeyPress$
                     desigFouler = Val(I$)
                 Loop Until desigFouler >= 0 And desigFouler <= 4
-
             End If
 
             If passes <= 1 Then
@@ -3410,7 +3409,7 @@ Sub COLHOOP ()
                 Else
 
                     '[Human vs. PC | Human Opponent] AND Coach Shots
-                    If (playerMode = 1 Or playerMode = 0) And coachOpt <> 1 Then
+                    If (playerMode = 1 Or playerMode = 0) And coachOpt <> 1 And Not IsOffensePC Then
                         'Get user input
                         GoTo 530
                     End If
@@ -3542,7 +3541,7 @@ Sub COLHOOP ()
     End Select
 
     'Foul was chosen | Computer on offense and last 4 minutes of game
-    If Val(I$) = 3 And (playerMode = 0 Or playerMode = 1 And P = compTeam) And currHalf >= 4 And gameClock! < 240 Then
+    If Val(I$) = 3 And (playerMode = 0 Or playerMode = 1 And P = compTeam) And currHalf >= 2 And gameClock! < 240 Then
         playChoice = 3
     End If
 
@@ -4111,6 +4110,7 @@ Sub COLHOOP ()
         Case 4
             ' *** FOUL ***
             foulOnPlay = 99
+            strategicFoul = 1
 
             Call LASTSHOT
             If gameClock! <= 0 Then 170
@@ -5235,6 +5235,7 @@ Sub COLHOOP ()
         Else
 
             'Not in bonus
+            strategicFoul = 0
             If gameClock! <= 0 Then 170
 
             Call DEADBALLOPTIONS(deadballTO)
@@ -8306,6 +8307,7 @@ Function GoodShotChance%
 
     Dim eraPaceAvg, eraShootRate
     Dim teamFGA, teamFTA, teamGames, teamOR, teamTO
+    Dim paceDataAvailable
 
     Shared matchPace
 
@@ -8315,6 +8317,7 @@ Function GoodShotChance%
 
     'https://kenpom.com/blog/the-possession/
     yFactor! = .44
+    paceDataAvailable = 1
 
     For X = 0 To 1
         teamFGA = teamStats_GAME(X, 1)
@@ -8322,13 +8325,27 @@ Function GoodShotChance%
         teamTO = teamStats_GAME(X, 15)
         teamFTA = teamStats_GAME(X, 5)
         teamGames = teamStats_GAME(X, 0)
-        'Ken Pom: Average team possessions / game
-        nbrPoss(X) = ((teamFGA - teamOR) + teamTO + (yFactor! * teamFTA)) / teamGames
+        'Older team files may not contain aggregate actual statistics. 
+        'Detect that condition before dividing by games played,
+        'so the era-based fallback receives a valid zero pace factor.
+        If teamGames <= 0 Or teamFGA <= 0 Then
+            paceDataAvailable = 0
+            nbrPoss(X) = 0
+        Else
+            'Ken Pom: Average team possessions / game
+            nbrPoss(X) = ((teamFGA - teamOR) + teamTO + (yFactor! * teamFTA)) / teamGames
+        End If
+
+
     Next X
 
     'https://sports.icalculator.com/basketball-pace-factor-calculator.html
-    paceFactor! = 40 * ((nbrPoss(0) + nbrPoss(1)) / 2)
-
+    If paceDataAvailable = 1 Then
+        paceFactor! = 40 * ((nbrPoss(0) + nbrPoss(1)) / 2)
+    Else
+        paceFactor! = 0
+    End If
+    
     If paceFactor! = 0 Then
 
         'This represents a baseline SHOOT probability
@@ -8705,7 +8722,7 @@ Sub FoulCalled (randomFouler)
 
     Call UPDATESCREEN
 
-    If playerStamina%(D, foulPlayer) = 0 Then
+    If playerStamina%(D, lineupIdx(D, foulPlayer)) = 0 Then
         plyrOff_GAME!(D, lineupIdx(D, foulPlayer), 3) = plyrOff_GAME!(D, lineupIdx(D, foulPlayer), 3) + 1
     End If
 
@@ -13808,7 +13825,9 @@ Sub FreeThrow_OneAndOne (missedLastFT)
 
     offStatus = 50
 
-    Call STOPPAGE(takeTO)
+    If strategicFoul = 0 Then
+        Call STOPPAGE(takeTO)
+    End If
 
     For I = 0 To 1
         If defCategory(I) = 0 Then
@@ -13845,7 +13864,6 @@ Sub FreeThrow_OneAndOne (missedLastFT)
         playerBaseFTPct = plyrOff_GAME!(P, lineupIdx(P, ballCarrier), 1)
 
         ftShotChance = playerBaseFTPct
-        Print #11, "BASE FT CHANCE:"; Str$(ftShotChance);
 
         'Consider playoff pressure
         If tourneyPlay = 1 Then
@@ -13855,7 +13873,6 @@ Sub FreeThrow_OneAndOne (missedLastFT)
 
             If crunchLevel > 0 Then
 
-                Print #11, ", CRUNCH:YES";
                 'Pressure only on players below 75%, scales with how far below
                 ftPressurePenalty = (75 - playerBaseFTPct) * .10 * crunchLevel
                 ftShotChance = playerBaseFTPct - MAX(ftPressurePenalty, 0)
@@ -13866,20 +13883,14 @@ Sub FreeThrow_OneAndOne (missedLastFT)
 
         'Tired shooter
         If tmFatigue(P, lineupIdx(P, ballCarrier)) <= -5 Then
-            Print #11, ", FATIGUED:YES";
             ftShotChance = CInt(ftShotChance * .9)
-        Else
-            Print #11, ", FATIGUED:NO";
         End If
-
-        Print #11, ", ROLL:"; Str$(shotRoll); ", CHANCE:"; Str$(ftShotChance)
 
         If shotRoll <= ftShotChance Then
 
             'Increase FTM
             plyrOff_GAME!(P, lineupIdx(P, ballCarrier), 10) = plyrOff_GAME!(P, lineupIdx(P, ballCarrier), 10) + 1
 
-            Print #11, "RESULT: MADE FREE THROW!"
             If pbpOpt = 0 Then
                 Call THREEFT(freethrow)
             Else
@@ -13891,8 +13902,6 @@ Sub FreeThrow_OneAndOne (missedLastFT)
             End If
 
         Else
-
-            Print #11, "RESULT: MISSED FREE THROW!"
 
             If pbpOpt = 1 Then
                 Call MISSFT(freethrow)
@@ -13918,6 +13927,7 @@ Sub FreeThrow_OneAndOne (missedLastFT)
     Else
         missedLastFT = 0
     End If
+    strategicFoul = 0
 
 End Sub
 
@@ -13933,7 +13943,12 @@ Sub FreeThrows (ftCount, missedLastFT)
     
     offStatus = 50
 
-    Call STOPPAGE(takeTO)
+    'Intentional fouls already provide a coaching stoppage after both free throws.
+    'Stopping here as well consumed a second key immediately after defender selection;
+    'a buffered/repeated "1" could be interpreted as SUB and open the roster screen.
+    If intentional = 0 And strategicFoul = 0 Then 
+        Call STOPPAGE(takeTO)
+    End If
 
     For I = 0 To 1
         If defCategory(I) = 0 Then
@@ -14010,6 +14025,8 @@ Sub FreeThrows (ftCount, missedLastFT)
     Else
         missedLastFT = 0
     End If
+    
+    strategicFoul = 0
 
 End Sub
 
