@@ -1647,6 +1647,21 @@ Sub COLHOOP ()
         Exit Sub
     End If
 
+    If accessibleEngineMode = 1 And IsAccessiblePlaySafeTestMode% = 1 Then
+        Print "Accessible play-safe menu validation."
+        If compTeam = 0 Then testTeam = 1 Else testTeam = 0
+        currHalf = 1
+        gameClock! = 500
+        For testSlot = 0 To 1
+            testPlayer = lineupIdx(testTeam, testSlot)
+            plyrOff_GAME!(testTeam, testPlayer, 22) = 0
+            plyrOff_GAME!(testTeam, testPlayer, 12) = foulsToDQ - 3
+        Next testSlot
+        Call AccessibleDefPlaySafeNormal(testTeam)
+        Print "Accessible play-safe menu returned to the game."
+        Exit Sub
+    End If
+
     250 '
     'Jump Ball !!!
     Select Case currHalf
@@ -11795,6 +11810,11 @@ End Sub
 'players who are taking it safe on defense
 'and determine if they should play normal.
 Sub DefPlaySafeNormal (teamIdx)
+
+    If accessibleEngineMode = 1 Then
+        Call AccessibleDefPlaySafeNormal(teamIdx)
+        Exit Sub
+    End If
 
     Dim playerPos(5), menuPos(5)
 

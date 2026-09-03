@@ -71,6 +71,20 @@ Function IsAccessibleFoulOutSubsTestMode% Static
 End Function
 
 
+Function IsAccessiblePlaySafeTestMode% Static
+
+    IsAccessiblePlaySafeTestMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--accessible-play-safe-test" Then
+            IsAccessiblePlaySafeTestMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
 Function IsAccessibleBoxscoreTestMode% Static
 
     IsAccessibleBoxscoreTestMode% = 0
@@ -1543,6 +1557,94 @@ Sub AccessibleReplaceFouledOutPlayer (humanTeam, fouledSlot)
     lineupIdx(humanTeam, fouledSlot) = selectedPlayer
     Print players$(humanTeam, selectedPlayer); " replaces "; players$(humanTeam, outgoingPlayer); " as "; LCase$(AccessibleLineupRole$(fouledSlot)); "."
     commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
+
+End Sub
+
+
+Sub AccessibleDefPlaySafeNormal (teamIdx)
+
+    Dim playerPos(5)
+
+    Do
+        Cls
+        choiceCount = 0
+        For slot = 0 To 4
+            If plyrOff_GAME!(teamIdx, lineupIdx(teamIdx, slot), 22) = 50 Then
+                choiceCount = choiceCount + 1
+                playerPos(choiceCount) = slot
+            End If
+        Next slot
+        If choiceCount = 0 Then Exit Do
+        Print "Players currently playing safe who can return to normal defense"
+        For choiceIdx = 1 To choiceCount
+            slot = playerPos(choiceIdx)
+            Print LTrim$(Str$(choiceIdx)); ". "; players$(teamIdx, lineupIdx(teamIdx, slot))
+        Next choiceIdx
+
+        commandValue$ = AccessibleReadCommand$("Choose a player number to return to normal defense, or press Enter to continue: ")
+        If commandValue$ = "" Or commandValue$ = "continue" Or commandValue$ = "c" Or commandValue$ = "z" Then Exit Do
+        selectedChoice = Val(commandValue$)
+        validSelection = 1
+        If selectedChoice < 1 Or selectedChoice > choiceCount Then validSelection = 0
+        If validSelection = 1 Then
+            If LTrim$(Str$(selectedChoice)) <> commandValue$ Then validSelection = 0
+        End If
+        If validSelection = 0 Then
+            Print "Enter one of the displayed player numbers, or press Enter to continue."
+        Else
+            selectedSlot = playerPos(selectedChoice)
+            selectedPlayer = lineupIdx(teamIdx, selectedSlot)
+            plyrOff_GAME!(teamIdx, selectedPlayer, 17) = plyrOff_GAME!(teamIdx, selectedPlayer, 17) * 3
+            plyrOff_GAME!(teamIdx, selectedPlayer, 22) = 0
+            Print players$(teamIdx, selectedPlayer); " will now play normal defense."
+            Call StealAdjustments
+            dFG_Pct_Adj(teamIdx) = dFG_Pct_Adj(teamIdx) - 1
+            commandValue$ = AccessibleReadCommand$("Press Enter to return to the defensive safety choices: ")
+        End If
+    Loop
+
+    Do
+        Cls
+        choiceCount = 0
+        For slot = 0 To 4
+            selectedPlayer = lineupIdx(teamIdx, slot)
+            If plyrOff_GAME!(teamIdx, selectedPlayer, 22) = 0 And foulTrouble%(teamIdx, selectedPlayer) = 1 Then
+                choiceCount = choiceCount + 1
+                playerPos(choiceCount) = slot
+            End If
+        Next slot
+        If choiceCount = 0 Then Exit Do
+        Print "Players in foul trouble who can be made to play safe"
+        For choiceIdx = 1 To choiceCount
+            slot = playerPos(choiceIdx)
+            Print LTrim$(Str$(choiceIdx)); ". "; players$(teamIdx, lineupIdx(teamIdx, slot))
+        Next choiceIdx
+
+        commandValue$ = AccessibleReadCommand$("Choose a player number to play safe, or press Enter to continue the game: ")
+        If commandValue$ = "" Or commandValue$ = "continue" Or commandValue$ = "c" Or commandValue$ = "z" Then Exit Do
+        selectedChoice = Val(commandValue$)
+        validSelection = 1
+        If selectedChoice < 1 Or selectedChoice > choiceCount Then validSelection = 0
+        If validSelection = 1 Then
+            If LTrim$(Str$(selectedChoice)) <> commandValue$ Then validSelection = 0
+        End If
+        If validSelection = 0 Then
+            Print "Enter one of the displayed player numbers, or press Enter to continue the game."
+        Else
+            selectedSlot = playerPos(selectedChoice)
+            selectedPlayer = lineupIdx(teamIdx, selectedSlot)
+            plyrOff_GAME!(teamIdx, selectedPlayer, 17) = Int((plyrOff_GAME!(teamIdx, selectedPlayer, 17) + 1) / 3)
+            plyrOff_GAME!(teamIdx, selectedPlayer, 22) = 50
+            Print players$(teamIdx, selectedPlayer); " will now play safe."
+            Call StealAdjustments
+            dFG_Pct_Adj(teamIdx) = dFG_Pct_Adj(teamIdx) + 1
+            commandValue$ = AccessibleReadCommand$("Press Enter to return to the defensive safety choices: ")
+        End If
+    Loop
+
+    MJ = 0
+    Call CheckGameClock
+    Call StealAdjustments
 
 End Sub
 

@@ -2,6 +2,12 @@
 
 This beta adds a keyboard- and screen-reader-focused accessible mode to LH Games Courtside College Basketball.
 
+## Beta 1 update
+
+- Fixed the defensive play-safe menu after a foul-out so accessible mode uses Enter-based commands instead of the legacy single-key loop.
+- Player selections are announced and held on screen until Enter is pressed.
+- After the final eligible player is selected, play resumes without announcing an empty play-safe menu.
+
 ## Install and start
 
 1. Download `Courtside-Accessible-Beta-1.zip` from this release.
