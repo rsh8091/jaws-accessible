@@ -217,6 +217,7 @@ The test suite combines runtime transcript validation with source-level guards f
 | `test-accessible-halftime.ps1` | Runtime transcript | Halftime summary, substitutions, fatigue transition, and second-half resumption |
 | `test-accessible-timeout.ps1` | Runtime transcript | Accessible timeout flow and computer substitution evaluation |
 | `test-accessible-foul-out-substitution.ps1` | Runtime transcript | Computer-controlled teams remove a disqualified player and retain five distinct lineup entries |
+| `test-accessible-play-safe.ps1` | Runtime transcript | Two human-controlled players can be set to play safe, each selection is acknowledged, and the menu returns without an empty final announcement |
 | `test-accessible-strategy-ownership.ps1` | Runtime transcript and source guard | Human offense and defense remain unchanged across computer coaching, substitution, fatigue, halftime-style, timeout, and late-game evaluation paths |
 | `diagnose-turnovers.ps1` | Multi-game diagnostic | Runs complete computer-controlled 1999 Syracuse-Pitt games and summarizes turnovers by source, turnover checks, repeat-pass checks, possessions, strategies, and scores without changing simulation formulas or random-number sequencing |
 | `test-older-team-shot-pacing.ps1` | Runtime transcript and source guard | Older teams without aggregate actual statistics complete a game while retaining the engine's guarded era-based pace fallback and shared match-pace input |

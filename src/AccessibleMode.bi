@@ -3,6 +3,7 @@ Declare Function IsAccessibleTestMode% Static
 Declare Function IsAccessibleHalftimeTestMode% Static
 Declare Function IsAccessibleComputerSubsTestMode% Static
 Declare Function IsAccessibleFoulOutSubsTestMode% Static
+Declare Function IsAccessiblePlaySafeTestMode% Static
 Declare Function IsAccessibleBoxscoreTestMode% Static
 Declare Function IsAccessibleBoxscoreTransitionTestMode% Static
 Declare Function IsAccessibleBoxscoreHtmlTestMode% Static
@@ -54,6 +55,7 @@ Declare Sub AccessibleStopNarrationDiagnostic ()
 Declare Sub AccessibleDeadBallMenu (humanTeam, userTakeTO)
 Declare Sub AccessibleSubstitutionMenu (humanTeam, returnDirectly)
 Declare Sub AccessibleReplaceFouledOutPlayer (humanTeam, fouledSlot)
+Declare Sub AccessibleDefPlaySafeNormal (teamIdx)
 Declare Function AccessibleHalftimeMenu% Static
 Declare Sub AccessiblePrintHalftimeSummary ()
 Declare Sub AccessiblePrintRegulationSummary ()
