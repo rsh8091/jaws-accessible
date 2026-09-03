@@ -121,3 +121,8 @@ Contact me directly if interested in contributing. Only considering people who s
 - Jason Lamb, for lending his expertise in BASIC to helping me learn some standards and rewriting the menu functions.
 - Randy Dudley, original author of the stats viewer, for his thorough beta testing and attention to detail with stats / leaders
 - Thomas Humphrey, for being persistent in bringing up issues with the no-shot-clock era and being patient for me to work on it
+
+
+## Employer
+
+I am currently an Oracle employee. All of this work is done on my own time, on my own machine, and has not used any Oracle resources.
