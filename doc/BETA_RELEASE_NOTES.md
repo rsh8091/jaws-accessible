@@ -1,8 +1,8 @@
-# Courtside College Basketball Accessible Beta 1
+# Courtside College Basketball Accessible Beta 2
 
 This beta adds a keyboard- and screen-reader-focused accessible mode to LH Games Courtside College Basketball.
 
-## Beta 1 update
+## Changes since Beta 1
 
 - Fixed the defensive play-safe menu after a foul-out so accessible mode uses Enter-based commands instead of the legacy single-key loop.
 - Player selections are announced and held on screen until Enter is pressed.
@@ -10,7 +10,7 @@ This beta adds a keyboard- and screen-reader-focused accessible mode to LH Games
 
 ## Install and start
 
-1. Download `Courtside-Accessible-Beta-1.zip` from this release.
+1. Download `Courtside-Accessible-Beta-2.zip` from this release.
 2. Extract the entire ZIP to a writable local folder such as `C:\Games\Courtside`.
    Do not run the game from inside the ZIP. Avoid `Program Files` and cloud-synchronized folders such as OneDrive.
 3. Run `1 Install Team Data.cmd` once. An internet connection is required.
