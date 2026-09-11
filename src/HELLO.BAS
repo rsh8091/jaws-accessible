@@ -1545,6 +1545,8 @@ Sub COLHOOP ()
         If AccessiblePrepareJawsIntentionalFoulTest% = 1 Then GoTo 529 Else Exit Sub
     End If
 
+    '$Include: 'AccessibleLastFiveTestSetup.bi'
+
     If accessibleEngineMode = 1 And IsAccessibleStrategyOwnershipTestMode% = 1 Then
         testStrategyOwnership = AccessibleRunStrategyOwnershipTest%
         Exit Sub
@@ -2106,13 +2108,24 @@ Sub COLHOOP ()
 
         Else
 
+            LastFiveHumanDecision:
             Call LASTFIVEMENU
 
             280 '
             Do
-                I$ = GetKeyPress$
+                If accessibleEngineMode = 1 Then
+                    I$ = AccessibleReadCommand$("Enter a choice from 0 through 5: ")
+                Else
+                    I$ = GetKeyPress$
+                End If
                 I1% = Val(I$)
-            Loop Until I1% >= 0 And I1% <= 5 And Not (I1% = 3 And timeouts(P9) <= 0) And ((I1% = 1 Or I1% = 4) And threePtOpt = 1)
+                validLastChoice = Len(I$) = 1 And I$ >= "0" And I$ <= "5"
+                If I1% = 3 And timeouts(P) <= 0 Then validLastChoice = 0
+                If (I1% = 1 Or I1% = 4) And threePtOpt = 0 Then validLastChoice = 0
+                If accessibleEngineMode = 1 And validLastChoice = 0 Then Print "That choice is unavailable. Enter a displayed option."
+            Loop Until validLastChoice
+
+            '$Include: 'AccessibleLastFiveTestResult.bi'
 
             Color 15, 0
             Call SCOREBOARD
@@ -13990,6 +14003,21 @@ End Sub
 'all the user options for the last 5 sec.
 'of the game
 Sub LASTFIVEMENU ()
+
+    If accessibleEngineMode = 1 Then
+        Call AccessibleFlushPbp
+        Print
+        Print "Late-game offensive decision."
+        Call AccessiblePrintGameStatus
+        Print "Final five seconds."
+        Print "0. Full-court pass for a two-point shot. Requires 0.1 to 3 seconds."
+        If threePtOpt = 1 Then Print "1. Full-court pass for a three-point shot. Requires 0.1 to 3 seconds."
+        Print "2. Shoot from the backcourt. Requires 0.1 to 0.5 seconds."
+        If timeouts(P) > 0 Then Print "3. Get to half court and call timeout. Requires 1.5 to 2.5 seconds."
+        If threePtOpt = 1 Then Print "4. Work down the floor for a three-point shot. Requires 3 to 4 seconds."
+        Print "5. Work down the floor for a two-point shot. Requires 3 to 5 seconds."
+        Exit Sub
+    End If
 
     Call FRAMEOPTION(12, P)
     Locate 10, 15
