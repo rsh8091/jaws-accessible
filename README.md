@@ -125,4 +125,4 @@ Contact me directly if interested in contributing. Only considering people who s
 
 ## Employer
 
-I am currently an Oracle employee. All of this work is done on my own time, on my own machine, and has not used any Oracle resources.
+I am a former Oracle employee. All changes I made to this project during my employment at Oracle were made on my own time, not on Oracle's time, using my own machine and no Oracle resources.
