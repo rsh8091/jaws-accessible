@@ -8,7 +8,7 @@ $executablePath = (Resolve-Path -LiteralPath $Executable).Path
 $scriptedInput = [System.Collections.Generic.List[string]]::new()
 @(
     '1', '2025', 'duke', '1', '2003', 'syracuse', '1', '1',
-    '2', '1', '1', 'confirm', 'continue', 'continue', 'auto', '1', '1'
+    '2', '1', '1', 'confirm', 'continue', 'continue', 'auto', '1', '3'
 ) | ForEach-Object { $scriptedInput.Add($_) }
 
 # Two is a valid second-player pass target and a two-point-shot choice.
@@ -37,7 +37,6 @@ $expectedText = @(
     'Offensive strategy:',
     'is running',
     'Defensive strategy:',
-    'SHOT %',
     'Offensive choices',
     'Your team, SYRACUSE, is on offense.',
     'Shot clock:',
@@ -53,7 +52,8 @@ $expectedText = @(
     'Offensive style for SYRACUSE.',
     'Offensive style set to MOTION.',
     'Defensive style for SYRACUSE.',
-    'Defensive style set to SOLID MAN-TO-MAN.',
+    'Defensive style set to 2-3 ZONE (PASSIVE).',
+    'Defensive strategy: SYRACUSE is running 2-3 ZONE (PASSIVE).',
     '2 original-simulator possessions completed.',
     'Original simulator validation complete.'
 )
@@ -62,6 +62,10 @@ foreach ($expected in $expectedText) {
     if (-not $transcript.Contains($expected)) {
         throw "Accessible human-versus-computer transcript did not contain: $expected`n$transcript"
     }
+}
+
+if ($transcript.Contains('SHOT %')) {
+    throw 'Legacy fixed-position shot percentage leaked into accessible narration.'
 }
 
 Write-Output 'Accessible human-versus-computer transcript test passed.'

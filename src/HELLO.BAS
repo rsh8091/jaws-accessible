@@ -3635,7 +3635,9 @@ Sub COLHOOP ()
     If shotChance! <= 0 Then shotChance! = 1
     If shotChance! >= 100 Then shotChance! = 99
 
-    If (autoPlay = 0 Or pbpDelay! > 0) Then
+    'The fixed-position shot display overwrites accessible narration (including
+    'defensive strategy). AccessibleReadPlayChoice announces shot chances instead.
+    If accessibleEngineMode = 0 And (autoPlay = 0 Or pbpDelay! > 0) Then
 
         If pbpOpt = 1 Then
 
