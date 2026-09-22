@@ -452,64 +452,6 @@ Sub AccessibleMainMenu ()
 End Sub
 
 
-Sub AccessibleSingleGameSetup ()
-
-    visitorYear$ = ""
-    homeYear$ = ""
-    visitorIdx = 0
-    homeIdx = 0
-    visitorName$ = ""
-    homeName$ = ""
-
-    Print "Single-game setup"
-    Print "Enter back at any prompt to return to the main menu."
-
-    Do
-        If AccessibleChooseTeam%("visiting", visitorYear$, visitorIdx, visitorName$) = 0 Then Exit Sub
-        If AccessibleChooseTeam%("home", homeYear$, homeIdx, homeName$) = 0 Then Exit Sub
-
-        Print
-        Print "Matchup"
-        Print "Visitor: "; AccessibleTeamDisplay$(visitorName$); " ("; visitorYear$; ")"
-        Print "Home: "; AccessibleTeamDisplay$(homeName$); " ("; homeYear$; ")"
-        Print "1. Confirm matchup."
-        Print "2. Change visiting team."
-        Print "3. Change home team."
-        Print "4. Cancel."
-
-        commandValue$ = AccessibleReadCommand$("Enter choice: ")
-
-        Select Case commandValue$
-            Case "1", "confirm", "yes", "y"
-                Print
-                Print "Matchup confirmed: "; AccessibleTeamDisplay$(visitorName$); " at "; AccessibleTeamDisplay$(homeName$); "."
-                If AccessibleConfigureGame% = 1 Then
-                    If AccessiblePrepareMatchup%(visitorYear$, homeYear$, visitorIdx, homeIdx) = 1 Then
-                        If AccessibleChooseStartingLineups% = 1 Then
-                            Print
-                            Print "Ready for tipoff."
-                            Call AccessibleRunGame
-                        End If
-                    End If
-                Else
-                    Print "Game configuration canceled."
-                End If
-                Exit Sub
-            Case "2", "visitor", "visiting"
-                visitorIdx = 0
-            Case "3", "home"
-                homeIdx = 0
-            Case "4", "cancel", "back", "exit"
-                Print "Single-game setup canceled."
-                Exit Sub
-            Case Else
-                Print "Choice not recognized. Enter 1, 2, 3, or 4."
-        End Select
-    Loop
-
-End Sub
-
-
 Sub AccessibleRunGame ()
 
     Print
@@ -1696,104 +1638,12 @@ Sub AccessibleDefPlaySafeNormal (teamIdx)
 End Sub
 
 
-Function AccessibleConfigureGame% Static
-
-    AccessibleConfigureGame% = 0
-
-    Print
-    Print "Game control"
-    Print "1. Human controls both teams."
-    Print "2. Human controls home; computer controls visitor."
-    Print "3. Human controls visitor; computer controls home."
-    Print "4. Computer controls both teams."
-
-    Do
-        commandValue$ = AccessibleReadCommand$("Enter control mode, or back: ")
-        If commandValue$ = "back" Or commandValue$ = "cancel" Then Exit Function
-        accessiblePlayerOpt = Val(commandValue$) - 1
-        If accessiblePlayerOpt >= 0 And accessiblePlayerOpt <= 3 And LTrim$(Str$(accessiblePlayerOpt + 1)) = commandValue$ Then Exit Do
-        Print "Enter a number from 1 through 4."
-    Loop
-
-    Print
-    Print "Game location"
-    Print "1. Home-court advantage."
-    Print "2. Neutral site."
-    Do
-        commandValue$ = AccessibleReadCommand$("Enter location, or back: ")
-        If commandValue$ = "back" Or commandValue$ = "cancel" Then Exit Function
-        accessibleGameLoc = Val(commandValue$)
-        If accessibleGameLoc >= 1 And accessibleGameLoc <= 2 And LTrim$(Str$(accessibleGameLoc)) = commandValue$ Then Exit Do
-        Print "Enter 1 for home court or 2 for neutral site."
-    Loop
-
-    Print
-    Print "Rule settings"
-    Print "1. Modern college rules: 30-second shot clock, three-point shot, five fouls to disqualify."
-    Print "2. Custom rules."
-    Do
-        commandValue$ = AccessibleReadCommand$("Enter rule set, or back: ")
-        If commandValue$ = "back" Or commandValue$ = "cancel" Then Exit Function
-        If commandValue$ = "1" Or commandValue$ = "modern" Then
-            accessibleShotClock = 30
-            accessibleThreePoint = 1
-            accessibleFoulsToDQ = 5
-            Exit Do
-        ElseIf commandValue$ = "2" Or commandValue$ = "custom" Then
-            Do
-                shotValue$ = AccessibleReadCommand$("Shot clock in seconds: 0, 30, 35, or 45: ")
-                accessibleShotClock = Val(shotValue$)
-                If shotValue$ = "0" Or shotValue$ = "30" Or shotValue$ = "35" Or shotValue$ = "45" Then Exit Do
-                Print "Enter 0, 30, 35, or 45."
-            Loop
-            Do
-                threeValue$ = AccessibleReadCommand$("Use the three-point shot? yes or no: ")
-                If threeValue$ = "yes" Or threeValue$ = "y" Then
-                    accessibleThreePoint = 1
-                    Exit Do
-                ElseIf threeValue$ = "no" Or threeValue$ = "n" Then
-                    accessibleThreePoint = 0
-                    Exit Do
-                End If
-                Print "Enter yes or no."
-            Loop
-            Do
-                foulValue$ = AccessibleReadCommand$("Fouls to disqualify: 5 or 6: ")
-                accessibleFoulsToDQ = Val(foulValue$)
-                If foulValue$ = "5" Or foulValue$ = "6" Then Exit Do
-                Print "Enter 5 or 6."
-            Loop
-            Exit Do
-        Else
-            Print "Enter 1 for modern rules or 2 for custom rules."
-        End If
-    Loop
-
-    Print
-    Print "Game configuration summary"
-    Select Case accessiblePlayerOpt
-        Case 0: Print "Control: human controls both teams."
-        Case 1: Print "Control: human controls home; computer controls visitor."
-        Case 2: Print "Control: human controls visitor; computer controls home."
-        Case 3: Print "Control: computer controls both teams."
-    End Select
-    If accessibleGameLoc = 1 Then Print "Location: home-court advantage." Else Print "Location: neutral site."
-    If accessibleShotClock = 0 Then Print "Shot clock: none." Else Print "Shot clock: "; LTrim$(Str$(accessibleShotClock)); " seconds."
-    If accessibleThreePoint = 1 Then Print "Three-point shot: yes." Else Print "Three-point shot: no."
-    Print "Fouls to disqualify: "; LTrim$(Str$(accessibleFoulsToDQ)); "."
-
-    commandValue$ = AccessibleReadCommand$("Enter confirm to load the teams, or back: ")
-    If commandValue$ = "confirm" Or commandValue$ = "yes" Or commandValue$ = "y" Or commandValue$ = "1" Then AccessibleConfigureGame% = 1
-
-End Function
-
-
 Function AccessiblePrepareMatchup% (visitorYear$, homeYear$, visitorIdx, homeIdx) Static
 
     Shared FY%()
+    Shared rosterStatus()
 
     AccessiblePrepareMatchup% = 0
-    Call InitVar
 
     For gameIdx = 0 To 1
         If gameIdx = 0 Then
@@ -1804,27 +1654,41 @@ Function AccessiblePrepareMatchup% (visitorYear$, homeYear$, visitorIdx, homeIdx
             targetYear$ = homeYear$
         End If
 
-        diskIDs$(gameIdx) = targetYear$
-        teamGender$(gameIdx) = GetTeamGender$(targetYear$)
-        teamYears(gameIdx) = Val(targetYear$)
+        If accessibleSetupLoadedYear$(gameIdx) <> targetYear$ Or accessibleSetupLoadedIdx(gameIdx) <> selectedIdx Then
+            If accessibleSetupLoadedIdx(gameIdx) > 0 Then Print "Team changed. Review the new lineup and strategies for this team."
+            accessibleSetupLineupCount(gameIdx) = 0
+            accessibleSetupLoadedIdx(gameIdx) = 0
+            For setupSlot = 0 To 4
+                lineupIdx(gameIdx, setupSlot) = -1
+            Next setupSlot
+            For setupPlayer = 0 To 13
+                rosterStatus(gameIdx, setupPlayer) = 0
+            Next setupPlayer
+            offStrat(gameIdx) = 0: defStrat(gameIdx) = 0
+            crashBoards(gameIdx) = 0
+            Call CategorizeDefense(gameIdx)
+            diskIDs$(gameIdx) = targetYear$
+            teamGender$(gameIdx) = GetTeamGender$(targetYear$)
+            teamYears(gameIdx) = Val(targetYear$)
 
-        Call ReadGameTeam(targetYear$, gameTeams$(gameIdx), selectedIdx, gameIdx)
-        validData = 0
-        Call ReadGameExtraData(targetYear$, selectedIdx, gameIdx, validData)
-        If validData = 0 Then
-            Print "The data for "; AccessibleTeamDisplay$(gameTeams$(gameIdx)); " could not be loaded."
-            Exit Function
+            Call ReadGameTeam(targetYear$, gameTeams$(gameIdx), selectedIdx, gameIdx)
+            validData = 0
+            Call ReadGameExtraData(targetYear$, selectedIdx, gameIdx, validData)
+            If validData = 0 Then
+                Print "The data for "; AccessibleTeamDisplay$(gameTeams$(gameIdx)); " could not be loaded."
+                Exit Function
+            End If
+
+            FY%(gameIdx) = 2 * teamRat_GAME(gameIdx, 3) - teamRat_GAME(gameIdx, 4)
+            Call StartingLineup(gameIdx)
+            Call TEAMSETUP(gameIdx)
+            accessibleSetupLoadedYear$(gameIdx) = targetYear$
+            accessibleSetupLoadedIdx(gameIdx) = selectedIdx
         End If
-
-        FY%(gameIdx) = 2 * teamRat_GAME(gameIdx, 3) - teamRat_GAME(gameIdx, 4)
-        Call StartingLineup(gameIdx)
-        Call TEAMSETUP(gameIdx)
     Next gameIdx
 
     Print
     Print "Teams loaded successfully."
-    Call AccessibleShowLoadedTeam(0, "Visiting")
-    Call AccessibleShowLoadedTeam(1, "Home")
     AccessiblePrepareMatchup% = 1
 
 End Function
@@ -1846,117 +1710,8 @@ Sub AccessibleShowLoadedTeam (gameIdx, roleName$)
             Print "."
         End If
     Next playerIdx
-    commandValue$ = AccessibleReadCommand$("Enter continue when you are ready for the next section: ")
 
 End Sub
-
-
-Function AccessibleChooseStartingLineups% Static
-
-    AccessibleChooseStartingLineups% = 0
-
-    For gameIdx = 0 To 1
-        computerControlled = 0
-        If accessiblePlayerOpt = 3 Then computerControlled = 1
-        If accessiblePlayerOpt = 1 And gameIdx = 0 Then computerControlled = 1
-        If accessiblePlayerOpt = 2 And gameIdx = 1 Then computerControlled = 1
-
-        If gameIdx = 0 Then roleName$ = "Visiting" Else roleName$ = "Home"
-        If AccessibleChooseLineup%(gameIdx, roleName$, computerControlled) = 0 Then Exit Function
-    Next gameIdx
-
-    Print
-    Print "Starting lineups confirmed. Next, choose your offensive and defensive styles."
-
-    For gameIdx = 0 To 1
-        computerControlled = 0
-        If accessiblePlayerOpt = 3 Then computerControlled = 1
-        If accessiblePlayerOpt = 1 And gameIdx = 0 Then computerControlled = 1
-        If accessiblePlayerOpt = 2 And gameIdx = 1 Then computerControlled = 1
-        If computerControlled = 0 Then
-            If AccessibleChooseOffense%(gameIdx) = 0 Then Exit Function
-            If AccessibleChooseDefense%(gameIdx) = 0 Then Exit Function
-        End If
-    Next gameIdx
-    AccessibleChooseStartingLineups% = 1
-
-End Function
-
-
-Function AccessibleChooseLineup% (gameIdx, roleName$, computerControlled) Static
-
-    Dim eligibleIndices(13)
-
-    AccessibleChooseLineup% = 0
-    Print
-    Print roleName$; " starting lineup for "; AccessibleTeamDisplay$(gameTeams$(gameIdx)); "."
-
-    If computerControlled = 1 Then
-        Call AccessibleAutoLineup(gameIdx)
-        Print "The computer selected this lineup."
-        Call AccessiblePrintLineup(gameIdx, roleName$)
-        AccessibleChooseLineup% = 1
-        Exit Function
-    End If
-
-    Print "You may enter auto for a position-aware recommended lineup, or select five different player numbers."
-    eligibleCount = 0
-    For playerIdx = 0 To 13
-        If playerActive%(gameIdx, playerIdx) = 1 And players$(gameIdx, playerIdx) <> "" And UCase$(players$(gameIdx, playerIdx)) <> "XXX" Then
-            eligibleCount = eligibleCount + 1
-            eligibleIndices(eligibleCount) = playerIdx
-            Print LTrim$(Str$(eligibleCount)); ". "; players$(gameIdx, playerIdx); ", "; AccessiblePlayerPosition$(gameIdx, playerIdx); "."
-        End If
-    Next playerIdx
-
-    For slot = 0 To 4
-        Do
-            Print "Role: "; AccessibleLineupRole$(slot); "."
-            commandValue$ = AccessibleReadCommand$("Choose the " + LCase$(AccessibleLineupRole$(slot)) + " by player number, or enter auto, repeat, or back: ")
-            If commandValue$ = "back" Or commandValue$ = "cancel" Then Exit Function
-            If commandValue$ = "auto" Then
-                Call AccessibleAutoLineup(gameIdx)
-                AccessibleChooseLineup% = 1
-                Call AccessiblePrintLineup(gameIdx, roleName$)
-                Exit Function
-            ElseIf commandValue$ = "repeat" Or commandValue$ = "list" Then
-                For repeatIdx = 1 To eligibleCount
-                    Print LTrim$(Str$(repeatIdx)); ". "; players$(gameIdx, eligibleIndices(repeatIdx)); ", "; AccessiblePlayerPosition$(gameIdx, eligibleIndices(repeatIdx)); "."
-                Next repeatIdx
-            Else
-                selectedNumber = Val(commandValue$)
-                If selectedNumber >= 1 And selectedNumber <= eligibleCount And LTrim$(Str$(selectedNumber)) = commandValue$ Then
-                    selectedPlayer = eligibleIndices(selectedNumber)
-                    duplicatePlayer = 0
-                    For checkSlot = 0 To slot - 1
-                        If lineupIdx(gameIdx, checkSlot) = selectedPlayer Then duplicatePlayer = 1
-                    Next checkSlot
-                    If duplicatePlayer = 0 Then
-                        lineupIdx(gameIdx, slot) = selectedPlayer
-                        Print "Selected "; players$(gameIdx, selectedPlayer); "."
-                        If AccessiblePlayerMatchesRole%(gameIdx, selectedPlayer, slot) = 0 Then
-                            If RTrim$(positions_GAME$(gameIdx, selectedPlayer)) = "" Then
-                                Print "Warning: this season's data does not provide a position for "; players$(gameIdx, selectedPlayer); "."
-                            Else
-                                Print "Warning: recorded position "; RTrim$(positions_GAME$(gameIdx, selectedPlayer)); " does not match the "; LCase$(AccessibleLineupRole$(slot)); " role."
-                            End If
-                        End If
-                        Exit Do
-                    Else
-                        Print "That player is already in the lineup."
-                    End If
-                Else
-                    Print "Enter a displayed player number, auto, repeat, or back."
-                End If
-            End If
-        Loop
-    Next slot
-
-    Call AccessiblePrintLineup(gameIdx, roleName$)
-    commandValue$ = AccessibleReadCommand$("Enter confirm to accept this lineup, or back: ")
-    If commandValue$ = "confirm" Or commandValue$ = "yes" Or commandValue$ = "y" Or commandValue$ = "1" Then AccessibleChooseLineup% = 1
-
-End Function
 
 
 Function AccessibleChooseOffense% (gameIdx) Static
@@ -1969,8 +1724,22 @@ Function AccessibleChooseOffense% (gameIdx) Static
         For offenseIdx = 0 To 15
             Print LTrim$(Str$(offenseIdx + 1)); ". "; offStylesNew$(offenseIdx); "."
         Next offenseIdx
-        commandValue$ = AccessibleReadCommand$("Choose an offensive style from 1 through 16, or back: ")
-        If commandValue$ = "back" Or commandValue$ = "cancel" Then Exit Function
+        If accessibleSetupActive Then
+            Print "98. Keep current style and continue."
+            Call AccessibleSetupNavigation(accessibleSetupBackLabel$)
+        End If
+        If accessibleSetupActive Then
+            commandValue$ = AccessibleReadCommand$("Enter choice: ")
+        Else
+            commandValue$ = AccessibleReadCommand$("Choose an offensive style from 1 through 16, or back: ")
+        End If
+        If accessibleSetupActive Then
+            If commandValue$ = "99" Or commandValue$ = "cancel" Or commandValue$ = "exit" Then AccessibleChooseOffense% = -1: Exit Function
+            If commandValue$ = "0" Or commandValue$ = "back" Then Exit Function
+            If commandValue$ = "98" Or commandValue$ = "keep" Then commandValue$ = LTrim$(Str$(offStrat(gameIdx) + 1))
+        Else
+            If commandValue$ = "back" Or commandValue$ = "cancel" Then Exit Function
+        End If
         selectedNumber = Val(commandValue$)
         If selectedNumber >= 1 And selectedNumber <= 16 And LTrim$(Str$(selectedNumber)) = commandValue$ Then
             selectedOffense = selectedNumber - 1
@@ -2016,8 +1785,22 @@ Function AccessibleChooseDefense% (gameIdx) Static
         For defenseIdx = 0 To 17
             Print LTrim$(Str$(defenseIdx + 1)); ". "; defStyles$(defenseIdx); "."
         Next defenseIdx
-        commandValue$ = AccessibleReadCommand$("Choose a defensive style from 1 through 18, or back: ")
-        If commandValue$ = "back" Or commandValue$ = "cancel" Then Exit Function
+        If accessibleSetupActive Then
+            Print "98. Keep current style and continue."
+            Call AccessibleSetupNavigation(accessibleSetupBackLabel$)
+        End If
+        If accessibleSetupActive Then
+            commandValue$ = AccessibleReadCommand$("Enter choice: ")
+        Else
+            commandValue$ = AccessibleReadCommand$("Choose a defensive style from 1 through 18, or back: ")
+        End If
+        If accessibleSetupActive Then
+            If commandValue$ = "99" Or commandValue$ = "cancel" Or commandValue$ = "exit" Then AccessibleChooseDefense% = -1: Exit Function
+            If commandValue$ = "0" Or commandValue$ = "back" Then Exit Function
+            If commandValue$ = "98" Or commandValue$ = "keep" Then commandValue$ = LTrim$(Str$(defStrat(gameIdx) + 1))
+        Else
+            If commandValue$ = "back" Or commandValue$ = "cancel" Then Exit Function
+        End If
         selectedNumber = Val(commandValue$)
         If selectedNumber >= 1 And selectedNumber <= 18 And LTrim$(Str$(selectedNumber)) = commandValue$ Then
             selectedDefense = selectedNumber - 1
@@ -2134,82 +1917,6 @@ Function AccessiblePlayerMatchesRole% (gameIdx, playerIdx, slot) Static
 End Function
 
 
-Function AccessibleChooseTeam% (roleName$, yearNumber$, chosenIdx, teamName$) Static
-
-    Dim matchIndices(MAX_TEAMS)
-
-    AccessibleChooseTeam% = 0
-
-    Do
-        If chosenIdx = 0 Then
-            Print
-            Print "Choose the "; roleName$; " team."
-
-            If yearNumber$ = "" Then
-                commandValue$ = AccessibleReadCommand$("Enter season ID, such as 2025, or back: ")
-            Else
-                Print "Current season ID: "; yearNumber$
-                commandValue$ = AccessibleReadCommand$("Press Enter to use it, enter another season ID, or back: ")
-                If commandValue$ = "" Then commandValue$ = yearNumber$
-            End If
-
-            If commandValue$ = "back" Or commandValue$ = "cancel" Or commandValue$ = "exit" Then Exit Function
-
-            If AccessibleLoadTeams%(commandValue$) = 0 Then
-                Print "No team data was found for season ID "; commandValue$; "."
-                Print "Try a four-digit season from 1959 through 2025."
-            Else
-                yearNumber$ = commandValue$
-
-                Do
-                    searchValue$ = AccessibleReadCommand$("Enter part of a team name, list, or back: ")
-                    If searchValue$ = "back" Or searchValue$ = "cancel" Then Exit Do
-
-                    matchCount = 0
-                    For teamIdx = 1 To teamIndex(0)
-                        If searchValue$ = "list" Or searchValue$ = "" Or InStr(AccessibleTeamSearchKey$(teamNames$(teamIdx)), AccessibleTeamSearchKey$(searchValue$)) > 0 Then
-                            matchCount = matchCount + 1
-                            matchIndices(matchCount) = teamIdx
-                        End If
-                    Next teamIdx
-
-                    If matchCount = 0 Then
-                        Print "No teams matched. Try another search."
-                    Else
-                        displayCount = matchCount
-                        If displayCount > 25 Then displayCount = 25
-                        Print LTrim$(Str$(matchCount)); " team(s) matched."
-                        For matchIdx = 1 To displayCount
-                            Print LTrim$(Str$(matchIdx)); ". "; AccessibleTeamDisplay$(teamNames$(matchIndices(matchIdx)))
-                        Next matchIdx
-                        If matchCount > displayCount Then Print "Only the first 25 matches are shown. Narrow the search to see fewer results."
-
-                        selectionValue$ = AccessibleReadCommand$("Enter a displayed team number, search, or back: ")
-                        If selectionValue$ = "back" Or selectionValue$ = "cancel" Then Exit Do
-                        If selectionValue$ <> "search" Then
-                            selectedNumber = Val(selectionValue$)
-                            If selectedNumber >= 1 And selectedNumber <= displayCount And LTrim$(Str$(selectedNumber)) = selectionValue$ Then
-                                chosenIdx = teamIndex(matchIndices(selectedNumber))
-                                teamName$ = teamNames$(matchIndices(selectedNumber))
-                                Print "Selected "; AccessibleTeamDisplay$(teamName$); " as the "; roleName$; " team."
-                                AccessibleChooseTeam% = 1
-                                Exit Function
-                            Else
-                                Print "That is not a displayed team number."
-                            End If
-                        End If
-                    End If
-                Loop
-            End If
-        Else
-            AccessibleChooseTeam% = 1
-            Exit Function
-        End If
-    Loop
-
-End Function
-
-
 Function AccessibleTeamSearchKey$ (teamName$) Static
 
     searchName$ = LCase$(_Trim$(AccessibleTeamDisplay$(teamName$)))
@@ -2270,9 +1977,31 @@ Sub AccessibleShowHelp ()
     Print "This mode uses complete lines of text so screen readers can follow the game."
     Print "Enter a menu number or its command word, then press Enter."
     Print "No mouse, color, graphics, or cursor position is required."
-    Print "At the main menu, enter play, help, or exit."
+    Print "At the main menu, choose 1 to play, 2 for this help, or 3 to exit."
+    Print
+    Print "Setup navigation"
+    Print "Setup uses numbered menus. Choose 0 for Back or 99 to cancel setup."
+    Print "Back returns to the named previous step and preserves your selections."
+    Print "When displayed, 98 keeps the current selection and continues."
+    Print "In lineup selection, 98 keeps the player in the current position; 97 keeps the entire lineup."
+    Print "Back from the first setup menu returns to the main menu."
+    Print "Blank or invalid input keeps the menu open without accepting a choice."
+    Print "Typed back, cancel, and keep commands are optional shortcuts."
+    Print
+    Print "Team and lineup selection"
+    Print "Use numbered choices to enter a season ID, search by team name, or browse all teams."
+    Print "Season IDs and team search terms are entered as text. Team results have numbered page controls."
+    Print "In lineup selection, 90 uses the recommended lineup and continues; 91 repeats the player list."
+    Print "Select players by their displayed numbers. Back returns to the previous position."
+    Print "At lineup confirmation, Back returns to center selection."
+    Print "Changing one team resets that team's lineup and strategies while preserving the other team's choices."
+    Print "After a control or rule change, review the affected choices before tipoff."
+    Print
+    Print "During play"
     Print "On offense, enter 7 or clock to hear the game clock, or 5 for full status."
     Print "Clock and status reports wait for Enter before returning to offensive choices."
     Print "At play-by-play pauses, type clock to hear the time without advancing play."
 
 End Sub
+
+'$Include: 'AccessibleSetup.bm'
