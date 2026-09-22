@@ -30,10 +30,13 @@ Declare Function AccessibleChooseTeam% (roleName$, yearNumber$, chosenIdx, teamN
 Declare Function AccessibleLoadTeams% (yearNumber$) Static
 Declare Function AccessibleTeamDisplay$ (teamName$) Static
 Declare Function AccessibleTeamSearchKey$ (teamName$) Static
-Declare Function AccessibleConfigureGame% () Static
+Declare Function AccessibleConfigureGame% (setupStep) Static
+Declare Function AccessibleSetupPrevious% (setupStep) Static
+Declare Function AccessibleSetupComputer% (gameIdx) Static
+Declare Sub AccessibleSetupNavigation (backLabel$)
+Declare Sub AccessibleSetupSummary ()
 Declare Function AccessiblePrepareMatchup% (visitorYear$, homeYear$, visitorIdx, homeIdx) Static
 Declare Sub AccessibleShowLoadedTeam (gameIdx, roleName$)
-Declare Function AccessibleChooseStartingLineups% () Static
 Declare Function AccessibleChooseLineup% (gameIdx, roleName$, computerControlled) Static
 Declare Function AccessibleChooseOffense% (gameIdx) Static
 Declare Function AccessibleChooseDefense% (gameIdx) Static
