@@ -1546,6 +1546,7 @@ Sub COLHOOP ()
     End If
 
     '$Include: 'AccessibleLastFiveTestSetup.bi'
+    '$Include: 'AccessibleClockTestSetup.bi'
 
     If accessibleEngineMode = 1 And IsAccessibleStrategyOwnershipTestMode% = 1 Then
         testStrategyOwnership = AccessibleRunStrategyOwnershipTest%
@@ -2114,15 +2115,20 @@ Sub COLHOOP ()
             280 '
             Do
                 If accessibleEngineMode = 1 Then
-                    I$ = AccessibleReadCommand$("Enter a choice from 0 through 5: ")
+                    I$ = AccessibleReadCommand$("Enter a choice from 0 through 5, or 7 / clock to hear the game clock: ")
                 Else
                     I$ = GetKeyPress$
                 End If
-                I1% = Val(I$)
-                validLastChoice = Len(I$) = 1 And I$ >= "0" And I$ <= "5"
-                If I1% = 3 And timeouts(P) <= 0 Then validLastChoice = 0
-                If (I1% = 1 Or I1% = 4) And threePtOpt = 0 Then validLastChoice = 0
-                If accessibleEngineMode = 1 And validLastChoice = 0 Then Print "That choice is unavailable. Enter a displayed option."
+                If accessibleEngineMode = 1 And (I$ = "7" Or I$ = "clock") Then
+                    Call AccessibleReviewStatus(1)
+                    validLastChoice = 0
+                Else
+                    I1% = Val(I$)
+                    validLastChoice = Len(I$) = 1 And I$ >= "0" And I$ <= "5"
+                    If I1% = 3 And timeouts(P) <= 0 Then validLastChoice = 0
+                    If (I1% = 1 Or I1% = 4) And threePtOpt = 0 Then validLastChoice = 0
+                    If accessibleEngineMode = 1 And validLastChoice = 0 Then Print "That choice is unavailable. Enter a displayed option."
+                End If
             Loop Until validLastChoice
 
             '$Include: 'AccessibleLastFiveTestResult.bi'
@@ -14018,6 +14024,7 @@ Sub LASTFIVEMENU ()
         If timeouts(P) > 0 Then Print "3. Get to half court and call timeout. Requires 1.5 to 2.5 seconds."
         If threePtOpt = 1 Then Print "4. Work down the floor for a three-point shot. Requires 3 to 4 seconds."
         Print "5. Work down the floor for a two-point shot. Requires 3 to 5 seconds."
+        Print "7. Hear game clock."
         Exit Sub
     End If
 

@@ -14,6 +14,9 @@ try {
     if (([regex]::Matches($transcript,'That choice is unavailable')).Count -ne 5) { throw "Invalid input was not rejected correctly.`n$transcript" }
     $transcript = ($setup + @('','5','3')) | & $executablePath --accessible --accessible-test --accessible-last-five-test --jaws-last-five-test 2>&1 | Out-String
     if ($LASTEXITCODE -ne 0 -or -not $transcript.Contains('Manual JAWS final-five-seconds test.') -or -not $transcript.Contains('Accepted final-five choice: 5')) { throw "JAWS scenario entry failed.`n$transcript" }
+    $transcript = ($setup + @('7','clock','','clock','','5','3')) | & $executablePath --accessible --accessible-test --accessible-last-five-test 2>&1 | Out-String
+    if ($LASTEXITCODE -ne 0 -or -not $transcript.Contains('Accepted final-five choice: 5') -or $transcript.Contains('That choice is unavailable')) { throw "Final-five clock requests failed.`n$transcript" }
+    if (([regex]::Matches($transcript, 'Second half, 4 seconds remaining\.')).Count -ne 4) { throw "Final-five clock requests advanced time or were skipped.`n$transcript" }
 }
 finally { Pop-Location }
 Write-Output 'Final-five-second offensive choices passed: all six options, timeout ownership, disabled threes, unavailable timeout, and invalid input.'

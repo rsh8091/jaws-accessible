@@ -1262,6 +1262,7 @@ Function AccessibleReadPlayChoice% (teamIdx) Static
         Print "4. Call timeout."
         Print "5. Hear score, clock, and possession."
         Print "6. Hear lineup condition."
+        Print "7. Hear game clock."
         commandValue$ = AccessibleReadCommand$("Enter choice: ")
 
         Select Case commandValue$
@@ -1290,13 +1291,15 @@ Function AccessibleReadPlayChoice% (teamIdx) Static
                 Else
                     Print "Your team has no timeouts remaining."
                 End If
-            Case "5", "status", "score", "clock"
-                Call AccessiblePrintGameStatus
+            Case "5", "status", "score"
+                Call AccessibleReviewStatus(0)
+            Case "7", "clock"
+                Call AccessibleReviewStatus(1)
             Case "6", "lineup", "condition", "fatigue", "stamina"
                 Call AccessiblePrintLineupCondition(teamIdx)
                 commandValue$ = AccessibleReadCommand$("Press Enter to return to offensive choices: ")
             Case Else
-                If threePtOpt = 1 Then Print "Enter a choice from 1 through 6." Else Print "Enter 1, 2, 4, 5, or 6."
+                If threePtOpt = 1 Then Print "Enter a choice from 1 through 7." Else Print "Enter 1, 2, 4, 5, 6, or 7."
         End Select
         Cls
     Loop
@@ -1316,15 +1319,51 @@ Sub AccessiblePrintLineupCondition (teamIdx)
 End Sub
 
 
+Sub AccessiblePrintGameClock ()
+
+    remainingSeconds = Int(gameClock!)
+    If remainingSeconds < 0 Then remainingSeconds = 0
+    clockMinutes = Int(remainingSeconds / 60)
+    clockSeconds = remainingSeconds - clockMinutes * 60
+    clockText$ = ""
+    If clockMinutes > 0 Then
+        clockText$ = LTrim$(Str$(clockMinutes)) + " minute"
+        If clockMinutes <> 1 Then clockText$ = clockText$ + "s"
+    End If
+    If clockSeconds > 0 Or clockMinutes = 0 Then
+        If clockText$ <> "" Then clockText$ = clockText$ + " "
+        clockText$ = clockText$ + LTrim$(Str$(clockSeconds)) + " second"
+        If clockSeconds <> 1 Then clockText$ = clockText$ + "s"
+    End If
+    Select Case currHalf
+        Case 1: periodText$ = "First half"
+        Case 2: periodText$ = "Second half"
+        Case Else: periodText$ = "Overtime " + LTrim$(Str$(currHalf - 2))
+    End Select
+    Print periodText$; ", "; clockText$; " remaining."
+
+End Sub
+
+
+Sub AccessibleReviewStatus (clockOnly)
+
+    If clockOnly Then Call AccessiblePrintGameClock Else Call AccessiblePrintGameStatus
+    Do
+        reviewCommand$ = AccessibleReadCommand$("Press Enter to return to offensive choices, or type clock to hear the time again: ")
+        Select Case reviewCommand$
+            Case "": Exit Do
+            Case "clock": Call AccessiblePrintGameClock
+            Case Else: Print "Press Enter to return, or type clock."
+        End Select
+    Loop
+
+End Sub
+
+
 Sub AccessiblePrintGameStatus ()
 
-    clockMinutes = Int(gameClock! / 60)
-    clockSeconds = Int(gameClock! - clockMinutes * 60)
-    clockText$ = LTrim$(Str$(clockMinutes)) + ":"
-    If clockSeconds < 10 Then clockText$ = clockText$ + "0"
-    clockText$ = clockText$ + LTrim$(Str$(clockSeconds))
     Print "Score: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 0))); "."
-    If currHalf <= 2 Then Print "Half "; LTrim$(Str$(currHalf)); ", "; clockText$; " remaining." Else Print "Overtime "; LTrim$(Str$(currHalf - 2)); ", "; clockText$; " remaining."
+    Call AccessiblePrintGameClock
     Print "Possession: "; AccessibleTeamDisplay$(gameTeams$(P)); "."
     If sClockVal > 0 Then Print "Shot clock: "; LTrim$(Str$(shotClock)); "."
     Print "Offensive strategy: "; AccessibleTeamDisplay$(gameTeams$(P)); " is running "; _Trim$(offStylesNew$(offStrat(P))); "."
@@ -1367,9 +1406,17 @@ Sub AccessibleFlushPbp ()
         End If
     Next eventIdx
     If accessiblePauseEvents = 1 Then
-        Line Input "Press Enter to continue, or type end to finish this segment: "; accessibleContinue$
-        accessibleContinue$ = LCase$(_Trim$(accessibleContinue$))
-        If accessibleContinue$ = "end" Or accessibleContinue$ = "quit" Or accessibleContinue$ = "q" Then accessibleEngineStopRequested = 1
+        Do
+            accessibleContinue$ = AccessibleReadCommand$("Press Enter to continue, or type end to finish this segment: ")
+            Select Case accessibleContinue$
+                Case "", "continue": Exit Do
+                Case "end", "quit", "q"
+                    accessibleEngineStopRequested = 1
+                    Exit Do
+                Case "clock": Call AccessiblePrintGameClock
+                Case Else: Print "Press Enter to continue, or type clock or end."
+            End Select
+        Loop
     End If
     accessiblePbpGroupCount = 0
     accessiblePbpGroupTeam = -1
@@ -2224,5 +2271,8 @@ Sub AccessibleShowHelp ()
     Print "Enter a menu number or its command word, then press Enter."
     Print "No mouse, color, graphics, or cursor position is required."
     Print "At the main menu, enter play, help, or exit."
+    Print "On offense, enter 7 or clock to hear the game clock, or 5 for full status."
+    Print "Clock and status reports wait for Enter before returning to offensive choices."
+    Print "At play-by-play pauses, type clock to hear the time without advancing play."
 
 End Sub
