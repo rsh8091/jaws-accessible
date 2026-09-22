@@ -47,6 +47,8 @@ Declare Function AccessibleReadDefenderChoice% (teamIdx) Static
 Declare Function AccessibleReadStrategicFoulChoice% (defendingTeam) Static
 Declare Function AccessibleReadPlayChoice% (teamIdx) Static
 Declare Sub AccessiblePrintGameStatus ()
+Declare Sub AccessiblePrintGameClock ()
+Declare Sub AccessibleReviewStatus (clockOnly)
 Declare Sub AccessiblePrintLineupCondition (teamIdx)
 Declare Sub AccessibleQueuePbp (teamIdx, eventText$)
 Declare Sub AccessibleFlushPbp ()

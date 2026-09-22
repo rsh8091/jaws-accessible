@@ -33,7 +33,7 @@ $expectedText = @(
     'Current lineup for SYRACUSE.',
     'B.EDELIN replaces C.FORTH as center.',
     'Second-half possession reached after halftime substitution.',
-    'Half 2, ',
+    'Second half, ',
     'Original simulator validation complete.',
     'Exiting Courtside College Basketball.'
 )
