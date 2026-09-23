@@ -1,0 +1,96 @@
+' Return 1 after a substitution, 0 for Back at the first step, -1 for Cancel.
+' Context: 0 = dead ball, 1 = halftime, 2 = timeout.
+Function AccessibleSubstitutionMenu% (humanTeam, returnContext)
+    AccessibleSubstitutionMenu% = 0
+    If returnContext = 1 Then
+        returnLabel$ = "halftime options"
+        If accessiblePlayerOpt = 0 Then backLabel$ = "team selection" Else backLabel$ = returnLabel$
+    Else
+        If returnContext = 2 Then returnLabel$ = "timeout options" Else returnLabel$ = "dead-ball options"
+        backLabel$ = returnLabel$
+    End If
+    Cls
+    Do
+        Print "Current lineup for "; AccessibleTeamDisplay$(gameTeams$(humanTeam)); "."
+        For slot = 0 To 4
+            playerIdx = lineupIdx(humanTeam, slot)
+            Print LTrim$(Str$(slot + 1)); ". "; AccessibleLineupRole$(slot); ": "; players$(humanTeam, playerIdx); ", fouls "; LTrim$(Str$(plyrOff_GAME!(humanTeam, playerIdx, 12))); ", stamina "; LTrim$(Str$(playerStamina%(humanTeam, playerIdx))); "."
+        Next slot
+        Print "0. Back to "; backLabel$; "."
+        Print "99. Cancel substitution and return to "; returnLabel$; "."
+        commandValue$ = AccessibleReadCommand$("Choose the lineup position to replace: ")
+        If commandValue$ = "0" Or commandValue$ = "back" Then Exit Function
+        If commandValue$ = "99" Or commandValue$ = "cancel" Then AccessibleSubstitutionMenu% = -1: Exit Function
+        selectedSlot = Val(commandValue$) - 1
+        If selectedSlot < 0 Or selectedSlot > 4 Or LTrim$(Str$(selectedSlot + 1)) <> commandValue$ Then
+            Print "Choose a displayed lineup position, 0 for Back, or 99 to cancel. Your lineup is unchanged."
+        Else
+            Do
+                Print
+                Print "Replacing "; players$(humanTeam, lineupIdx(humanTeam, selectedSlot)); " as "; LCase$(AccessibleLineupRole$(selectedSlot)); "."
+                Print "Available substitutes"
+                availableCount = 0
+                For playerIdx = 0 To 13
+                    If playerActive%(humanTeam, playerIdx) = 1 And playerInLineup%(humanTeam, playerIdx) = 0 And plyrOff_GAME!(humanTeam, playerIdx, 12) < foulsToDQ And players$(humanTeam, playerIdx) <> "" And UCase$(players$(humanTeam, playerIdx)) <> "XXX" Then
+                        availableCount = availableCount + 1
+                        Print LTrim$(Str$(playerIdx + 1)); ". "; players$(humanTeam, playerIdx); ", "; AccessiblePlayerPosition$(humanTeam, playerIdx); ", fouls "; LTrim$(Str$(plyrOff_GAME!(humanTeam, playerIdx, 12))); ", stamina "; LTrim$(Str$(playerStamina%(humanTeam, playerIdx))); "."
+                    End If
+                Next playerIdx
+                If availableCount = 0 Then Print "No eligible substitutes are available. Choose Back or Cancel."
+                Print "0. Back to choosing the player to replace."
+                Print "99. Cancel substitution and return to "; returnLabel$; "."
+                commandValue$ = AccessibleReadCommand$("Choose a displayed substitute number: ")
+                If commandValue$ = "0" Or commandValue$ = "back" Then Exit Do
+                If commandValue$ = "99" Or commandValue$ = "cancel" Then AccessibleSubstitutionMenu% = -1: Exit Function
+                selectedPlayer = Val(commandValue$) - 1
+                validSelection = 0
+                If selectedPlayer >= 0 And selectedPlayer <= 13 And LTrim$(Str$(selectedPlayer + 1)) = commandValue$ Then
+                    If playerActive%(humanTeam, selectedPlayer) = 1 And playerInLineup%(humanTeam, selectedPlayer) = 0 And plyrOff_GAME!(humanTeam, selectedPlayer, 12) < foulsToDQ And players$(humanTeam, selectedPlayer) <> "" And UCase$(players$(humanTeam, selectedPlayer)) <> "XXX" Then validSelection = 1
+                End If
+                If validSelection Then
+                    outgoingPlayer = lineupIdx(humanTeam, selectedSlot)
+                    Call ApplySubstitutionRest(humanTeam, outgoingPlayer, selectedPlayer)
+                    lineupIdx(humanTeam, selectedSlot) = selectedPlayer
+                    Print players$(humanTeam, selectedPlayer); " replaces "; players$(humanTeam, outgoingPlayer); " as "; LCase$(AccessibleLineupRole$(selectedSlot)); "."
+                    If AccessiblePlayerMatchesRole%(humanTeam, selectedPlayer, selectedSlot) = 0 Then Print "Warning: the substitute's recorded position does not match this lineup role."
+                    If returnContext <> 1 Then commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
+                    AccessibleSubstitutionMenu% = 1
+                    Exit Function
+                Else
+                    Print "That player is not an available substitute. Choose a displayed number, 0 for Back, or 99 to cancel. Your lineup is unchanged."
+                End If
+            Loop
+        End If
+    Loop
+End Function
+
+Sub AccessibleHalftimeSubstitution ()
+    If accessiblePlayerOpt = 3 Then
+        Print "Both teams are computer controlled."
+        Exit Sub
+    End If
+    If accessiblePlayerOpt <> 0 Then
+        If accessiblePlayerOpt = 1 Then humanTeam = 1 Else humanTeam = 0
+        substitutionResult = AccessibleSubstitutionMenu%(humanTeam, 1)
+        Exit Sub
+    End If
+    Do
+        Print "Choose the team to change."
+        Print "1. Visiting team."
+        Print "2. Home team."
+        Print "0. Back to halftime options."
+        Print "99. Cancel substitution and return to halftime options."
+        commandValue$ = AccessibleReadCommand$("Enter choice: ")
+        humanTeam = -1
+        Select Case commandValue$
+            Case "1", "visitor", "visiting": humanTeam = 0
+            Case "2", "home": humanTeam = 1
+            Case "0", "back", "99", "cancel": Exit Sub
+            Case Else: Print "Choose a displayed team, 0 for Back, or 99 to cancel."
+        End Select
+        If humanTeam >= 0 Then
+            substitutionResult = AccessibleSubstitutionMenu%(humanTeam, 1)
+            If substitutionResult <> 0 Then Exit Sub
+        End If
+    Loop
+End Sub

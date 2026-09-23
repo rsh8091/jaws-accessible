@@ -1547,6 +1547,7 @@ Sub COLHOOP ()
 
     '$Include: 'AccessibleLastFiveTestSetup.bi'
     '$Include: 'AccessibleClockTestSetup.bi'
+    '$Include: 'AccessibleSubstitutionTestSetup.bi'
 
     If accessibleEngineMode = 1 And IsAccessibleStrategyOwnershipTestMode% = 1 Then
         testStrategyOwnership = AccessibleRunStrategyOwnershipTest%
@@ -11393,7 +11394,6 @@ Sub ChooseLineup (teamIdx)
                     Locate LAST_ROW, 1: Print Space$(25);
 
                     Z = lineupIdx(teamIdx, slot)
-                    playerTime(teamIdx, Z) = gameClock!
 
                     nonPlayers = 0
 
@@ -11473,19 +11473,6 @@ Sub ChooseLineup (teamIdx)
 
                     Loop Until posn >= 0 And posn <= 13
 
-                    'FATIGUE
-                    If playerTime(teamIdx, posn) - gameClock! > 60 And playerTime(teamIdx, posn) < 120 Then
-                        tmFatigue(teamIdx, posn) = tmFatigue(teamIdx, posn) + 1
-                    End If
-
-                    If playerTime(teamIdx, posn) - gameClock! >= 120 Then
-                        tmFatigue(teamIdx, posn) = tmFatigue(teamIdx, posn) + 4
-                    End If
-
-                    If tmFatigue(teamIdx, posn) > 0 Then
-                        tmFatigue(teamIdx, posn) = 0
-                    End If
-
                     nonPlayers = 0
 
                     'Clear any warnings during lineup selection
@@ -11493,6 +11480,7 @@ Sub ChooseLineup (teamIdx)
                     Print Space$(40)
 
                     If goodLineup = 1 Then
+                        Call ApplySubstitutionRest(teamIdx, lineupIdx(teamIdx, slot), posn)
                         lineupIdx(teamIdx, slot) = posn
                     End If
 
@@ -11609,11 +11597,25 @@ End Sub
 
 
 '----------------------------------------
-'        DisplayRoster Subroutine
+'        Substitution rest recovery
 '----------------------------------------
-'This subroutine displays the starting
-'lineup for each team and gives the user
-'an interface for changing the lineup
+Sub ApplySubstitutionRest (teamIdx, outgoingPlayer, incomingPlayer)
+
+    playerTime(teamIdx, outgoingPlayer) = gameClock!
+    ' Preserve the original ChooseLineup recovery rules, including the test
+    ' against the stored clock value (not elapsed rest) in the one-point rule.
+    If playerTime(teamIdx, incomingPlayer) - gameClock! > 60 And playerTime(teamIdx, incomingPlayer) < 120 Then
+        tmFatigue(teamIdx, incomingPlayer) = tmFatigue(teamIdx, incomingPlayer) + 1
+    End If
+    If playerTime(teamIdx, incomingPlayer) - gameClock! >= 120 Then
+        tmFatigue(teamIdx, incomingPlayer) = tmFatigue(teamIdx, incomingPlayer) + 4
+    End If
+    If tmFatigue(teamIdx, incomingPlayer) > 0 Then tmFatigue(teamIdx, incomingPlayer) = 0
+
+End Sub
+
+
+'This subroutine displays the starting lineup and allows lineup changes.
 Sub DisplayRoster (teamIdx)
 
     Cls
