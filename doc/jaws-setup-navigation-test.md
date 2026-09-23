@@ -1,6 +1,6 @@
 # Setup navigation check (issue #4)
 
-Run `Test JAWS Setup Navigation.cmd` with JAWS running. It uses `bin\HELLO.exe`, keeps keyboard input connected to the console, and stops after setup instead of starting gameplay. Manual JAWS verification is pending.
+Run `Test JAWS Setup Navigation.cmd` with JAWS running. It uses `bin\HELLO.exe`, keeps keyboard input connected to the console, and stops after setup instead of starting gameplay. On September 23, 2026, the user reported that this navigation had seemed fine in JAWS testing; individual checklist steps were not separately recorded.
 
 Numbered menus are the primary interface. Every setup menu announces `0` for Back and names its destination, plus `99` for Cancel setup. A displayed Keep option retains a selection explicitly; blank input does not accept it. Typed `back`, `cancel`, and `keep` remain optional shortcuts.
 

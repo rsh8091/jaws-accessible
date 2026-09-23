@@ -54,7 +54,6 @@ $expectedText = @(
     'Defensive style for SYRACUSE.',
     'Defensive style set to 2-3 ZONE (PASSIVE).',
     'Defensive strategy: SYRACUSE is running 2-3 ZONE (PASSIVE).',
-    '2 original-simulator possessions completed.',
     'Original simulator validation complete.'
 )
 
@@ -62,6 +61,13 @@ foreach ($expected in $expectedText) {
     if (-not $transcript.Contains($expected)) {
         throw "Accessible human-versus-computer transcript did not contain: $expected`n$transcript"
     }
+}
+
+# The engine extends this segment if turnovers prevent a human decision in the
+# first two possessions. The menu assertions above still require that decision.
+$completion = [regex]::Match($transcript, '(?m)^(\d+) original-simulator possessions completed\.')
+if (-not $completion.Success -or [int]$completion.Groups[1].Value -lt 2) {
+    throw "Accessible human-versus-computer segment did not finish at least two possessions.`n$transcript"
 }
 
 if ($transcript.Contains('SHOT %')) {
