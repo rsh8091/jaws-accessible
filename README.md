@@ -16,8 +16,8 @@ Since 1983 Lance Haffner Games has been publishing the finest quality text-based
 Lance Haffner Games were some of the premier sports simulators of the 80's. They were a staple of of the mail order days and served as one of the earliest computer sports simulations. Available for several platforms at the time thanks to their use of BASIC, they fast became known for their impressive accuracy and surprisingly quick speed. Not only that, they allowed very detailed and thorough team, conference and season management - yet somehow maintained an entertaining feel with gameplay that was never overly detailed. 
 
 ### Visuals ###
-<img src="cbb-manual.png" width=394 height=344>
-<img src="cbb-screen1.png">
+<img src="cbb-manual.png" width=394 height=344 alt="two basketball players, in uniform. The player in red and gold defending while the player in blue and white dribbles past them.">
+<img src="cbb-screen1.png" alt="screenshot of the game console showing a game in progress between St Peter's and North Carolina. UNC is up 44-24 with 3:28 left in the first half. The console shows the following players on the court for St Peter's: Diallo, Lee, Silvera, Brake, and Edert (from the Peacock's 2020-2021 team). The console shows the following players on the court for UNC: Strickland, Barnes, Bullock, McAdoo, and Henson (from the Tar Heels' 2011-2012 team). St Peter's is having problems with turnovers (5 to UNC's 1), is getting out-rebounded by UNC 13-18, and has 14 team fouls to UNC's 1. GO HEELS!!"
 
 # The Game #
 
