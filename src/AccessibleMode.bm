@@ -582,10 +582,14 @@ Function AccessibleHalftimeMenu% Static
         Print
         Print "Halftime options"
         Print "1. Start the second half."
-        Print "2. Hear the visiting lineup."
-        Print "3. Hear the home lineup."
+        Print "2. Hear the current visiting lineup."
+        Print "3. Hear the current home lineup."
         If accessiblePlayerOpt < 3 Then Print "4. Make a halftime substitution."
         Print "5. End the game segment at halftime."
+        If accessiblePlayerOpt < 3 Then
+            Print "6. Change offensive style."
+            Print "7. Change defensive style."
+        End If
         commandValue$ = AccessibleReadCommand$("Enter choice: ")
 
         Select Case commandValue$
@@ -602,13 +606,54 @@ Function AccessibleHalftimeMenu% Static
                 Call AccessibleHalftimeSubstitution
             Case "5", "finish", "end", "quit", "exit"
                 Exit Do
+            Case "6", "offense"
+                Call AccessibleHalftimeStrategy(0)
+            Case "7", "defense"
+                Call AccessibleHalftimeStrategy(1)
             Case Else
-                Print "Enter a choice from 1 through 5."
+                Print "Enter a displayed numbered choice."
                 commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
         End Select
     Loop
 
 End Function
+
+
+Sub AccessibleHalftimeStrategy (defenseChoice)
+
+    If accessiblePlayerOpt = 3 Then
+        Print "Both teams are computer controlled."
+        Exit Sub
+    End If
+    If accessiblePlayerOpt = 0 Then
+        Do
+            Print "Choose the team whose halftime strategy to change."
+            Print "1. Visiting team."
+            Print "2. Home team."
+            Print "0. Back to halftime options."
+            teamChoice$ = AccessibleReadCommand$("Enter choice: ")
+            Select Case teamChoice$
+                Case "1": strategyTeam = 0: Exit Do
+                Case "2": strategyTeam = 1: Exit Do
+                Case "0", "back", "cancel": Exit Sub
+                Case Else: Print "Choose 1, 2, or 0."
+            End Select
+        Loop
+    Else
+        If accessiblePlayerOpt = 1 Then strategyTeam = 1 Else strategyTeam = 0
+    End If
+    'The clock is zero at halftime; validate tactics for the start of half two,
+    'not for the final seconds. Restore it for the remaining halftime review.
+    savedHalftimeClock! = gameClock!
+    gameClock! = 1200
+    If defenseChoice Then
+        ignoredChoice = AccessibleChooseDefense%(strategyTeam)
+    Else
+        ignoredChoice = AccessibleChooseOffense%(strategyTeam)
+    End If
+    gameClock! = savedHalftimeClock!
+
+End Sub
 
 
 Sub AccessiblePrintRegulationSummary ()
@@ -1664,14 +1709,15 @@ Function AccessibleChooseOffense% (gameIdx) Static
         If accessibleSetupActive Then
             commandValue$ = AccessibleReadCommand$("Enter choice: ")
         Else
-            commandValue$ = AccessibleReadCommand$("Choose an offensive style from 1 through 16, or back: ")
+            Print "0. Back without changing style."
+            commandValue$ = AccessibleReadCommand$("Choose an offensive style from 1 through 16, or 0 for Back: ")
         End If
         If accessibleSetupActive Then
             If commandValue$ = "99" Or commandValue$ = "cancel" Or commandValue$ = "exit" Then AccessibleChooseOffense% = -1: Exit Function
             If commandValue$ = "0" Or commandValue$ = "back" Then Exit Function
             If commandValue$ = "98" Or commandValue$ = "keep" Then commandValue$ = LTrim$(Str$(offStrat(gameIdx) + 1))
         Else
-            If commandValue$ = "back" Or commandValue$ = "cancel" Then Exit Function
+            If commandValue$ = "0" Or commandValue$ = "back" Or commandValue$ = "cancel" Then Exit Function
         End If
         selectedNumber = Val(commandValue$)
         If selectedNumber >= 1 And selectedNumber <= 16 And LTrim$(Str$(selectedNumber)) = commandValue$ Then
@@ -1725,14 +1771,15 @@ Function AccessibleChooseDefense% (gameIdx) Static
         If accessibleSetupActive Then
             commandValue$ = AccessibleReadCommand$("Enter choice: ")
         Else
-            commandValue$ = AccessibleReadCommand$("Choose a defensive style from 1 through 18, or back: ")
+            Print "0. Back without changing style."
+            commandValue$ = AccessibleReadCommand$("Choose a defensive style from 1 through 18, or 0 for Back: ")
         End If
         If accessibleSetupActive Then
             If commandValue$ = "99" Or commandValue$ = "cancel" Or commandValue$ = "exit" Then AccessibleChooseDefense% = -1: Exit Function
             If commandValue$ = "0" Or commandValue$ = "back" Then Exit Function
             If commandValue$ = "98" Or commandValue$ = "keep" Then commandValue$ = LTrim$(Str$(defStrat(gameIdx) + 1))
         Else
-            If commandValue$ = "back" Or commandValue$ = "cancel" Then Exit Function
+            If commandValue$ = "0" Or commandValue$ = "back" Or commandValue$ = "cancel" Then Exit Function
         End If
         selectedNumber = Val(commandValue$)
         If selectedNumber >= 1 And selectedNumber <= 18 And LTrim$(Str$(selectedNumber)) = commandValue$ Then
@@ -1938,6 +1985,12 @@ Sub AccessibleShowHelp ()
     Print "Completed substitutions record the outgoing player's bench time and apply the original simulator's bench-rest recovery to the incoming player."
     Print "Back, Cancel, and invalid choices do not change fatigue or bench times."
     Print "When both teams are human controlled at halftime, Back from player selection returns to team selection."
+    Print "At halftime, 6 changes your offensive style and 7 changes your defensive style; 0 leaves a style menu without changing it."
+    Print "With two human teams, choose which team to adjust. Computer teams retain computer coaching control."
+    Print "Strategy changes return to halftime options. Late-game-only tactics are unavailable at halftime."
+    Print "Lineup reviews at halftime show current players, including your substitutions."
+    Print "Choose 1 to start the second half. After computer coaching, both actual second-half lineups are announced."
+    Print "Press Enter after those lineups to begin second-half play."
     Print "A fouled-out player requires a valid replacement. Back, Cancel, and blank input cannot skip that replacement."
     Print "At the normal offensive menu, enter 7 or clock to hear the game clock, or 5 for full status."
     Print "At final-five-seconds offensive decisions, 7 or clock still reports the game clock; other numbers follow that menu."

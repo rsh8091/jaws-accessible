@@ -1518,6 +1518,16 @@ Sub COLHOOP ()
     End If
 
     If accessibleEngineMode = 1 And IsAccessibleHalftimeTestMode% = 1 And currHalf = 1 Then
+        For halftimeArg = 1 To _CommandCount
+            Select Case LCase$(Command$(halftimeArg))
+                Case "--halftime-control=both"
+                    playerMode = 0: accessiblePlayerOpt = 0
+                Case "--halftime-control=visitor"
+                    playerMode = 1: compTeam = 1: accessiblePlayerOpt = 2
+                Case "--halftime-control=computer"
+                    playerMode = 2: accessiblePlayerOpt = 3
+            End Select
+        Next halftimeArg
         For testTeam = 0 To 1
             For testPlayer = 0 To 13
                 tmFatigue(testTeam, testPlayer) = -5
@@ -1872,6 +1882,13 @@ Sub COLHOOP ()
             Next
         Next
 
+        If accessibleEngineMode = 1 And currHalf = 2 And IsAccessibleTurnoverDiagnosticMode% = 0 Then
+            Print "Actual second-half lineups, after computer coaching."
+            Call AccessiblePrintLineup(0, "Visiting " + AccessibleTeamDisplay$(gameTeams$(0)))
+            Call AccessiblePrintLineup(1, "Home " + AccessibleTeamDisplay$(gameTeams$(1)))
+            secondHalfReady$ = AccessibleReadCommand$("Press Enter to begin second-half play: ")
+        End If
+
         GoTo 250
 
     End If
@@ -2002,6 +2019,10 @@ Sub COLHOOP ()
     End If
     If accessibleEngineMode = 1 And IsAccessibleHalftimeTestMode% = 1 And currHalf = 2 Then
         Print "Second-half possession reached after halftime substitution."
+        For testTeam = 0 To 1
+            Print "HALFTIME_STATE team="; LTrim$(Str$(testTeam)); " offense="; LTrim$(Str$(offStrat(testTeam))); " defense="; LTrim$(Str$(defStrat(testTeam))); " coverage="; LTrim$(Str$(defCoverage(testTeam)))
+            Call AccessiblePrintLineup(testTeam, "Verified second-half")
+        Next testTeam
         Call AccessiblePrintGameStatus
         Exit Sub
     End If
