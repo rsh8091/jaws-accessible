@@ -1,10 +1,10 @@
 [CmdletBinding()]
-param([string]$Version = 'Beta-1')
+param([string]$Version = 'Beta-1', [switch]$ReleaseCandidate)
 
 $ErrorActionPreference = 'Stop'
 $repositoryPath = Split-Path -Parent $PSScriptRoot
 $outputPath = Join-Path $repositoryPath 'dist'
-& (Join-Path $PSScriptRoot 'package-beta.ps1') -Version $Version -OutputDirectory $outputPath
+& (Join-Path $PSScriptRoot 'package-beta.ps1') -Version $Version -OutputDirectory $outputPath -ReleaseCandidate:$ReleaseCandidate
 
 $archiveName = "Courtside-Accessible-$Version.zip"
 $archivePath = Join-Path $outputPath $archiveName
@@ -29,6 +29,10 @@ $expected = @(
     'support/Install-TeamData.ps1'
 ) | Sort-Object
 
+if ($ReleaseCandidate) {
+    $expected = @($expected | Where-Object { $_ -ne 'BETA TESTING AND FEEDBACK.txt' }) + @('TESTING AND FEEDBACK.txt','RELEASE NOTES.txt')
+    $expected = @($expected | Sort-Object)
+}
 $entryDifference = @(Compare-Object $expected $actual)
 if ($entryDifference.Count -ne 0) {
     throw "Package file list is incorrect:`n$($entryDifference | Out-String)"
@@ -72,6 +76,10 @@ try {
 }
 finally {
     if (Test-Path -LiteralPath $testRoot) {
+        $resolvedTestRoot = [IO.Path]::GetFullPath($testRoot)
+        $temporaryRoot = [IO.Path]::GetFullPath([IO.Path]::GetTempPath()).TrimEnd('\') + '\'
+        if (-not $resolvedTestRoot.StartsWith($temporaryRoot, [StringComparison]::OrdinalIgnoreCase) -or
+            -not ([IO.Path]::GetFileName($resolvedTestRoot)).StartsWith('Courtside-Package-Test-')) { throw 'Unsafe test cleanup path.' }
         Remove-Item -LiteralPath $testRoot -Recurse -Force
     }
 }

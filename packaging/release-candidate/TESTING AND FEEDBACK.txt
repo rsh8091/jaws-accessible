@@ -1,0 +1,19 @@
+FINAL TESTING - RELEASE 1, CANDIDATE 1 (1.0-RC1)
+
+Try complete single games, including team/rule setup, passing, shooting,
+substitutions, timeouts, halftime, final minutes, box scores and overtime.
+
+At halftime, check both strategy menus, Back, current-lineup review, and
+substitutions. Start the second half and confirm both final lineups are read,
+your changes remain, and Enter resumes play. Read KNOWN ISSUES.txt before play.
+
+Report problems at https://github.com/rsh8091/jaws-accessible/issues
+Include:
+- Package version: 1.0-RC1.
+- Windows and screen-reader versions.
+- Both teams and season years, rules, and which team you controlled.
+- Menu choices immediately before the problem.
+- What you heard, expected, and whether play could continue.
+- Whether it repeats; include a short relevant transcript when available.
+
+Do not include private information in a public issue.

@@ -1,0 +1,31 @@
+KNOWN ISSUES - RELEASE 1, CANDIDATE 1
+
+FREE-THROW SHOOTER SUBSTITUTION
+Do not substitute for the player with free throws pending. The replacement
+can take the shots using their own free-throw rating and receive the statistics.
+Confirmed in controlled executable tests of two shots and one-and-one.
+https://github.com/jleonard2099/LHG_CollegeBB/issues/43
+
+OTHER REPORTED SIMULATION ISSUES
+- Steal checks can use another roster player's rating after lineup changes.
+- An emergency computer-substitution fallback can select the same player for
+  multiple positions when fewer than five players pass foul screening.
+These were confirmed by source tracing, not full-game reproductions. Their
+frequency and contribution to high turnover totals have not been established.
+https://github.com/jleonard2099/LHG_CollegeBB/issues/42
+- A computer defender can remain on court after fouling out in a bonus-state
+  path. Upstream report: https://github.com/jleonard2099/LHG_CollegeBB/issues/40
+- Computer substitutions may omit bench-rest recovery applied to human subs.
+  Source-inspection report: https://github.com/jleonard2099/LHG_CollegeBB/issues/41
+
+FINAL ACCESSIBILITY REVIEW
+The new halftime controls and second-half lineup announcements passed automated
+tests. On October 6, 2026, the tester reported halftime testing complete, and
+issue #6 was closed. Narration may vary with speech settings.
+Report missing, repeated or out-of-order announcements with reproduction steps.
+
+INSTALLATION
+HELLO.exe is unsigned, so Windows may show a security confirmation or block it
+under stricter policies. See WINDOWS SECURITY PROMPTS in README FIRST.txt.
+The team-data installer needs internet access to GitHub; managed networks may
+block it. See README FIRST.txt for platform support and installation details.

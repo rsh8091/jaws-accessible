@@ -1,0 +1,33 @@
+RELEASE 1, CANDIDATE 1 (1.0-RC1)
+September 30, 2026
+
+SCOPE
+Accessible single-game play: team and rule setup, numbered coaching menus,
+passing and shooting decisions, substitutions, timeouts, halftime, overtime,
+and accessible box scores. Season and tournament accessibility are outside
+this release candidate's scope.
+
+RECENT IMPROVEMENTS INCLUDED
+- Halftime options 6 and 7 change offensive and defensive strategy.
+- Changes return to halftime options and preserve human coaching choices.
+- Both teams' actual second-half lineups are announced after computer coaching.
+- Press Enter after the lineups to begin second-half play.
+- Numbered Back and Cancel navigation for substitutions.
+- Substitution bench-rest recovery and timeout-resume improvements.
+- Updated Accessibility Help.
+- Installation guidance for Windows warnings when running this unsigned build.
+- Retains the previous beta installation process: download Jason's team data
+  with "1 Install Team Data.cmd", then launch our accessible game.
+
+VALIDATION
+The included executable is the September 30 build that passed six halftime
+scenarios, the substitution-navigation suite, strategy-ownership checks, and
+the human-versus-computer transcript test. Final hands-on JAWS testing is still
+needed. Packaging checks cover the manifest, checksum, launcher and offline
+team-data installation. They do not validate a fresh internet download.
+
+The free-throw shooter reproduction also confirmed an unresolved defect;
+it is documented in KNOWN ISSUES.txt, not fixed in this candidate.
+
+This is a local candidate package. No GitHub release or release page has been
+published as part of preparing it.

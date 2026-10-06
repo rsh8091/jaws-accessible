@@ -86,6 +86,10 @@ catch {
 }
 finally {
     if (Test-Path -LiteralPath $temporaryPath) {
+        $resolvedTemporaryPath = [IO.Path]::GetFullPath($temporaryPath)
+        $temporaryRoot = [IO.Path]::GetFullPath([IO.Path]::GetTempPath()).TrimEnd('\') + '\'
+        if (-not $resolvedTemporaryPath.StartsWith($temporaryRoot, [StringComparison]::OrdinalIgnoreCase) -or
+            -not ([IO.Path]::GetFileName($resolvedTemporaryPath)).StartsWith('Courtside-Team-Data-')) { throw 'Unsafe temporary cleanup path.' }
         Remove-Item -LiteralPath $temporaryPath -Recurse -Force
     }
 }
