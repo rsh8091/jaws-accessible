@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
     [string]$Version = 'Beta-1',
-    [string]$OutputDirectory
+    [string]$OutputDirectory,
+    [switch]$ReleaseCandidate
 )
 
 $ErrorActionPreference = 'Stop'
@@ -42,6 +43,16 @@ $files = [ordered]@{
     'packaging\BETA TESTING AND FEEDBACK.txt'    = 'BETA TESTING AND FEEDBACK.txt'
     'packaging\KNOWN ISSUES.txt'                 = 'KNOWN ISSUES.txt'
     'packaging\support\Install-TeamData.ps1'     = 'support/Install-TeamData.ps1'
+}
+
+if ($ReleaseCandidate) {
+    $files.Remove('packaging\README FIRST.txt')
+    $files.Remove('packaging\BETA TESTING AND FEEDBACK.txt')
+    $files.Remove('packaging\KNOWN ISSUES.txt')
+    $files['packaging\release-candidate\README FIRST.txt'] = 'README FIRST.txt'
+    $files['packaging\release-candidate\TESTING AND FEEDBACK.txt'] = 'TESTING AND FEEDBACK.txt'
+    $files['packaging\release-candidate\KNOWN ISSUES.txt'] = 'KNOWN ISSUES.txt'
+    $files['packaging\release-candidate\RELEASE NOTES.txt'] = 'RELEASE NOTES.txt'
 }
 
 foreach ($sourceName in $files.Keys) {

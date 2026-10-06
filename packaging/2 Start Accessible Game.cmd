@@ -1,7 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-title Courtside Accessible Beta
+title Courtside Accessible
 
 if not exist "%~dp0HELLO.exe" (
     echo ERROR: HELLO.exe is missing.
