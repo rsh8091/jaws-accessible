@@ -63,6 +63,7 @@ Declare Sub AccessibleHalftimeSubstitution ()
 Declare Sub AccessibleReplaceFouledOutPlayer (humanTeam, fouledSlot)
 Declare Sub AccessibleDefPlaySafeNormal (teamIdx)
 Declare Function AccessibleHalftimeMenu% Static
+Declare Sub AccessibleHalftimeStrategy (defenseChoice)
 Declare Sub AccessiblePrintHalftimeSummary ()
 Declare Sub AccessiblePrintRegulationSummary ()
 Declare Sub AccessiblePrintOvertimeTransition (overtimeNumber)
