@@ -1,5 +1,5 @@
-RELEASE 1, CANDIDATE 1 (1.0-RC1)
-September 30, 2026
+RELEASE 1, CANDIDATE 2 (1.0-RC2)
+October 6, 2026
 
 SCOPE
 Accessible single-game play: team and rule setup, numbered coaching menus,
@@ -20,11 +20,19 @@ RECENT IMPROVEMENTS INCLUDED
   with "1 Install Team Data.cmd", then launch our accessible game.
 
 VALIDATION
-The included executable is the September 30 build that passed six halftime
-scenarios, the substitution-navigation suite, strategy-ownership checks, and
-the human-versus-computer transcript test. Final hands-on JAWS testing is still
-needed. Packaging checks cover the manifest, checksum, launcher and offline
-team-data installation. They do not validate a fresh internet download.
+This candidate integrates upstream f504b55 (September 19), the latest upstream
+main fetched on October 6, and README PR #10. It restores accurate defensive
+team ownership while preserving accessible prompts and the original coverage
+test in ball distribution.
+
+The tester completed halftime testing of RC1 on October 6; issue #6 is closed.
+The merged engine requires a fresh hands-on JAWS game before release.
+Automated checks passed for team ownership, halftime, intentional fouls,
+final-five-second choices, human-versus-computer play, foul-out replacement,
+timeouts and return, play-safe controls, older-team pacing, overtime, box
+scores, clock review, and substitution navigation and recovery. Package
+checks include the manifest, checksum, launcher and offline team-data install;
+they do not validate a fresh internet download.
 
 The free-throw shooter reproduction also confirmed an unresolved defect;
 it is documented in KNOWN ISSUES.txt, not fixed in this candidate.

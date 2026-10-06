@@ -1,4 +1,4 @@
-FINAL TESTING - RELEASE 1, CANDIDATE 1 (1.0-RC1)
+FINAL TESTING - RELEASE 1, CANDIDATE 2 (1.0-RC2)
 
 Try complete single games, including team/rule setup, passing, shooting,
 substitutions, timeouts, halftime, final minutes, box scores and overtime.
@@ -9,7 +9,7 @@ your changes remain, and Enter resumes play. Read KNOWN ISSUES.txt before play.
 
 Report problems at https://github.com/rsh8091/jaws-accessible/issues
 Include:
-- Package version: 1.0-RC1.
+- Package version: 1.0-RC2.
 - Windows and screen-reader versions.
 - Both teams and season years, rules, and which team you controlled.
 - Menu choices immediately before the problem.
