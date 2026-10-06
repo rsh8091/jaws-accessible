@@ -246,6 +246,31 @@ Function AccessibleRunStrategyOwnershipTest% () Static
     savedHumanOffense = offStrat(humanTeam)
     savedHumanDefense = defStrat(humanTeam)
     Print "Automated accessible strategy ownership validation."
+    savedControlMode = playerMode
+    savedComputerTeam = compTeam
+    savedOffenseTeam = P
+    savedDefenseTeam = D
+    ownershipFailed = 0
+    For testControlMode = 0 To 2
+        playerMode = testControlMode
+        For testComputerTeam = 0 To 1
+            compTeam = testComputerTeam
+            For testOffenseTeam = 0 To 1
+                P = testOffenseTeam: D = 1 - P
+                expectedOffensePC = (playerMode = 2 Or (playerMode = 1 And P = compTeam))
+                expectedDefensePC = (playerMode = 2 Or (playerMode = 1 And D = compTeam))
+                If IsOffensePC <> expectedOffensePC Or IsDefensePC <> expectedDefensePC Then ownershipFailed = 1
+                If IsOffenseHuman <> (Not expectedOffensePC) Or IsDefenseHuman <> (Not expectedDefensePC) Then ownershipFailed = 1
+            Next testOffenseTeam
+        Next testComputerTeam
+    Next testControlMode
+    playerMode = savedControlMode: compTeam = savedComputerTeam
+    P = savedOffenseTeam: D = savedDefenseTeam
+    If ownershipFailed Then
+        Print "Team control classification failed."
+        Exit Function
+    End If
+    Print "Team control classification passed for both sides and all control modes."
     Print "Human strategy baseline: "; offStylesNew$(savedHumanOffense); " and "; defStyles$(savedHumanDefense); "."
 
     P9 = humanTeam
@@ -1987,6 +2012,7 @@ Sub AccessibleShowHelp ()
     Print "When both teams are human controlled at halftime, Back from player selection returns to team selection."
     Print "At halftime, 6 changes your offensive style and 7 changes your defensive style; 0 leaves a style menu without changing it."
     Print "With two human teams, choose which team to adjust. Computer teams retain computer coaching control."
+    Print "Your defensive team remains human controlled: choose its intentional fouler and required foul-out replacement."
     Print "Strategy changes return to halftime options. Late-game-only tactics are unavailable at halftime."
     Print "Lineup reviews at halftime show current players, including your substitutions."
     Print "Choose 1 to start the second half. After computer coaching, both actual second-half lineups are announced."

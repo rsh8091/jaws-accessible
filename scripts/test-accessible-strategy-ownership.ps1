@@ -40,6 +40,7 @@ if ($LASTEXITCODE -ne 0) {
 $expectedText = @(
     'Control: human controls home; computer controls visitor.',
     'Automated accessible strategy ownership validation.',
+    'Team control classification passed for both sides and all control modes.',
     'Human strategy baseline: MOTION and SOLID MAN-TO-MAN.',
     'Human strategy ownership validation passed.',
     'Original simulator validation complete.'
