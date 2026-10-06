@@ -49,6 +49,31 @@ If accessibleEngineMode = 1 And IsAccessibleTestMode% = 1 Then
             plyrOff_GAME!(1, 6, 12) = foulsToDQ
         End If
         Select Case substitutionTestCase$
+            Case "ft-shooter", "ft-shooter-one-and-one"
+                'Reproduce pending-shooter substitution through the real engine and menus.
+                'The original shooter always misses; the eligible replacement always makes.
+                playerMode = 1: compTeam = 0: ballCarrier = 2
+                intentional = 0: strategicFoul = 0: offStatus = 0
+                autoPlay = 0: pbpOpt = 0: pbpDelay! = 0: sndOpt = 0
+                tourneyPlay = 0
+                accessiblePbpGroupCount = 0: accessiblePauseEvents = 1
+                For testPlayer = 0 To 13
+                    plyrOff_GAME!(1, testPlayer, 9) = 0
+                    plyrOff_GAME!(1, testPlayer, 10) = 0
+                    tmFatigue(1, testPlayer) = 0
+                Next testPlayer
+                plyrOff_GAME!(1, 2, 1) = 0
+                plyrOff_GAME!(1, 5, 1) = 100
+                Print "FT_REPRO_BEFORE shooter=Starter 3 slot=2 rating=0 replacement=Reserve guard rating=100"
+                If substitutionTestCase$ = "ft-shooter-one-and-one" Then
+                    Call FreeThrow_OneAndOne(testMissedFT)
+                Else
+                    Call FreeThrows(2, testMissedFT)
+                End If
+                Call AccessibleFlushPbp
+                Print "FT_REPRO_AFTER slot_player="; LTrim$(Str$(lineupIdx(1, 2))); " original_fta="; LTrim$(Str$(plyrOff_GAME!(1, 2, 9))); " original_ftm="; LTrim$(Str$(plyrOff_GAME!(1, 2, 10))); " replacement_fta="; LTrim$(Str$(plyrOff_GAME!(1, 5, 9))); " replacement_ftm="; LTrim$(Str$(plyrOff_GAME!(1, 5, 10))); " home_score="; LTrim$(Str$(score(1, 0)))
+                Print "FT_REPRO_COMPLETE"
+                Exit Sub
             Case "timeout-resume"
                 accessiblePauseEvents = 1
                 accessibleTimeoutMenuPending = 1
