@@ -1813,6 +1813,7 @@ Function AccessibleChooseOffense% (gameIdx) Static
                     If crashBoards(gameIdx) = 1 Then Print "The team will crash the offensive boards." Else Print "The team will not crash the offensive boards."
                 End If
                 AccessibleChooseOffense% = 1
+                If accessibleSetupActive = 0 Then commandValue$ = AccessibleReadCommand$("Press Enter to return to the menu: ")
                 Exit Function
             End If
         Else
@@ -1860,6 +1861,7 @@ Function AccessibleChooseDefense% (gameIdx) Static
                 Call CategorizeDefense(gameIdx)
                 Print "Defensive style set to "; defStyles$(selectedDefense); "."
                 AccessibleChooseDefense% = 1
+                If accessibleSetupActive = 0 Then commandValue$ = AccessibleReadCommand$("Press Enter to return to the menu: ")
                 Exit Function
             End If
         Else
@@ -2038,6 +2040,7 @@ Sub AccessibleShowHelp ()
     Print
     Print "The game pauses at key points so you can review the text with your screen reader."
     Print "Press Enter when prompted to continue."
+    Print "During play, offense and defense selections are confirmed before you press Enter to return to the menu."
     Print
     commandValue$ = AccessibleReadCommand$("Press Enter to return to the main menu: ")
 

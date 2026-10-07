@@ -6,6 +6,8 @@ New-Item -ItemType Directory -Force -Path $results | Out-Null
 $results = (Resolve-Path $results).Path
 $setup = @('1','2025','duke','1','2003','syracuse','1','1','2','1','1','1','1','1','90','1','1')
 $cases = @(
+    @{Name='strategy-confirmations'; Menu=@('4','3','','5','2','','1'); Play='1'; Confirmations=2},
+    @{Name='strategy-back-cancel'; Menu=@('4','0','5','cancel','1'); Play='1'; Confirmations=0},
     @{Name='continue-pass'; Menu=@('1'); Play='1'},
     @{Name='continue-shot'; Menu=@('1'); Play='2'},
     @{Name='cancel-sub-pass'; Menu=@('2','99','1'); Play='1'},
@@ -26,6 +28,14 @@ foreach ($case in $cases) {
     $process.WaitForExit()
     $output = [IO.File]::ReadAllText($outputPath)
     if ($process.ExitCode -ne 0) { throw "$($case.Name) exited with $($process.ExitCode). See $errorPath" }
+    if ($case.ContainsKey('Confirmations')) {
+        if ([regex]::Matches($output,'Press Enter to return to the menu:').Count -ne $case.Confirmations) { throw "Wrong strategy pause count: $outputPath" }
+        if ($case.Confirmations -gt 0) {
+            foreach ($confirmation in @('Offensive style set to TRIANGLE.', 'Defensive style set to PRESSURE MAN-TO-MAN.')) {
+                if ($output -notmatch ([regex]::Escape($confirmation) + '\s+Press Enter to return to the menu:')) { throw "Confirmation not followed by pause: $outputPath" }
+            }
+        }
+    }
     foreach ($expected in @('Timeout options for','Second half, 5 minutes remaining.','TIMEOUT_RESUME_PAUSE 1','TIMEOUT_RESUME_PAUSE 2','TIMEOUT_RESUME_PAUSE 3',"TIMEOUT_RESUME_PLAY $([int]$case.Play - 1)",'SUBSTITUTION_TEST_COMPLETE','Exiting Courtside College Basketball.')) {
         if (-not $output.Contains($expected)) { throw "Missing $expected. See $outputPath" }
     }

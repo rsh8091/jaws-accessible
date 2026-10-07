@@ -6,11 +6,11 @@ New-Item -ItemType Directory -Force $results | Out-Null
 $results = (Resolve-Path $results).Path
 $setup = @('1','2025','duke','1','2003','syracuse','1','1','2','1','1','confirm','continue','continue','auto','1','1')
 $cases = @(
- @{Name='home'; Control='home'; Commands=@('','invalid','6','10','3','7','2','4','5','5','3','','1',''); Expected=@('OT_STATE period=1 team=1 offense=2 defense=1','B.EDELIN replaces C.FORTH as center.','only available during the last three minutes','Enter a displayed numbered choice.'); Periods=1},
- @{Name='visitor'; Control='visitor'; Commands=@('6','3','7','2','1',''); Expected=@('OT_STATE period=1 team=0 offense=2 defense=1'); Periods=1},
- @{Name='both'; Control='both'; Commands=@('6','0','4','0','6','1','3','7','2','2','1',''); Expected=@('OT_STATE period=1 team=0 offense=2','OT_STATE period=1 team=1 offense=0 defense=1','0. Back to overtime options.'); Periods=1},
+ @{Name='home'; Control='home'; Commands=@('','invalid','6','10','3','','7','2','','4','5','5','3','','1',''); Expected=@('OT_STATE period=1 team=1 offense=2 defense=1','B.EDELIN replaces C.FORTH as center.','only available during the last three minutes','Enter a displayed numbered choice.'); Periods=1},
+ @{Name='visitor'; Control='visitor'; Commands=@('6','3','','7','2','','1',''); Expected=@('OT_STATE period=1 team=0 offense=2 defense=1'); Periods=1},
+ @{Name='both'; Control='both'; Commands=@('6','0','4','0','6','1','3','','7','2','2','','1',''); Expected=@('OT_STATE period=1 team=0 offense=2','OT_STATE period=1 team=1 offense=0 defense=1','0. Back to overtime options.'); Periods=1},
  @{Name='cancel'; Control='home'; Commands=@('6','0','7','0','4','99','1',''); Expected=@('OT_STATE period=1 team=1 offense=0 defense=0','Cancel substitution and return to overtime options.'); Periods=1},
- @{Name='repeat'; Control='home'; Commands=@('6','3','1','','7','2','1',''); Expected=@('OT_STATE period=2 team=1 offense=2 defense=1','Overtime 2 will be five minutes.'); Periods=2},
+ @{Name='repeat'; Control='home'; Commands=@('6','3','','1','','7','2','','1',''); Expected=@('OT_STATE period=2 team=1 offense=2 defense=1','Overtime 2 will be five minutes.'); Periods=2},
  @{Name='computer'; Control='computer'; Commands=@('4','6','7','1',''); Expected=@('Both teams are computer controlled.'); Periods=1},
  @{Name='manual-end'; Control='home'; Commands=@('5'); Expected=@('Manual JAWS overtime test.','Overtime options'); Periods=0},
  @{Name='end'; Control='home'; Commands=@('5'); Expected=@('5. End the game segment before overtime.'); Periods=0}
