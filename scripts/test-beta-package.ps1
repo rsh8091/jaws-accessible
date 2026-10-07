@@ -30,6 +30,7 @@ $expected = @(
 ) | Sort-Object
 
 if ($ReleaseCandidate) {
+    $expected += '3 Test Overtime.cmd'
     $expected = @($expected | Where-Object { $_ -ne 'BETA TESTING AND FEEDBACK.txt' }) + @('TESTING AND FEEDBACK.txt','RELEASE NOTES.txt')
     $expected = @($expected | Sort-Object)
 }

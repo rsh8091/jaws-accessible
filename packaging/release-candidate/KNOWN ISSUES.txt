@@ -1,4 +1,4 @@
-KNOWN ISSUES - RELEASE 1, CANDIDATE 2
+KNOWN ISSUES - RELEASE 1, CANDIDATE 3
 
 FREE-THROW SHOOTER SUBSTITUTION
 Do not substitute for the player with free throws pending. The replacement
@@ -21,7 +21,7 @@ https://github.com/jleonard2099/LHG_CollegeBB/issues/42
 FINAL ACCESSIBILITY REVIEW
 The new halftime controls and second-half lineup announcements passed automated
 tests. On October 6, 2026, the tester reported halftime testing complete, and
-issue #6 was closed. RC2 integrates upstream engine changes and needs a fresh
+issue #6 was closed. RC3 integrates upstream engine changes and needs a fresh
 hands-on JAWS game. Narration may vary with speech settings.
 Report missing, repeated or out-of-order announcements with reproduction steps.
 

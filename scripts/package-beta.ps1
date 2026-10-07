@@ -46,6 +46,7 @@ $files = [ordered]@{
 }
 
 if ($ReleaseCandidate) {
+    $files['packaging\release-candidate\3 Test Overtime.cmd'] = '3 Test Overtime.cmd'
     $files.Remove('packaging\README FIRST.txt')
     $files.Remove('packaging\BETA TESTING AND FEEDBACK.txt')
     $files.Remove('packaging\KNOWN ISSUES.txt')
