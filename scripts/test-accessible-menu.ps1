@@ -5,7 +5,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $executablePath = (Resolve-Path -LiteralPath $Executable).Path
-$scriptedInput = @('2', 'not-a-command', '3')
+$scriptedInput = @('2', '', 'not-a-command', '3')
 Push-Location (Split-Path -Parent $executablePath)
 try {
     $transcript = $scriptedInput | & $executablePath --accessible --accessible-test 2>&1 | Out-String
@@ -21,6 +21,7 @@ if ($LASTEXITCODE -ne 0) {
 $expectedText = @(
     'Accessible command-line mode.',
     'Accessibility help',
+    'Press Enter to return to the main menu:',
     'Choice not recognized.',
     'Exiting Courtside College Basketball.'
 )
