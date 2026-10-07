@@ -6,11 +6,11 @@ New-Item -ItemType Directory -Force -Path $results | Out-Null
 $results = (Resolve-Path $results).Path
 $setup = @('1','2025','duke','1','2003','syracuse','1','1','2','1','1','confirm','continue','continue','auto','1','1')
 $cases = @(
-    @{Name='home'; Control='home'; Commands=@('6','10','3','7','15','2','3','','4','5','5','3','','1','','3'); Expected=@('HALFTIME_STATE team=1 offense=2 defense=1 coverage=1','B.EDELIN replaces C.FORTH as center.','only available during the last three minutes'); Start=$true},
-    @{Name='visitor'; Control='visitor'; Commands=@('6','3','7','2','1','','3'); Expected=@('HALFTIME_STATE team=0 offense=2 defense=1 coverage=1'); Start=$true},
-    @{Name='both'; Control='both'; Commands=@('6','invalid','0','6','1','3','7','1','2','6','2','5','7','2','3','2','','3','','1','','3'); Expected=@('HALFTIME_STATE team=0 offense=2 defense=1 coverage=1','HALFTIME_STATE team=1 offense=4 defense=2 coverage=2','Choose 1, 2, or 0.'); Start=$true},
+    @{Name='home'; Control='home'; Commands=@('6','10','3','','7','15','2','','3','','4','5','5','3','','1','','3'); Expected=@('HALFTIME_STATE team=1 offense=2 defense=1 coverage=1','B.EDELIN replaces C.FORTH as center.','only available during the last three minutes'); Start=$true},
+    @{Name='visitor'; Control='visitor'; Commands=@('6','3','','7','2','','1','','3'); Expected=@('HALFTIME_STATE team=0 offense=2 defense=1 coverage=1'); Start=$true},
+    @{Name='both'; Control='both'; Commands=@('6','invalid','0','6','1','3','','7','1','2','','6','2','5','','7','2','3','','2','','3','','1','','3'); Expected=@('HALFTIME_STATE team=0 offense=2 defense=1 coverage=1','HALFTIME_STATE team=1 offense=4 defense=2 coverage=2','Choose 1, 2, or 0.'); Start=$true},
     @{Name='cancel'; Control='home'; Commands=@('6','0','7','0','1','','3'); Expected=@('HALFTIME_STATE team=1 offense=0 defense=0 coverage=0'); Start=$true},
-    @{Name='end'; Control='home'; Commands=@('6','3','7','2','5','3'); Expected=@('Offensive style set to TRIANGLE.','Defensive style set to PRESSURE MAN-TO-MAN.'); Start=$false},
+    @{Name='end'; Control='home'; Commands=@('6','3','','7','2','','5','3'); Expected=@('Offensive style set to TRIANGLE.','Defensive style set to PRESSURE MAN-TO-MAN.'); Start=$false},
     @{Name='computer'; Control='computer'; Commands=@('6','7','1','','3'); Expected=@('Both teams are computer controlled.'); Start=$true}
 )
 foreach ($case in $cases) {
