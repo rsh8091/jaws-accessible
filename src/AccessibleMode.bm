@@ -646,16 +646,18 @@ End Function
 
 Sub AccessibleHalftimeStrategy (defenseChoice)
 
+    If currHalf >= 3 Then periodLabel$ = "overtime" Else periodLabel$ = "halftime"
+
     If accessiblePlayerOpt = 3 Then
         Print "Both teams are computer controlled."
         Exit Sub
     End If
     If accessiblePlayerOpt = 0 Then
         Do
-            Print "Choose the team whose halftime strategy to change."
+            Print "Choose the team whose "; periodLabel$; " strategy to change."
             Print "1. Visiting team."
             Print "2. Home team."
-            Print "0. Back to halftime options."
+            Print "0. Back to "; periodLabel$; " options."
             teamChoice$ = AccessibleReadCommand$("Enter choice: ")
             Select Case teamChoice$
                 Case "1": strategyTeam = 0: Exit Do
@@ -670,7 +672,7 @@ Sub AccessibleHalftimeStrategy (defenseChoice)
     'The clock is zero at halftime; validate tactics for the start of half two,
     'not for the final seconds. Restore it for the remaining halftime review.
     savedHalftimeClock! = gameClock!
-    gameClock! = 1200
+    If currHalf >= 3 Then gameClock! = 300 Else gameClock! = 1200
     If defenseChoice Then
         ignoredChoice = AccessibleChooseDefense%(strategyTeam)
     Else
@@ -712,9 +714,51 @@ Sub AccessiblePrintOvertimeTransition (overtimeNumber)
     End If
     Print "Overtime "; LTrim$(Str$(overtimeNumber)); " will be five minutes."
     Print "Each team receives one additional timeout."
-    commandValue$ = AccessibleReadCommand$("Press Enter to begin overtime: ")
 
 End Sub
+
+Function AccessibleOvertimeMenu% (overtimeNumber)
+    AccessibleOvertimeMenu% = 0
+    Call AccessiblePrintOvertimeTransition(overtimeNumber)
+    Do
+        Print "Overtime options"
+        Print "1. Start overtime."
+        Print "2. Hear the current visiting lineup."
+        Print "3. Hear the current home lineup."
+        If accessiblePlayerOpt < 3 Then Print "4. Make an overtime substitution."
+        Print "5. End the game segment before overtime."
+        If accessiblePlayerOpt < 3 Then
+            Print "6. Change offensive style."
+            Print "7. Change defensive style."
+        End If
+        commandValue$ = AccessibleReadCommand$("Enter choice: ")
+        Select Case commandValue$
+            Case "1", "start", "continue"
+                Print "Starting overtime lineups."
+                Call AccessiblePrintLineup(0, "Visiting " + AccessibleTeamDisplay$(gameTeams$(0)))
+                Call AccessiblePrintLineup(1, "Home " + AccessibleTeamDisplay$(gameTeams$(1)))
+                commandValue$ = AccessibleReadCommand$("Press Enter to begin overtime: ")
+                AccessibleOvertimeMenu% = 1
+                Exit Function
+            Case "2", "visitor", "visiting"
+                Call AccessiblePrintLineupCondition(0)
+                commandValue$ = AccessibleReadCommand$("Press Enter to return to overtime options: ")
+            Case "3", "home"
+                Call AccessiblePrintLineupCondition(1)
+                commandValue$ = AccessibleReadCommand$("Press Enter to return to overtime options: ")
+            Case "4", "sub", "substitute"
+                Call AccessibleHalftimeSubstitution
+            Case "5", "end", "quit", "exit"
+                Exit Function
+            Case "6", "offense"
+                Call AccessibleHalftimeStrategy(0)
+            Case "7", "defense"
+                Call AccessibleHalftimeStrategy(1)
+            Case Else
+                Print "Enter a displayed numbered choice."
+        End Select
+    Loop
+End Function
 
 
 Sub AccessiblePostgameMenu ()
@@ -2017,6 +2061,10 @@ Sub AccessibleShowHelp ()
     Print "Lineup reviews at halftime show current players, including your substitutions."
     Print "Choose 1 to start the second half. After computer coaching, both actual second-half lineups are announced."
     Print "Press Enter after those lineups to begin second-half play."
+    Print "Before every overtime, 2 and 3 review lineups, 4 substitutes, 6 changes offense, and 7 changes defense."
+    Print "Overtime option 1 announces the starting lineups, then Enter starts play; option 5 ends the game segment."
+    Print "Back and Cancel preserve your selections. Overtime strategy choices use the five-minute starting clock."
+    Print "For a practice overtime, run Test JAWS Overtime.cmd, complete setup, and regulation ends tied at 70."
     Print "A fouled-out player requires a valid replacement. Back, Cancel, and blank input cannot skip that replacement."
     Print "At the normal offensive menu, enter 7 or clock to hear the game clock, or 5 for full status."
     Print "At final-five-seconds offensive decisions, 7 or clock still reports the game clock; other numbers follow that menu."

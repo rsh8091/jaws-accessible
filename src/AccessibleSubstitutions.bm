@@ -3,7 +3,7 @@
 Function AccessibleSubstitutionMenu% (humanTeam, returnContext)
     AccessibleSubstitutionMenu% = 0
     If returnContext = 1 Then
-        returnLabel$ = "halftime options"
+        If currHalf >= 3 Then returnLabel$ = "overtime options" Else returnLabel$ = "halftime options"
         If accessiblePlayerOpt = 0 Then backLabel$ = "team selection" Else backLabel$ = returnLabel$
     Else
         If returnContext = 2 Then returnLabel$ = "timeout options" Else returnLabel$ = "dead-ball options"
@@ -65,6 +65,7 @@ Function AccessibleSubstitutionMenu% (humanTeam, returnContext)
 End Function
 
 Sub AccessibleHalftimeSubstitution ()
+    If currHalf >= 3 Then periodLabel$ = "overtime" Else periodLabel$ = "halftime"
     If accessiblePlayerOpt = 3 Then
         Print "Both teams are computer controlled."
         Exit Sub
@@ -78,8 +79,8 @@ Sub AccessibleHalftimeSubstitution ()
         Print "Choose the team to change."
         Print "1. Visiting team."
         Print "2. Home team."
-        Print "0. Back to halftime options."
-        Print "99. Cancel substitution and return to halftime options."
+        Print "0. Back to "; periodLabel$; " options."
+        Print "99. Cancel substitution and return to "; periodLabel$; " options."
         commandValue$ = AccessibleReadCommand$("Enter choice: ")
         humanTeam = -1
         Select Case commandValue$

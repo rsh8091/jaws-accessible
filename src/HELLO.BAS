@@ -1539,6 +1539,14 @@ Sub COLHOOP ()
 
     If accessibleEngineMode = 1 And IsAccessibleOvertimeTestMode% = 1 And currHalf = 1 Then
         Print "Automated accessible overtime validation."
+        P = 0: D = 1: P9 = P
+        For overtimeArg = 1 To _CommandCount
+            Select Case LCase$(Command$(overtimeArg))
+                Case "--overtime-control=both": playerMode = 0: accessiblePlayerOpt = 0
+                Case "--overtime-control=visitor": playerMode = 1: compTeam = 1: accessiblePlayerOpt = 2
+                Case "--overtime-control=computer": playerMode = 2: accessiblePlayerOpt = 3
+            End Select
+        Next overtimeArg
         score(0, 1) = 35: score(0, 2) = 35: score(0, 0) = 70
         score(1, 1) = 35: score(1, 2) = 35: score(1, 0) = 70
         currHalf = 2
@@ -1760,7 +1768,6 @@ Sub COLHOOP ()
             overtimeNumber = currHalf - 2
             timeouts(0) = timeouts(0) + 1
             timeouts(1) = timeouts(1) + 1
-            If IsAccessibleTurnoverDiagnosticMode% = 0 Then Call AccessiblePrintOvertimeTransition(overtimeNumber)
             gameClock! = 300
             Erase tmFatigue
             For testTeam = 0 To 1
@@ -1768,6 +1775,10 @@ Sub COLHOOP ()
                     playerTime(testTeam, testPlayer) = 300
                 Next testPlayer
             Next testTeam
+            If IsAccessibleTurnoverDiagnosticMode% = 0 Then
+                If AccessibleOvertimeMenu%(overtimeNumber) = 0 Then Exit Sub
+            End If
+            accessibleEngineStopRequested = 0
             ballCarrier = -1
             accessibleEngineLastTeam = -1
             GoTo 250
@@ -2010,9 +2021,19 @@ Sub COLHOOP ()
     ' ### LAST SECONDS OF GAME ###
 
     300 '
-    If accessibleEngineMode = 1 And IsAccessibleOvertimeTestMode% = 1 And currHalf = 3 Then
+    If accessibleEngineMode = 1 And IsAccessibleOvertimeTestMode% = 1 And currHalf >= 3 Then
         Print "Overtime possession reached through the original simulator."
-        score(1, 3) = 2
+        For testTeam = 0 To 1
+            Print "OT_STATE period="; LTrim$(Str$(currHalf - 2)); " team="; LTrim$(Str$(testTeam)); " offense="; LTrim$(Str$(offStrat(testTeam))); " defense="; LTrim$(Str$(defStrat(testTeam)))
+            Call AccessiblePrintLineup(testTeam, "Verified overtime")
+        Next testTeam
+        For overtimeArg = 1 To _CommandCount
+            If LCase$(Command$(overtimeArg)) = "--overtime-repeat" And currHalf = 3 Then
+                gameClock! = 0
+                GoTo 170
+            End If
+        Next overtimeArg
+        score(1, currHalf) = 2
         score(1, 0) = score(1, 0) + 2
         gameClock! = 0
         GoTo 170
