@@ -2023,53 +2023,23 @@ End Function
 Sub AccessibleShowHelp ()
 
     Print "Accessibility help"
-    Print "This mode uses complete lines of text so screen readers can follow the game."
-    Print "Enter a menu number or its command word, then press Enter."
-    Print "No mouse, color, graphics, or cursor position is required."
-    Print "At the main menu, choose 1 to play, 2 for this help, or 3 to exit."
     Print
-    Print "Setup navigation"
-    Print "Setup uses numbered menus. Choose 0 for Back or 99 to cancel setup."
-    Print "Back returns to the named previous step and preserves your selections."
-    Print "When displayed, 98 keeps the current selection and continues."
-    Print "In lineup selection, 98 keeps the player in the current position; 97 keeps the entire lineup."
-    Print "Back from the first setup menu returns to the main menu."
-    Print "Blank or invalid input keeps the menu open without accepting a choice."
-    Print "Typed back, cancel, and keep commands are optional shortcuts."
+    Print "This is a menu-driven game. Type a menu choice, then press Enter."
     Print
-    Print "Team and lineup selection"
-    Print "Use numbered choices to enter a season ID, search by team name, or browse all teams."
-    Print "Season IDs and team search terms are entered as text. Team results have numbered page controls."
-    Print "In lineup selection, 90 uses the recommended lineup and continues; 91 repeats the player list."
-    Print "Select players by their displayed numbers. Back returns to the previous position."
-    Print "At lineup confirmation, Back returns to center selection."
-    Print "Changing one team resets that team's lineup and strategies while preserving the other team's choices."
-    Print "After a control or rule change, review the affected choices before tipoff."
+    Print "These are common navigation choices you will see or hear frequently:"
+    Print "1: Continue or start play."
+    Print "0: Go back."
+    Print "98: Keep your current selection."
+    Print "99: Cancel."
     Print
-    Print "During play"
-    Print "For voluntary substitutions, select the player to replace, then a displayed substitute."
-    Print "Choose 0 to go back one step, or 99 to cancel the substitution without changing the lineup."
-    Print "Blank or invalid input keeps the substitution menu open. Typed back and cancel are optional shortcuts."
-    Print "Cancel returns to the timeout, dead-ball, or halftime menu; it does not resume play."
-    Print "Completed substitutions record the outgoing player's bench time and apply the original simulator's bench-rest recovery to the incoming player."
-    Print "Back, Cancel, and invalid choices do not change fatigue or bench times."
-    Print "When both teams are human controlled at halftime, Back from player selection returns to team selection."
-    Print "At halftime, 6 changes your offensive style and 7 changes your defensive style; 0 leaves a style menu without changing it."
-    Print "With two human teams, choose which team to adjust. Computer teams retain computer coaching control."
-    Print "Your defensive team remains human controlled: choose its intentional fouler and required foul-out replacement."
-    Print "Strategy changes return to halftime options. Late-game-only tactics are unavailable at halftime."
-    Print "Lineup reviews at halftime show current players, including your substitutions."
-    Print "Choose 1 to start the second half. After computer coaching, both actual second-half lineups are announced."
-    Print "Press Enter after those lineups to begin second-half play."
-    Print "Before every overtime, 2 and 3 review lineups, 4 substitutes, 6 changes offense, and 7 changes defense."
-    Print "Overtime option 1 announces the starting lineups, then Enter starts play; option 5 ends the game segment."
-    Print "Back and Cancel preserve your selections. Overtime strategy choices use the five-minute starting clock."
-    Print "For a practice overtime, run Test JAWS Overtime.cmd, complete setup, and regulation ends tied at 70."
-    Print "A fouled-out player requires a valid replacement. Back, Cancel, and blank input cannot skip that replacement."
-    Print "At the normal offensive menu, enter 7 or clock to hear the game clock, or 5 for full status."
-    Print "At final-five-seconds offensive decisions, 7 or clock still reports the game clock; other numbers follow that menu."
-    Print "Clock and status reports wait for Enter before returning to offensive choices."
-    Print "At play-by-play pauses, type clock to hear the time without advancing play."
+    Print "Each menu explains what its numbered choices do."
+    Print
+    Print "Typed commands, such as back, are optional."
+    Print
+    Print "The game pauses at key points so you can review the text with your screen reader."
+    Print "Press Enter when prompted to continue."
+    Print
+    commandValue$ = AccessibleReadCommand$("Press Enter to return to the main menu: ")
 
 End Sub
 
