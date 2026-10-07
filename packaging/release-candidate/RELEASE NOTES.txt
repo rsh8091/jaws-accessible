@@ -1,5 +1,5 @@
-RELEASE 1, CANDIDATE 2 (1.0-RC2)
-October 6, 2026
+RELEASE 1, CANDIDATE 3 (1.0-RC3)
+October 7, 2026
 
 SCOPE
 Accessible single-game play: team and rule setup, numbered coaching menus,
@@ -7,7 +7,16 @@ passing and shooting decisions, substitutions, timeouts, halftime, overtime,
 and accessible box scores. Season and tournament accessibility are outside
 this release candidate's scope.
 
-RECENT IMPROVEMENTS INCLUDED
+NEW SINCE RC2
+- Coaching menu before every overtime: lineup review, substitutions, offense
+  and defense changes, and an explicit Start overtime choice.
+- Shorter Accessibility Help with an Enter pause before returning.
+- In-game offense and defense confirmations wait for Enter before returning.
+- Overtime practice launcher starts from a 70-70 tie after normal setup.
+- Automated confirmation, Back/Cancel, halftime, overtime, menu, and
+  human-versus-computer checks passed on the October 7 build.
+
+PREVIOUS IMPROVEMENTS INCLUDED
 - Halftime options 6 and 7 change offensive and defensive strategy.
 - Changes return to halftime options and preserve human coaching choices.
 - Both teams' actual second-half lineups are announced after computer coaching.

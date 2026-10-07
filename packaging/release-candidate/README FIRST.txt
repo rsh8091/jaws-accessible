@@ -1,12 +1,12 @@
 COURTSIDE COLLEGE BASKETBALL ACCESSIBLE
-Release 1, Candidate 2 (1.0-RC2) - October 6, 2026
+Release 1, Candidate 3 (1.0-RC3) - October 7, 2026
 
 This candidate focuses on accessible single-game play. It is ready for final
 hands-on review; it is not a claim that every simulation issue is resolved.
 
 INSTALLATION
-1. Extract the entire Courtside-Accessible-1.0-RC2.zip into a writable folder,
-   such as C:\Games\Courtside-RC2. Do not run from inside the ZIP.
+1. Extract the entire Courtside-Accessible-1.0-RC3.zip into a writable folder,
+   such as C:\Games\Courtside-RC3. Do not run from inside the ZIP.
    Use a separate folder from an older installation to preserve its files.
    Avoid Program Files and cloud-synchronized folders such as OneDrive.
 2. Run "1 Install Team Data.cmd" once. Internet access is required. This
