@@ -67,15 +67,15 @@ Sub SCHEDULE ()
             ReDim scheduleH$(MAX_SCHEDULE_GAMES)
             ReDim scheduleV$(MAX_SCHEDULE_GAMES)
 
-            scheduleNG%(0, 2) = 1 'Home Court
-            scheduleNG%(0, 3) = 1 '3 Pt Opt
-            scheduleNG%(0, 5) = 5 'Fouls to DQ
-            scheduleNG%(0, 6) = 0 'FT 10th Foul
-            scheduleNG%(0, 7) = 3 'Shot Clock
-            scheduleNG%(0, 8) = 3 'Team Control
-            scheduleNG%(0, 9) = 1 'Coach Opt
-            scheduleNG%(0, 10) = 1 'Foul on 3 PT
-            scheduleNG%(0, 14) = 0 'FT on 6 Floor
+            scheduleNG%(0, 2) = 1 'Location: Home
+            scheduleNG%(0, 3) = 1 '3 Pt Opt: Yes
+            scheduleNG%(0, 5) = 5 'Fouls to DQ: 5
+            scheduleNG%(0, 6) = 0 'FT 10th Foul: No
+            scheduleNG%(0, 7) = 3 'Shot Clock: 30 second
+            scheduleNG%(0, 8) = 3 'Team Control: PC vs PC 
+            scheduleNG%(0, 9) = 1 'Coach Opt: Shots + Calls
+            scheduleNG%(0, 10) = 1 'Foul on 3 PT: Yes
+            scheduleNG%(0, 14) = 0 'FT on 6 Floor: No
 
             Select Case SELECTION%
 
@@ -165,9 +165,6 @@ Sub NewSchedule (scheduleFile$)
     Shared scheduleYN$()
 
     Shared modeAbbrev$(), sClockOpt$(), yesNo$()
-
-    DT$ = "11-04-25"
-    TM$ = "07:00P"
 
     'Show 25 schedule entries on the screen at once
     baseFile$ = GetFileBaseName$(scheduleFile$)
@@ -340,6 +337,8 @@ Sub NewSchedule (scheduleFile$)
                     scheduleYN$(targetGame%, X) = scheduleYN$(targetGame% - 1, X)
                 Next
 
+                DT$ = "11-04-25"
+                TM$ = "07:00P"
                 Call NewGame(V$, H$, YN$, DT$, TM$, NTMS, targetGame%)
 
             Case "E":
@@ -1436,16 +1435,6 @@ Sub ChangeGlobalSettings ()
     Dim displayPause!
 
     ' GLOBAL SETTINGS FOR A SCHEDULE
-    ' The code below would use default values based on the most recent rules
-    'playerOpt = 3
-    'sClockVal = 3
-    'coachOpt = 1
-    'threePtOpt = 1
-    'foulsToDQ = 5
-    'ft10thFoul = 0
-    'ft3PtFoul = 1
-    'ft6FloorFouls = 0
-
     'This code will assign defaults based on the first game in the schedule.
     'Usually when I want to change global settings, I want to keep most
     'settings in the schedule the same.
@@ -1459,7 +1448,7 @@ Sub ChangeGlobalSettings ()
     ft3PtFoul = scheduleNG%(1, 10)
     ft6FloorFouls = scheduleNG%(1, 14)
 
-    DT$ = "11-04-24"
+    DT$ = "10-21-25"
     TM$ = "07:00P"
 
     Do
