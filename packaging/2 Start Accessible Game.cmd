@@ -31,5 +31,9 @@ endlocal & exit /b %GAME_EXIT%
 echo ERROR: Team data is not installed.
 echo Run "1 Install Team Data.cmd" first, then start the game again.
 echo.
-pause
+"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoLogo -NoProfile -Command "$ErrorActionPreference = 'Stop'; try { $shell = New-Object -ComObject WScript.Shell; $null = $shell.Popup('Team data is not installed. Run 1 Install Team Data.cmd, then start the game again.', 0, 'Courtside Accessible - Team data required', 4160); exit 0 } catch { exit 1 }"
+if errorlevel 1 (
+    echo Team data is not installed. Run "1 Install Team Data.cmd" first.
+    set /p "ACKNOWLEDGE=Press Enter to close this window: "
+)
 exit /b 1

@@ -69,7 +69,7 @@ try {
     [System.IO.File]::WriteAllText((Join-Path $fixturePath 'COLBBTMS.2025'), 'test')
     $fixtureArchive = Join-Path $testRoot 'teams.zip'
     [System.IO.Compression.ZipFile]::CreateFromDirectory($fixturePath, $fixtureArchive)
-    & (Join-Path $repositoryPath 'packaging\support\Install-TeamData.ps1') -Destination $installedPath -ArchivePath $fixtureArchive
+    & (Join-Path $repositoryPath 'packaging\support\Install-TeamData.ps1') -Destination $installedPath -ArchivePath $fixtureArchive -ExpectedSha256 (Get-FileHash -LiteralPath $fixtureArchive -Algorithm SHA256).Hash
     if (-not (Test-Path -LiteralPath (Join-Path $installedPath 'BASK.2025')) -or
         -not (Test-Path -LiteralPath (Join-Path $installedPath 'COLBBTMS.2025'))) {
         throw 'The team-data helper did not install a matching test season.'

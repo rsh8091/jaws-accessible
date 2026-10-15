@@ -44,3 +44,18 @@ https://github.com/jleonard2099/LHG_CollegeBB
 
 See the included LICENSE, QB64PE.license.txt, and Ack_UWL.txt files for additional
 license and acknowledgment information.
+
+If team data is missing, the launcher opens a Windows dialog with an OK button.
+Press Enter to dismiss it, then run 1 Install Team Data.cmd and start again.
+If Windows cannot show the dialog, the console repeats the instructions and
+waits for Enter before closing.
+
+Running the team-data installer again detects existing files, including a
+partial installation. Choose 1 to keep them without downloading, 2 to reinstall
+and replace matching files (including edits), or 99 to cancel. Blank or invalid
+input asks again; it never authorizes a reinstall.
+
+The installer verifies the team archive against the expected SHA-256 checksum
+before extracting it and accepts only supported team-data filenames. If
+verification fails, no files are installed. Download again from the official
+release page; if the error continues, report it.
