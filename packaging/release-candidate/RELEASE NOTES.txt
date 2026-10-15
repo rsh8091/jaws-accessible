@@ -1,5 +1,5 @@
-RELEASE 1, CANDIDATE 3 (1.0-RC3)
-October 7, 2026
+RELEASE 1, CANDIDATE 4 (1.0-RC4)
+October 15, 2026
 
 SCOPE
 Accessible single-game play: team and rule setup, numbered coaching menus,
@@ -7,44 +7,42 @@ passing and shooting decisions, substitutions, timeouts, halftime, overtime,
 and accessible box scores. Season and tournament accessibility are outside
 this release candidate's scope.
 
-NEW SINCE RC2
-- Coaching menu before every overtime: lineup review, substitutions, offense
-  and defense changes, and an explicit Start overtime choice.
-- Shorter Accessibility Help with an Enter pause before returning.
-- In-game offense and defense confirmations wait for Enter before returning.
-- Overtime practice launcher starts from a 70-70 tie after normal setup.
-- Automated confirmation, Back/Cancel, halftime, overtime, menu, and
-  human-versus-computer checks passed on the October 7 build.
+NEW SINCE RC3
+- Missing team data opens a Windows information dialog that waits for OK.
+  If the dialog cannot open, the console repeats the message and waits for Enter.
+- Re-running the data installer offers 1 to keep, 2 to reinstall, or 99 to
+  cancel. Blank and invalid input never authorize replacement.
+- The installer verifies the archive against the pinned SHA-256 checksum
+  before extraction and rejects unsupported team-data filenames before copying.
+- The startup launcher uses the full Windows PowerShell path.
+- Installation guidance stays in the README and installer, keeping in-game
+  Accessibility Help focused on game controls.
 
 PREVIOUS IMPROVEMENTS INCLUDED
-- Halftime options 6 and 7 change offensive and defensive strategy.
-- Changes return to halftime options and preserve human coaching choices.
-- Both teams' actual second-half lineups are announced after computer coaching.
-- Press Enter after the lineups to begin second-half play.
-- Numbered Back and Cancel navigation for substitutions.
+- Coaching options before every overtime, plus an overtime practice launcher.
+- Offense and defense confirmations pause for Enter during play.
+- Shorter Accessibility Help.
+- Halftime strategy changes, substitution navigation and final lineup announcements.
 - Substitution bench-rest recovery and timeout-resume improvements.
-- Updated Accessibility Help.
-- Installation guidance for Windows warnings when running this unsigned build.
-- Retains the previous beta installation process: download Jason's team data
-  with "1 Install Team Data.cmd", then launch our accessible game.
 
-VALIDATION
-This candidate integrates upstream f504b55 (September 19), the latest upstream
-main fetched on October 6, and README PR #10. It restores accurate defensive
-team ownership while preserving accessible prompts and the original coverage
-test in ball distribution.
+VALIDATION AND LIMITATIONS
+All 21 regression scripts passed on the October 15 build, covering game menus,
+team/setup navigation, narration, strategy ownership, halftime, overtime,
+substitutions and recovery, timeouts, intentional fouls, late-game choices,
+box scores, pacing, repeat installation and installer security.
+The human-versus-computer test's exit sequence was corrected after its spare
+inputs opened Help; its gameplay assertions and clean-exit check then passed.
+A fresh online installation also downloaded, verified and installed all 75
+team-data sets. The known free-throw substitution defect was reconfirmed.
 
-The tester completed halftime testing of RC1 on October 6; issue #6 is closed.
-The merged engine requires a fresh hands-on JAWS game before release.
-Automated checks passed for team ownership, halftime, intentional fouls,
-final-five-second choices, human-versus-computer play, foul-out replacement,
-timeouts and return, play-safe controls, older-team pacing, overtime, box
-scores, clock review, and substitution navigation and recovery. Package
-checks include the manifest, checksum, launcher and offline team-data install;
-they do not validate a fresh internet download.
+The tester completed RC3 gameplay testing. RC4 focuses on installation and
+startup changes; hands-on screen-reader testing is still required.
+The upstream baseline remains f504b55 (September 19), fetched on October 6,
+with README PR #10. No further upstream engine merge is included in RC4.
 
-The free-throw shooter reproduction also confirmed an unresolved defect;
-it is documented in KNOWN ISSUES.txt, not fixed in this candidate.
+See TESTING AND FEEDBACK.txt for the RC4 checklist and KNOWN ISSUES.txt for
+the existing simulation defects, including free-throw shooter substitution.
+Automated regressions do not replace listening to the actual screen reader.
 
 This is a local candidate package. No GitHub release or release page has been
 published as part of preparing it.

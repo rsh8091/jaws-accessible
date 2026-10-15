@@ -4,7 +4,12 @@ param(
 
     [string]$ArchiveUrl = 'https://github.com/jleonard2099/LHG_CollegeBB/releases/download/v5.26/NCAA_Teams_thru2025.zip',
 
-    [string]$ArchivePath
+    [string]$ArchivePath,
+
+    # GitHub's published SHA-256 for the v5.26 asset above. Custom archives
+    # require an explicitly supplied, independently trusted checksum.
+    [ValidatePattern('^[0-9a-fA-F]{64}$')]
+    [string]$ExpectedSha256 = '62a1ccd2bedd9dc89aef088b6e879f95b293b18d2ec0860d5bfd1827e223dce8'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -23,6 +28,9 @@ function Get-TeamFileMap {
     Get-ChildItem -LiteralPath $Root -File -Recurse | Where-Object {
         $_.Name -like 'BASK.*' -or $_.Name -like 'COLBBTMS.*'
     } | ForEach-Object {
+        if ($_.Name -notmatch '^(BASK|COLBBTMS)\.([0-9]{4}[WX]?|AS|F4W?)$') {
+            throw "The archive contains an unsupported team-data filename: $($_.Name). No files were installed."
+        }
         if ($result.ContainsKey($_.Name)) {
             throw "The archive contains more than one file named $($_.Name)."
         }
@@ -33,6 +41,32 @@ function Get-TeamFileMap {
 
 try {
     New-Item -ItemType Directory -Path $destinationPath -Force | Out-Null
+    $existingTeamFiles = @(Get-ChildItem -LiteralPath $destinationPath -File | Where-Object {
+        $_.Name -like 'BASK.*' -or $_.Name -like 'COLBBTMS.*'
+    })
+    if ($existingTeamFiles.Count -gt 0) {
+        $reinstall = $false
+        Write-Host 'Team-data files already exist in this folder.'
+        Write-Host 'This may be a complete or partial installation.'
+        Write-Host '1. Keep existing files and finish without downloading.'
+        Write-Host '2. Reinstall team data. Matching files will be replaced, including any edits.'
+        Write-Host '99. Cancel without changing any files.'
+        do {
+            $choice = Read-Host 'Enter choice'
+            switch ($choice.Trim().ToLowerInvariant()) {
+                { $_ -in '1', 'keep' } {
+                    Write-Host 'Existing files kept. Nothing was downloaded or changed.'
+                    return
+                }
+                { $_ -in '99', 'cancel' } {
+                    Write-Host 'Installation canceled. Nothing was downloaded or changed.'
+                    return
+                }
+                { $_ -in '2', 'reinstall' } { $reinstall = $true }
+                default { Write-Host 'Choose 1 to keep, 2 to reinstall, or 99 to cancel.' }
+            }
+        } until ($reinstall)
+    }
     New-Item -ItemType Directory -Path $temporaryPath | Out-Null
 
     if ([string]::IsNullOrWhiteSpace($ArchivePath)) {
@@ -48,6 +82,11 @@ try {
 
     if (-not (Test-Path -LiteralPath $ArchivePath -PathType Leaf)) {
         throw "Team-data archive not found: $ArchivePath"
+    }
+
+    Write-Host 'Verifying team-data download...'
+    if ((Get-FileHash -LiteralPath $ArchivePath -Algorithm SHA256).Hash -ne $ExpectedSha256) {
+        throw 'Team-data checksum verification failed. No files were installed. Download again from the official release page; if this continues, report the error.'
     }
 
     $expandedPath = Join-Path $temporaryPath 'expanded'

@@ -3,7 +3,7 @@ setlocal
 cd /d "%~dp0"
 title Courtside - Install Team Data
 
-echo Courtside Accessible Beta - Team Data Installer
+echo Courtside Accessible - Team Data Installer
 echo.
 echo This downloads the official team-data archive and installs it in this folder.
 echo An internet connection is required.

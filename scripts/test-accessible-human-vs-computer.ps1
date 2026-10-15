@@ -15,17 +15,27 @@ $scriptedInput = [System.Collections.Generic.List[string]]::new()
 # Extra entries safely cover random original-engine pass prompts.
 1..40 | ForEach-Object { $scriptedInput.Add('2') }
 $scriptedInput.Add('3')
+# Surplus shot choices can open Help after the engine segment finishes.
+# One Exit can be consumed by Help's Enter pause; the next exits the menu.
+$scriptedInput.Add('3')
 
-Push-Location (Split-Path -Parent $executablePath)
-try {
-    $transcript = $scriptedInput | & $executablePath --accessible --accessible-test 2>&1 | Out-String
+$results = Join-Path $PSScriptRoot '..\dist\human-vs-computer-test'
+New-Item -ItemType Directory -Force -Path $results | Out-Null
+$results = (Resolve-Path $results).Path
+$inputFile = Join-Path $results 'input.txt'
+$outputFile = Join-Path $results 'output.txt'
+$errorFile = Join-Path $results 'error.txt'
+[IO.File]::WriteAllLines($inputFile, $scriptedInput)
+$process = Start-Process -FilePath $executablePath -ArgumentList '--accessible','--accessible-test' -WorkingDirectory (Split-Path $executablePath) -WindowStyle Hidden -RedirectStandardInput $inputFile -RedirectStandardOutput $outputFile -RedirectStandardError $errorFile -PassThru
+if (-not $process.WaitForExit(30000)) {
+    Stop-Process -Id $process.Id -Force
+    throw "Human-versus-computer test timed out: $outputFile"
 }
-finally {
-    Pop-Location
-}
+$process.WaitForExit()
+$transcript = [IO.File]::ReadAllText($outputFile)
 
-if ($LASTEXITCODE -ne 0) {
-    throw "Accessible human-versus-computer transcript exited with code $LASTEXITCODE.`n$transcript"
+if ($process.ExitCode -ne 0) {
+    throw "Accessible human-versus-computer transcript exited with code $($process.ExitCode).`n$transcript"
 }
 
 $expectedText = @(
@@ -54,7 +64,8 @@ $expectedText = @(
     'Defensive style for SYRACUSE.',
     'Defensive style set to 2-3 ZONE (PASSIVE).',
     'Defensive strategy: SYRACUSE is running 2-3 ZONE (PASSIVE).',
-    'Original simulator validation complete.'
+    'Original simulator validation complete.',
+    'Exiting Courtside College Basketball.'
 )
 
 foreach ($expected in $expectedText) {

@@ -1,12 +1,12 @@
 COURTSIDE COLLEGE BASKETBALL ACCESSIBLE
-Release 1, Candidate 3 (1.0-RC3) - October 7, 2026
+Release 1, Candidate 4 (1.0-RC4) - October 15, 2026
 
 This candidate focuses on accessible single-game play. It is ready for final
 hands-on review; it is not a claim that every simulation issue is resolved.
 
 INSTALLATION
-1. Extract the entire Courtside-Accessible-1.0-RC3.zip into a writable folder,
-   such as C:\Games\Courtside-RC3. Do not run from inside the ZIP.
+1. Extract the entire Courtside-Accessible-1.0-RC4.zip into a writable folder,
+   such as C:\Games\Courtside-RC4. Do not run from inside the ZIP.
    Use a separate folder from an older installation to preserve its files.
    Avoid Program Files and cloud-synchronized folders such as OneDrive.
 2. Run "1 Install Team Data.cmd" once. Internet access is required. This
@@ -66,3 +66,18 @@ Preservation and modernization: Jason Leonard.
 https://github.com/jleonard2099/LHG_CollegeBB
 Accessibility fork: https://github.com/rsh8091/jaws-accessible
 See LICENSE, QB64PE.license.txt and Ack_UWL.txt for acknowledgments and licensing.
+
+If team data is missing, the launcher opens a Windows dialog with an OK button.
+Press Enter to dismiss it, then run 1 Install Team Data.cmd and start again.
+If Windows cannot show the dialog, the console repeats the instructions and
+waits for Enter before closing.
+
+Running the team-data installer again detects existing files, including a
+partial installation. Choose 1 to keep them without downloading, 2 to reinstall
+and replace matching files (including edits), or 99 to cancel. Blank or invalid
+input asks again; it never authorizes a reinstall.
+
+The installer verifies the team archive against the expected SHA-256 checksum
+before extracting it and accepts only supported team-data filenames. If
+verification fails, no files are installed. Download again from the official
+release page; if the error continues, report it.
