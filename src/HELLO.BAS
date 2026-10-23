@@ -2621,6 +2621,7 @@ Sub COLHOOP ()
                     I$ = GetKeyPress$
                     desigFouler = Val(I$) - 1
                 Loop Until Len(I$) = 1 And I$ >= "1" And I$ <= "5"
+
             End If
 
             If passes <= 1 Then
@@ -3918,8 +3919,8 @@ Sub COLHOOP ()
 
     End Select
 
-    'Foul, chosen, computer on offense and last 4 minutes of game
-    If Val(I$) = 3 And IsDefenseHuman And currHalf >= 2 And gameClock! < 240 Then
+    'Foul was chosen | Computer on offense and last 4 minutes of game
+    If I$ = "3" And IsDefenseHuman And currHalf >= 2 And gameClock! < 240 Then
         playChoice = 3
     End If
 
@@ -8735,7 +8736,6 @@ Function GoodShotChance%
             'Ken Pom: Average team possessions / game
             nbrPoss(X) = ((teamFGA - teamOR) + teamTO + (yFactor! * teamFTA)) / teamGames
         End If
-
     Next X
 
     'https://sports.icalculator.com/basketball-pace-factor-calculator.html
@@ -12540,7 +12540,7 @@ Sub BALLDISTRIBUTE ()
         Call WHOGETSBALL
     Else
 
-        If defCoverage(D) < 2 And defCoverage(D) > 3 Then
+        If defCoverage(D) <> 2 And defCoverage(D) <> 3 Then
 
             If gameAvgTmStamina <= 90 And RN0 <= 15 Then randomCarrier = 0
             If gameAvgTmStamina <= 100 And RN0 <= 20 Then randomCarrier = 0
@@ -12737,7 +12737,7 @@ Sub DEADBALLOPTIONS (userTakeTO)
             End If
 
             If P3 = 0 Or _
-                (IsOffensePC And (P3 = 1 Or (P3 = 3 And timeouts(P) <= 0))) Or _ 
+                (IsOffensePC And (P3 = 1 Or (P3 = 3 And timeouts(P) <= 0))) Or _
                 (IsDefensePC And (P3 = 2 Or (P3 = 4 And timeouts(D) <= 0))) Then
                 'When ENTER is pressed (to continue),
                 'team has no timeouts or computer team
@@ -12892,7 +12892,7 @@ Sub STOPPAGE (userTakeTO)
             End If
 
             If P3 = 0 Or _ 
-                (IsOffensePC And (P3 = 1 Or P3 = 3 Or (P3 = 5 And timeouts(P) <= 0))) Or _ 
+                (IsOffensePC And (P3 = 1 Or P3 = 3 Or (P3 = 5 And timeouts(P) <= 0))) Or _
                 (IsDefensePC And (P3 = 2 Or P3 = 4 Or (P3 = 6 And timeouts(D) <= 0))) Then
                 'When ENTER is pressed (to continue),
                 'team has no timeouts or computer team
@@ -14284,9 +14284,7 @@ Sub FreeThrow_OneAndOne (missedLastFT)
 
     offStatus = 50
 
-    If strategicFoul = 0 Then
-        Call STOPPAGE(takeTO)
-    End If
+    If strategicFoul = 0 Then Call STOPPAGE(takeTO)
 
     For I = 0 To 1
         If defCategory(I) = 0 Then
@@ -14386,7 +14384,6 @@ Sub FreeThrow_OneAndOne (missedLastFT)
     Else
         missedLastFT = 0
     End If
-    strategicFoul = 0
 
     strategicFoul = 0
 
@@ -14407,9 +14404,7 @@ Sub FreeThrows (ftCount, missedLastFT)
     'Intentional fouls already provide a coaching stoppage after both free throws.
     'Stopping here as well consumed a second key immediately after defender selection;
     'a buffered/repeated "1" could be interpreted as SUB and open the roster screen.
-    If intentional = 0 And strategicFoul = 0 Then
-        Call STOPPAGE(takeTO)
-    End If
+    If intentional = 0 And strategicFoul = 0 Then Call STOPPAGE(takeTO)
 
     For I = 0 To 1
         If defCategory(I) = 0 Then
@@ -14486,8 +14481,6 @@ Sub FreeThrows (ftCount, missedLastFT)
     Else
         missedLastFT = 0
     End If
-    
-    strategicFoul = 0
 
     strategicFoul = 0
 
@@ -18516,11 +18509,7 @@ End Function
 'is on defense
 Function IsDefensePC
 
-    If accessibleEngineMode = 1 Then
-        IsDefensePC = -1
-        Exit Function
-    End If
-    IsDefensePC = (playerMode = 1 And D = compTeam) Or playerMode = 2
+    IsDefensePC = (playerMode = 1 And compTeam = D) Or playerMode = 2
 
 End Function
 
