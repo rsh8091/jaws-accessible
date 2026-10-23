@@ -46,3 +46,6 @@ Automated regressions do not replace listening to the actual screen reader.
 
 This is a local candidate package. No GitHub release or release page has been
 published as part of preparing it.
+
+RC4 WORDING UPDATE
+- Returning from gameplay now says 'Returning to the main menu.'

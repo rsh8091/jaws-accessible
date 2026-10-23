@@ -36,7 +36,7 @@ $expectedText = @(
     'Strategic foul recorded; exercising the seven-foul one-and-one path.',
     '1+1 FT:',
     'Strategic foul engine validation passed.',
-    'Original simulator validation complete.'
+    'Returning to the main menu.'
 )
 
 foreach ($expected in $expectedText) {

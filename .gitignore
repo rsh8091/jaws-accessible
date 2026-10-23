@@ -1,5 +1,7 @@
 
 *.7z
+*.zip
+/UPLOAD TO GITHUB/
 *.exe
 *.ini
 .tools/

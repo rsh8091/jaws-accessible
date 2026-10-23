@@ -43,7 +43,7 @@ $expectedText = @(
     'The original game engine will coach both teams for six possessions.',
     'Possession 1 of 6:',
     '6 original-simulator possessions completed.',
-    'Original simulator validation complete.',
+    'Returning to the main menu.',
     'Exiting Courtside College Basketball.'
 )
 

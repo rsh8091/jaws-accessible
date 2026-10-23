@@ -504,7 +504,7 @@ Sub AccessibleRunGame ()
     accessibleEngineMode = 0
     accessiblePreparedGame = 0
     accessibleTurnoverDiagnosticActive = 0
-    Print "Original simulator validation complete."
+    Print "Returning to the main menu."
 
 End Sub
 

@@ -64,7 +64,7 @@ $expectedText = @(
     'Defensive style for SYRACUSE.',
     'Defensive style set to 2-3 ZONE (PASSIVE).',
     'Defensive strategy: SYRACUSE is running 2-3 ZONE (PASSIVE).',
-    'Original simulator validation complete.',
+    'Returning to the main menu.',
     'Exiting Courtside College Basketball.'
 )
 

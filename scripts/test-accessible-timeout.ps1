@@ -30,7 +30,7 @@ $expectedText = @(
     '2. Make a substitution.',
     'B.EDELIN replaces C.FORTH as center.',
     'Computer first-half substitution validation passed.',
-    'Original simulator validation complete.'
+    'Returning to the main menu.'
 )
 
 foreach ($expected in $expectedText) {

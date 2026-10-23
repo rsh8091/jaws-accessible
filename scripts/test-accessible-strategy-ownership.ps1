@@ -42,7 +42,7 @@ $expectedText = @(
     'Automated accessible strategy ownership validation.',
     'Human strategy baseline: MOTION and SOLID MAN-TO-MAN.',
     'Human strategy ownership validation passed.',
-    'Original simulator validation complete.'
+    'Returning to the main menu.'
 )
 foreach ($expected in $expectedText) {
     if (-not $transcript.Contains($expected)) {
