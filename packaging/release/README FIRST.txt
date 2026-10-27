@@ -1,7 +1,7 @@
 COURTSIDE COLLEGE BASKETBALL ACCESSIBLE
 Version 1.0 - October 27, 2026
 
-This release focuses on accessible single-game play. The tester completed
+This release focuses on accessible single-game play. Testing completed
 a full game with RC5 and reported that it went fine. See KNOWN ISSUES.txt
 for the simulation issues that remain documented.
 
