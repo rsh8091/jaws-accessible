@@ -1,12 +1,13 @@
 COURTSIDE COLLEGE BASKETBALL ACCESSIBLE
-Release 1, Candidate 4 (1.0-RC4) - October 15, 2026
+Release 1, Candidate 5 (1.0-RC5) - October 23, 2026
 
-This candidate focuses on accessible single-game play. It is ready for final
-hands-on review; it is not a claim that every simulation issue is resolved.
+This candidate focuses on accessible single-game play. The tester completed
+a full game with RC5 and reported that it went fine. See KNOWN ISSUES.txt
+for the simulation issues that remain documented.
 
 INSTALLATION
-1. Extract the entire Courtside-Accessible-1.0-RC4.zip into a writable folder,
-   such as C:\Games\Courtside-RC4. Do not run from inside the ZIP.
+1. Extract the entire Courtside-Accessible-1.0-RC5.zip into a writable folder,
+   such as C:\Games\Courtside-RC5. Do not run from inside the ZIP.
    Use a separate folder from an older installation to preserve its files.
    Avoid Program Files and cloud-synchronized folders such as OneDrive.
 2. Run "1 Install Team Data.cmd" once. Internet access is required. This
@@ -53,8 +54,9 @@ second half, listen to both final lineups, then press Enter to begin play.
 
 SYSTEMS
 The project's previously tested configuration is Windows 11, 64-bit, with
-JAWS 2026 (2026.2606.132.400). This candidate has automated checks but still
-needs final hands-on screen-reader testing. Other screen-reader versions have
+JAWS 2026 (2026.2606.132.400). RC5 passed automated checks and the tester
+reported completing a full game successfully. The exact screen-reader
+version used for that RC5 game was not recorded. Other screen-reader versions have
 not been formally validated. Windows 10 22H2, 64-bit is best-effort support.
 Windows 7, 8, 8.1 and 32-bit Windows are not supported.
 

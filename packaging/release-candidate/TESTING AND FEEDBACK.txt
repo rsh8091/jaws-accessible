@@ -1,7 +1,12 @@
-FINAL TESTING - RELEASE 1, CANDIDATE 4 (1.0-RC4)
+FINAL TESTING - RELEASE 1, CANDIDATE 5 (1.0-RC5)
 
-INSTALLATION AND STARTUP (MAIN CHANGES SINCE RC3)
-1. Extract RC4 into a new folder. Before installing data, run
+RECORDED RESULT
+The tester completed a full game with RC5 and reported that it went fine.
+The checklist below remains available for reference and further testing;
+individual items have not all been separately confirmed by that report.
+
+INSTALLATION AND STARTUP
+1. Extract RC5 into a new folder. Before installing data, run
    "2 Start Accessible Game.cmd". Confirm your screen reader announces the
    missing-data dialog, waits for Enter on OK, and closes without starting play.
 2. Run "1 Install Team Data.cmd". Confirm the download, verification and
@@ -15,7 +20,8 @@ INSTALLATION AND STARTUP (MAIN CHANGES SINCE RC3)
 GAMEPLAY
 Play a complete single game with your usual screen reader. Check team/rule
 setup, passing, shooting, substitutions, timeouts, halftime and box scores.
-Listen for offense and defense confirmations and their Enter pauses. At
+Listen for offense and defense confirmations and their Enter pauses.
+Confirm returning from gameplay says "Returning to the main menu." At
 halftime, check strategy changes, Back, lineup review and substitutions, then
 confirm both final lineups are read before Enter begins the second half.
 Accessibility Help should contain only the short game-control guidance,
@@ -31,7 +37,7 @@ Read KNOWN ISSUES.txt before play. Existing simulation issues remain documented.
 
 Report problems at https://github.com/rsh8091/jaws-accessible/issues
 Include:
-- Package version: 1.0-RC4.
+- Package version: 1.0-RC5.
 - Windows and screen-reader versions.
 - Both teams and season years, rules, and which team you controlled.
 - Menu choices immediately before the problem.

@@ -2,10 +2,12 @@
 param(
     [string]$Version = 'Beta-1',
     [string]$OutputDirectory,
-    [switch]$ReleaseCandidate
+    [switch]$ReleaseCandidate,
+    [switch]$FinalRelease
 )
 
 $ErrorActionPreference = 'Stop'
+if ($ReleaseCandidate -and $FinalRelease) { throw 'Choose either ReleaseCandidate or FinalRelease.' }
 $repositoryPath = Split-Path -Parent $PSScriptRoot
 if ([string]::IsNullOrWhiteSpace($OutputDirectory)) {
     $OutputDirectory = Join-Path $repositoryPath 'dist'
@@ -54,6 +56,15 @@ if ($ReleaseCandidate) {
     $files['packaging\release-candidate\TESTING AND FEEDBACK.txt'] = 'TESTING AND FEEDBACK.txt'
     $files['packaging\release-candidate\KNOWN ISSUES.txt'] = 'KNOWN ISSUES.txt'
     $files['packaging\release-candidate\RELEASE NOTES.txt'] = 'RELEASE NOTES.txt'
+}
+
+if ($FinalRelease) {
+    $files.Remove('packaging\README FIRST.txt')
+    $files.Remove('packaging\BETA TESTING AND FEEDBACK.txt')
+    $files.Remove('packaging\KNOWN ISSUES.txt')
+    foreach ($name in @('README FIRST.txt','REPORTING ISSUES.txt','KNOWN ISSUES.txt','RELEASE NOTES.txt')) {
+        $files[('packaging\release\' + $name)] = $name
+    }
 }
 
 foreach ($sourceName in $files.Keys) {

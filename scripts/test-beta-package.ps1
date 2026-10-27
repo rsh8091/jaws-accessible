@@ -1,10 +1,10 @@
 [CmdletBinding()]
-param([string]$Version = 'Beta-1', [switch]$ReleaseCandidate)
+param([string]$Version = 'Beta-1', [switch]$ReleaseCandidate, [switch]$FinalRelease)
 
 $ErrorActionPreference = 'Stop'
 $repositoryPath = Split-Path -Parent $PSScriptRoot
 $outputPath = Join-Path $repositoryPath 'dist'
-& (Join-Path $PSScriptRoot 'package-beta.ps1') -Version $Version -OutputDirectory $outputPath -ReleaseCandidate:$ReleaseCandidate
+& (Join-Path $PSScriptRoot 'package-beta.ps1') -Version $Version -OutputDirectory $outputPath -ReleaseCandidate:$ReleaseCandidate -FinalRelease:$FinalRelease
 
 $archiveName = "Courtside-Accessible-$Version.zip"
 $archivePath = Join-Path $outputPath $archiveName
@@ -32,6 +32,10 @@ $expected = @(
 if ($ReleaseCandidate) {
     $expected += '3 Test Overtime.cmd'
     $expected = @($expected | Where-Object { $_ -ne 'BETA TESTING AND FEEDBACK.txt' }) + @('TESTING AND FEEDBACK.txt','RELEASE NOTES.txt')
+    $expected = @($expected | Sort-Object)
+}
+if ($FinalRelease) {
+    $expected = @($expected | Where-Object { $_ -ne 'BETA TESTING AND FEEDBACK.txt' }) + @('REPORTING ISSUES.txt','RELEASE NOTES.txt')
     $expected = @($expected | Sort-Object)
 }
 $entryDifference = @(Compare-Object $expected $actual)
