@@ -1,0 +1,49 @@
+RELEASE 1, CANDIDATE 5 (1.0-RC5)
+October 23, 2026
+
+SCOPE
+Accessible single-game play: team and rule setup, numbered coaching menus,
+passing and shooting decisions, substitutions, timeouts, halftime, overtime,
+and accessible box scores. Season and tournament accessibility are outside
+this release candidate's scope.
+
+NEW SINCE RC4
+- Returning from gameplay now says "Returning to the main menu."
+- Rebased onto upstream main at a0e9407 (October 10). The upstream update
+  adjusts schedule date/time defaults and comments. Previous accessibility
+  and integration fixes are preserved. Schedule-editor changes have not
+  been manually tested; accessible gameplay is the focus of this release.
+- Rebuilt the game and reran automated gameplay and installer checks.
+
+PREVIOUS IMPROVEMENTS INCLUDED
+- Numbered setup, lineup, coaching and substitution menus, with Back and Cancel.
+- Screen-reader-friendly play-by-play, clock/status reports and box scores.
+- Coaching options before every overtime, plus an overtime practice launcher.
+- Offense and defense confirmations pause for Enter during play.
+- Shorter Accessibility Help focused on game controls.
+- Halftime strategy changes and final lineup announcements.
+- Substitution bench-rest recovery and timeout-resume improvements.
+- Missing-data startup guidance that waits for acknowledgment.
+- Team-data installation with keep, reinstall and cancel choices, checksum
+  verification, and supported-filename validation.
+
+VALIDATION AND LIMITATIONS
+The October 23 build passed all 18 gameplay test scripts, covering menus,
+setup, team selection, narration, clock controls, strategy ownership, halftime,
+overtime, substitutions and recovery, timeouts, intentional fouls, late-game
+choices, box scores and older-team pacing.
+The source-level intentional-foul regression and both installer test scripts
+also passed. Installer checks covered fresh install, keep, cancel, invalid
+input, reinstall, partial-install repair, rejected archives, and the official
+team archive with its pinned checksum. Package checks verify contents,
+launchers, checksum and offline team-data installation.
+
+The tester completed a full game with RC5 and reported that it went fine.
+This records the full-game result; it does not imply that every checklist
+item or known simulation defect was exercised. See TESTING AND
+FEEDBACK.txt for the checklist and KNOWN ISSUES.txt for existing simulation
+defects, including free-throw shooter substitution. These reported defects
+have not been fixed by this packaging update.
+
+This is a local candidate package. No GitHub release has been published as
+part of preparing it.

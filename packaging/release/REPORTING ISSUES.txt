@@ -1,0 +1,15 @@
+REPORTING ISSUES - VERSION 1.0
+
+We welcome reports of gameplay, installation and accessibility problems:
+https://github.com/rsh8091/jaws-accessible/issues
+
+Please include what you can:
+- Game version (1.0).
+- Windows and screen-reader versions.
+- Teams and season years, rules, and which team you controlled.
+- The menu choices or actions leading to the problem.
+- What happened, what you expected, and whether play could continue.
+- Whether it repeats; a short transcript or box score can help.
+
+Read KNOWN ISSUES.txt for problems already documented.
+Do not include private information in a public issue.

@@ -1,0 +1,47 @@
+FINAL TESTING - RELEASE 1, CANDIDATE 5 (1.0-RC5)
+
+RECORDED RESULT
+The tester completed a full game with RC5 and reported that it went fine.
+The checklist below remains available for reference and further testing;
+individual items have not all been separately confirmed by that report.
+
+INSTALLATION AND STARTUP
+1. Extract RC5 into a new folder. Before installing data, run
+   "2 Start Accessible Game.cmd". Confirm your screen reader announces the
+   missing-data dialog, waits for Enter on OK, and closes without starting play.
+2. Run "1 Install Team Data.cmd". Confirm the download, verification and
+   successful installation messages are readable, then start the game.
+3. Run the installer again. Choose 1 to keep existing data, then repeat and
+   choose 99 to cancel. Both should finish without downloading or changing data.
+4. Run it again and enter a blank or invalid choice. It should ask again.
+   Choose 2 to reinstall and confirm it downloads, verifies and finishes.
+   Reinstall replaces matching team files, including edits; use your new test folder.
+
+GAMEPLAY
+Play a complete single game with your usual screen reader. Check team/rule
+setup, passing, shooting, substitutions, timeouts, halftime and box scores.
+Listen for offense and defense confirmations and their Enter pauses.
+Confirm returning from gameplay says "Returning to the main menu." At
+halftime, check strategy changes, Back, lineup review and substitutions, then
+confirm both final lineups are read before Enter begins the second half.
+Accessibility Help should contain only the short game-control guidance,
+without installation instructions.
+
+For overtime practice, run "3 Test Overtime.cmd" after installing team data.
+Complete normal setup; regulation ends tied at 70 and opens overtime options.
+Check substitutions and strategy changes before choosing Start overtime.
+
+Checksum mismatch and invalid archive filenames are covered by automated
+checks; you do not need to create damaged or unsafe files for manual testing.
+Read KNOWN ISSUES.txt before play. Existing simulation issues remain documented.
+
+Report problems at https://github.com/rsh8091/jaws-accessible/issues
+Include:
+- Package version: 1.0-RC5.
+- Windows and screen-reader versions.
+- Both teams and season years, rules, and which team you controlled.
+- Menu choices immediately before the problem.
+- What you heard, expected, and whether play could continue.
+- Whether it repeats; include a short relevant transcript when available.
+
+Do not include private information in a public issue.

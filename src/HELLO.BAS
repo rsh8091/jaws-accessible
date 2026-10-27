@@ -1,5 +1,6 @@
 $Debug
 $Color:32
+$Console
 
 Const GAME_VERSION$ = "5.32"
 Const MAX_FILES = 10240
@@ -27,6 +28,7 @@ DefInt A-Z
 
 ' General purpose
 '$Include: 'KeyInput.bi'
+'$Include: 'AccessibleMode.bi'
 '$Include: 'QPProEqu.bi'
 '$Include: 'StringManip.bi'
 '$Include: 'QBWRITE.bi'
@@ -38,6 +40,7 @@ DefInt A-Z
 
 '-- TEMPORARY USE --
 Dim possCount(8)
+Dim Shared matchPace
 Dim Shared totalDrawFouls, totalIntFouls, totalLBFouls, totalOffFouls, totalPerFouls, totalShotFouls
 Dim Shared totalPlayers&, totalCX&, totalMatchPace&, totalMatches&
 
@@ -277,6 +280,17 @@ yesNo$(1) = "Y"
 '----------------------------------------
 '               MAIN CODE
 '----------------------------------------
+accessibleMode% = IsAccessibleMode%
+
+If accessibleMode% Then
+    _ScreenHide
+    _Console On
+    _Dest _Console
+    _ConsoleTitle "Courtside College Basketball - Accessible Mode"
+Else
+    _Console Off
+End If
+
 _Title "Courtside College Basketball - Menu"
 $ExeIcon:'./lhg_ccb.ico'
 _Icon
@@ -316,7 +330,7 @@ If (CanWriteLocally = 1) Or dirSeparator$ = "/" Then
     cfgPath$ = _CWD$
 Else
     ' Can't write locally - use AppData (Windows restricted scenario)
-    cfgPath$ = Environ$("LOCALAPPDATA") + "\LH Games\Courtside College\"
+    cfgPath$ = Environ$("LOCALAPPDATA") + "\LH Games\Courtside CBB\"
 End If
 
 'Read-in existing DEV.BAS
@@ -362,16 +376,20 @@ Close #3
 'End If
 
 'Run main menu
-SELECTION% = 1
+If accessibleMode% Then
+    Call AccessibleMainMenu
+Else
+    SELECTION% = 1
 
-menu& = _NewImage(640, 480, 256)
-Screen menu&
+    menu& = _NewImage(640, 480, 256)
+    Screen menu&
 
-Do
+    Do
 
-    Call Main_Menu(SELECTION%)
+        Call Main_Menu(SELECTION%)
 
-Loop Until SELECTION% = 8
+    Loop Until SELECTION% = 8
+End If
 
 System
 
@@ -745,6 +763,7 @@ End Sub
 
 ' General purpose
 '$Include: 'KeyInput.bm'
+'$Include: 'AccessibleMode.bm'
 '$Include: 'QPProEqu.bm'
 '$Include: 'StringManip.bm'
 '$Include: 'QBWRITE.bm'
@@ -803,7 +822,8 @@ Sub COLHOOP ()
 
     _Title "Courtside College Basketball v" + GAME_VERSION$ + " - COURT'S LIVE!"
 
-    Dim goodShot, invalid3FG, matchPace
+    Dim goodShot, invalid3FG
+    Shared matchPace
     Dim playChoice, pbpType
 
     Shared actualAttendance&
@@ -823,11 +843,11 @@ Sub COLHOOP ()
     Shared sClockOpt$(), yesNoText$()
 
     Color 7, 0
-    Cls
+    If accessibleEngineMode = 0 Then Cls
 
     Randomize Timer
 
-    Call InitVar
+    If accessiblePreparedGame = 0 Then Call InitVar
 
     '----------------------------------------
     '         DETERMINE GAME OPTIONS
@@ -922,7 +942,7 @@ Sub COLHOOP ()
     End If
 
     'Load game in-progress, if there is one
-    If _FileExists(cfgPath$ + "GAME82") Then
+    If accessiblePreparedGame = 0 And _FileExists(cfgPath$ + "GAME82") Then
 
         Open cfgPath$ + "GAME82" For Input As #6
 
@@ -988,7 +1008,7 @@ Sub COLHOOP ()
 
     End If
 
-    If _FileExists(cfgPath$ + "TOURNEY") Then
+    If accessiblePreparedGame = 0 And _FileExists(cfgPath$ + "TOURNEY") Then
 
         Open cfgPath$ + "TOURNEY" For Input As #8
 
@@ -1074,7 +1094,7 @@ Sub COLHOOP ()
     End If
 
     'AUTOSETUP will reset tourneyPlay = 0 in many circumstances
-    If autoPlay <> 1 And tourneyPlay <> 1 Then
+    If autoPlay <> 1 And tourneyPlay <> 1 And accessiblePreparedGame = 0 Then
 
         ' USER SELECTION OF OPTIONS
         'gameLoc = 1 is neutral site
@@ -1309,6 +1329,28 @@ Sub COLHOOP ()
         Exit Sub
     End If
 
+    If accessiblePreparedGame = 1 Then
+        autoPlay = 0
+        tourneyPlay = 0
+        playerOpt = accessiblePlayerOpt
+        threePtOpt = accessibleThreePoint
+        gameLoc = accessibleGameLoc
+        foulsToDQ = accessibleFoulsToDQ
+        pbpDelay! = 0
+        If accessiblePlayerOpt = 3 Then coachOpt = 1 Else coachOpt = 0
+        ft10thFoul = 1
+        ft3PtFoul = 1
+        ft6FloorFouls = 0
+        pbpOpt = 0
+        sndOpt = 0
+        Select Case accessibleShotClock
+            Case 45: sClockVal = 1
+            Case 35: sClockVal = 2
+            Case 30: sClockVal = 3
+            Case Else: sClockVal = 0
+        End Select
+    End If
+
     '----------------------------------------
     '    AUTO-DETERMINE OTHER OPTIONS
     '----------------------------------------
@@ -1351,7 +1393,7 @@ Sub COLHOOP ()
         End If
     Next I
 
-    Call ChangeContributions
+    If accessiblePreparedGame = 0 Then Call ChangeContributions
     Call LOADSTATS
 
     If teamRat_GAME(1, 0) = teamRat_GAME(0, 0) And teamRat_GAME(1, 1) = teamRat_GAME(0, 1) Then
@@ -1414,7 +1456,23 @@ Sub COLHOOP ()
 
         Call SETSTAMINA
 
-        If (playerMode = 1 And team = compTeam) Or playerMode = 2 Then
+        If accessiblePreparedGame = 1 Then
+            'Accessible setup has already collected each human team's strategy.
+            'Only computer-controlled teams should have those choices replaced by AI.
+            computerControlled = 0
+            If accessiblePlayerOpt = 3 Then computerControlled = 1
+            If accessiblePlayerOpt = 1 And team = 0 Then computerControlled = 1
+            If accessiblePlayerOpt = 2 And team = 1 Then computerControlled = 1
+
+            If computerControlled = 1 Then
+                'ComputerStrategy still targets the legacy P9 team variable.
+                P9 = team
+                Call ComputerStrategy
+            Else
+                'Keep the human-selected defense and refresh its engine categories.
+                Call CategorizeDefense(team)
+            End If
+        ElseIf (playerMode = 1 And team = compTeam) Or playerMode = 2 Then
             Call ComputerCoach(team)
         Else
             Call ChooseLineup(team)
@@ -1457,6 +1515,173 @@ Sub COLHOOP ()
         impactTeam = 0
     Else
         impactTeam = gameLoc
+    End If
+
+    If accessibleEngineMode = 1 And IsAccessibleHalftimeTestMode% = 1 And currHalf = 1 Then
+        For halftimeArg = 1 To _CommandCount
+            Select Case LCase$(Command$(halftimeArg))
+                Case "--halftime-control=both"
+                    playerMode = 0: accessiblePlayerOpt = 0
+                Case "--halftime-control=visitor"
+                    playerMode = 1: compTeam = 1: accessiblePlayerOpt = 2
+                Case "--halftime-control=computer"
+                    playerMode = 2: accessiblePlayerOpt = 3
+            End Select
+        Next halftimeArg
+        For testTeam = 0 To 1
+            For testPlayer = 0 To 13
+                tmFatigue(testTeam, testPlayer) = -5
+            Next testPlayer
+        Next testTeam
+        gameClock! = 0
+        GoTo 170
+    End If
+
+    If accessibleEngineMode = 1 And IsAccessibleOvertimeTestMode% = 1 And currHalf = 1 Then
+        Print "Automated accessible overtime validation."
+        P = 0: D = 1: P9 = P
+        For overtimeArg = 1 To _CommandCount
+            Select Case LCase$(Command$(overtimeArg))
+                Case "--overtime-control=both": playerMode = 0: accessiblePlayerOpt = 0
+                Case "--overtime-control=visitor": playerMode = 1: compTeam = 1: accessiblePlayerOpt = 2
+                Case "--overtime-control=computer": playerMode = 2: accessiblePlayerOpt = 3
+            End Select
+        Next overtimeArg
+        score(0, 1) = 35: score(0, 2) = 35: score(0, 0) = 70
+        score(1, 1) = 35: score(1, 2) = 35: score(1, 0) = 70
+        currHalf = 2
+        gameClock! = 0
+        GoTo 170
+    End If
+
+    If accessibleEngineMode = 1 And IsAccessibleJawsOvertimeTestMode% = 1 And currHalf = 1 Then
+        Call AccessiblePrepareJawsOvertimeTest
+        GoTo 170
+    End If
+
+    If accessibleEngineMode = 1 And IsAccessibleJawsIntentionalFoulTestMode% = 1 Then
+        If AccessiblePrepareJawsIntentionalFoulTest% = 1 Then GoTo 529 Else Exit Sub
+    End If
+
+    '$Include: 'AccessibleLastFiveTestSetup.bi'
+    '$Include: 'AccessibleClockTestSetup.bi'
+    '$Include: 'AccessibleSubstitutionTestSetup.bi'
+
+    If accessibleEngineMode = 1 And IsAccessibleStrategyOwnershipTestMode% = 1 Then
+        testStrategyOwnership = AccessibleRunStrategyOwnershipTest%
+        Exit Sub
+    End If
+
+    If accessibleEngineMode = 1 And IsAccessibleIntentionalFoulTestMode% = 1 Then
+        Print "Automated late-game strategic foul validation."
+        currHalf = 2
+        gameClock! = 180
+        P = compTeam
+        D = 1 - compTeam
+        ballCarrier = 0
+        teamFouls(D) = 6
+        testNoFoul = AccessibleReadStrategicFoulChoice%(D)
+        testCommitFoul = AccessibleReadStrategicFoulChoice%(D)
+        If testNoFoul <> 0 Or testCommitFoul <> 1 Then
+            Print "Strategic foul prompt validation failed."
+            Exit Sub
+        End If
+        Print "Strategic foul prompt validation passed."
+        testDefender = AccessibleReadDefenderChoice%(D)
+        If testDefender <> 2 Then
+            Print "Strategic foul defender validation failed."
+            Exit Sub
+        End If
+        Print "Strategic foul defender validation passed."
+        testFouler = lineupIdx(D, testDefender)
+        testFoulsBefore = plyrOff_GAME!(D, testFouler, 12)
+        strategicFoul = 1
+        foulPlayer = testDefender
+        Call FoulCalled(0)
+        Print "Strategic foul recorded; exercising the seven-foul one-and-one path."
+        Call FreeThrow_OneAndOne(missedLast)
+        If teamFouls(D) = 7 And plyrOff_GAME!(D, testFouler, 12) = testFoulsBefore + 1 And strategicFoul = 0 Then
+            Print "Strategic foul engine validation passed."
+        Else
+            Print "Strategic foul engine validation failed."
+        End If
+        Exit Sub
+    End If
+
+    If accessibleEngineMode = 1 And IsAccessibleComputerSubsTestMode% = 1 Then
+        P = 1 - compTeam
+        D = compTeam
+        testStarter0 = lineupIdx(compTeam, 0)
+        testStarter1 = lineupIdx(compTeam, 1)
+        testStarter2 = lineupIdx(compTeam, 2)
+        testStarter3 = lineupIdx(compTeam, 3)
+        testStarter4 = lineupIdx(compTeam, 4)
+        gameClock! = 900
+        For testSlot = 0 To 4
+            testStarter = lineupIdx(compTeam, testSlot)
+            plyrOff_GAME!(compTeam, testStarter, 7) = plyrOff_GAME!(compTeam, testStarter, 3) + 1
+        Next testSlot
+        offStatus = 0
+        computerTimeout = 1
+        Call TimeoutCalled(P)
+        accessibleTimeoutMenuPending = 1
+        Call STOPPAGE(takeTO)
+        testSubMade = 0
+        For testSlot = 0 To 4
+            testCurrent = lineupIdx(compTeam, testSlot)
+            If testCurrent <> testStarter0 And testCurrent <> testStarter1 And testCurrent <> testStarter2 And testCurrent <> testStarter3 And testCurrent <> testStarter4 Then testSubMade = 1
+        Next testSlot
+        If testSubMade = 1 Then
+            Print "Computer first-half substitution validation passed."
+        Else
+            Print "Computer first-half substitution validation failed."
+        End If
+        Exit Sub
+    End If
+
+    If accessibleEngineMode = 1 And IsAccessibleFoulOutSubsTestMode% = 1 Then
+        Print "Automated computer foul-out substitution validation."
+        currHalf = 2
+        gameClock! = 240
+        P = 1 - compTeam
+        D = compTeam
+        foulPlayer = 0
+        testFouledOut = lineupIdx(compTeam, foulPlayer)
+        plyrOff_GAME!(compTeam, testFouledOut, 12) = foulsToDQ - 1
+        Call FoulCalled(0)
+
+        testDisqualifiedSelected = 0
+        testDuplicateSelected = 0
+        For testSlot = 0 To 4
+            If lineupIdx(compTeam, testSlot) = testFouledOut Then testDisqualifiedSelected = 1
+            For testOtherSlot = testSlot + 1 To 4
+                If lineupIdx(compTeam, testSlot) = lineupIdx(compTeam, testOtherSlot) Then testDuplicateSelected = 1
+            Next testOtherSlot
+        Next testSlot
+
+        If testDisqualifiedSelected = 0 And testDuplicateSelected = 0 Then
+            Print "Computer foul-out substitution validation passed."
+        Else
+            Print "Computer foul-out substitution validation failed."
+            Print "Disqualified player selected: "; testDisqualifiedSelected; "."
+            Print "Duplicate lineup player selected: "; testDuplicateSelected; "."
+        End If
+        Exit Sub
+    End If
+
+    If accessibleEngineMode = 1 And IsAccessiblePlaySafeTestMode% = 1 Then
+        Print "Accessible play-safe menu validation."
+        If compTeam = 0 Then testTeam = 1 Else testTeam = 0
+        currHalf = 1
+        gameClock! = 500
+        For testSlot = 0 To 1
+            testPlayer = lineupIdx(testTeam, testSlot)
+            plyrOff_GAME!(testTeam, testPlayer, 22) = 0
+            plyrOff_GAME!(testTeam, testPlayer, 12) = foulsToDQ - 3
+        Next testSlot
+        Call AccessibleDefPlaySafeNormal(testTeam)
+        Print "Accessible play-safe menu returned to the game."
+        Exit Sub
     End If
 
     250 '
@@ -1515,17 +1740,65 @@ Sub COLHOOP ()
     '----- NOODLE -----
 
     170 '
-    Erase defStrat, defCoverage, defCategory
+    If accessibleEngineMode = 1 Then
+        Call AccessibleResetPeriodDefense
+    Else
+        Erase defStrat, defCoverage, defCategory
+    End If
 
     gameClock! = 0
     Call QUARTERTOTAL
     currHalf = currHalf + 1
+
+    If accessibleEngineMode = 1 And currHalf = 2 Then
+        'Apply the original simulator's halftime recovery before the
+        'accessible lineup and substitution review.
+        Erase tmFatigue
+        If IsAccessibleTurnoverDiagnosticMode% = 1 Then
+            continueSecondHalf = 1
+        Else
+            continueSecondHalf = AccessibleHalftimeMenu%
+        End If
+        If continueSecondHalf = 0 Then Exit Sub
+        accessibleEngineStopRequested = 0
+    End If
+
+    If accessibleEngineMode = 1 And currHalf >= 3 Then
+        If score(0, 0) = score(1, 0) Then
+            overtimeNumber = currHalf - 2
+            timeouts(0) = timeouts(0) + 1
+            timeouts(1) = timeouts(1) + 1
+            gameClock! = 300
+            Erase tmFatigue
+            For testTeam = 0 To 1
+                For testPlayer = 0 To 13
+                    playerTime(testTeam, testPlayer) = 300
+                Next testPlayer
+            Next testTeam
+            If IsAccessibleTurnoverDiagnosticMode% = 0 Then
+                If AccessibleOvertimeMenu%(overtimeNumber) = 0 Then Exit Sub
+            End If
+            accessibleEngineStopRequested = 0
+            ballCarrier = -1
+            accessibleEngineLastTeam = -1
+            GoTo 250
+        Else
+            If IsAccessibleTurnoverDiagnosticMode% = 1 Then
+                Call AccessiblePrintTurnoverDiagnostic
+            Else
+                Call AccessiblePrintRegulationSummary
+                Call AccessiblePostgameMenu
+            End If
+            Exit Sub
+        End If
+    End If
+
     gameClock! = 1200
 
     offStatus = 0
     XS = 1
 
-    If currHalf = 2 Then
+    If currHalf = 2 And accessibleEngineMode = 0 Then
 
         pbpString$ = "END OF HALF"
 
@@ -1607,7 +1880,7 @@ Sub COLHOOP ()
         Call SCOREBOARD
 
         ballCarrier = -1
-        Call STOPPAGE(takeTO)
+        If accessibleEngineMode = 0 Then Call STOPPAGE(takeTO)
 
         gameClock! = 1200
         Call UPDATESCREEN
@@ -1619,6 +1892,13 @@ Sub COLHOOP ()
                 playerTime(I, I1) = 1200
             Next
         Next
+
+        If accessibleEngineMode = 1 And currHalf = 2 And IsAccessibleTurnoverDiagnosticMode% = 0 Then
+            Print "Actual second-half lineups, after computer coaching."
+            Call AccessiblePrintLineup(0, "Visiting " + AccessibleTeamDisplay$(gameTeams$(0)))
+            Call AccessiblePrintLineup(1, "Home " + AccessibleTeamDisplay$(gameTeams$(1)))
+            secondHalfReady$ = AccessibleReadCommand$("Press Enter to begin second-half play: ")
+        End If
 
         GoTo 250
 
@@ -1741,6 +2021,61 @@ Sub COLHOOP ()
     ' ### LAST SECONDS OF GAME ###
 
     300 '
+    If accessibleEngineMode = 1 And IsAccessibleOvertimeTestMode% = 1 And currHalf >= 3 Then
+        Print "Overtime possession reached through the original simulator."
+        For testTeam = 0 To 1
+            Print "OT_STATE period="; LTrim$(Str$(currHalf - 2)); " team="; LTrim$(Str$(testTeam)); " offense="; LTrim$(Str$(offStrat(testTeam))); " defense="; LTrim$(Str$(defStrat(testTeam)))
+            Call AccessiblePrintLineup(testTeam, "Verified overtime")
+        Next testTeam
+        For overtimeArg = 1 To _CommandCount
+            If LCase$(Command$(overtimeArg)) = "--overtime-repeat" And currHalf = 3 Then
+                gameClock! = 0
+                GoTo 170
+            End If
+        Next overtimeArg
+        score(1, currHalf) = 2
+        score(1, 0) = score(1, 0) + 2
+        gameClock! = 0
+        GoTo 170
+    End If
+    If accessibleEngineMode = 1 And IsAccessibleHalftimeTestMode% = 1 And currHalf = 2 Then
+        Print "Second-half possession reached after halftime substitution."
+        For testTeam = 0 To 1
+            Print "HALFTIME_STATE team="; LTrim$(Str$(testTeam)); " offense="; LTrim$(Str$(offStrat(testTeam))); " defense="; LTrim$(Str$(defStrat(testTeam))); " coverage="; LTrim$(Str$(defCoverage(testTeam)))
+            Call AccessiblePrintLineup(testTeam, "Verified second-half")
+        Next testTeam
+        Call AccessiblePrintGameStatus
+        Exit Sub
+    End If
+    If accessibleEngineMode = 1 And P <> accessibleEngineLastTeam Then
+        Call AccessibleFlushPbp
+        If accessibleEngineStopRequested = 1 Or (accessibleEngineStopClock > 0 And gameClock! <= accessibleEngineStopClock) Then
+            Print
+            Print "Accessible game segment complete."
+            Call AccessiblePrintGameStatus
+            Exit Sub
+        End If
+        accessibleEnginePossessions = accessibleEnginePossessions + 1
+        If accessibleEngineLimit > 0 And accessibleEnginePossessions > accessibleEngineLimit Then
+            If accessiblePlayerOpt = 3 Or accessibleEngineHumanPrompted = 1 Then
+                Print
+                Print LTrim$(Str$(accessibleEngineLimit)); " original-simulator possessions completed."
+                Print "Score: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 0))); "."
+                Exit Sub
+            Else
+                accessibleEngineLimit = accessibleEngineLimit + 1
+            End If
+        End If
+        accessibleEngineLastTeam = P
+        Cls
+        Print
+        If accessibleEngineLimit > 0 Then
+            Print "Possession "; LTrim$(Str$(accessibleEnginePossessions)); " of "; LTrim$(Str$(accessibleEngineLimit)); ": "; AccessibleTeamDisplay$(gameTeams$(P)); "."
+        Else
+            Print "Possession "; LTrim$(Str$(accessibleEnginePossessions)); ": "; AccessibleTeamDisplay$(gameTeams$(P)); "."
+        End If
+        Call AccessiblePrintGameStatus
+    End If
     'Last 5 secs, no timeout, offense is ahead
     If gameClock! <= 5 And timeouts(D) <= 0 And score(P, 0) > score(D, 0) Then
 
@@ -1817,13 +2152,29 @@ Sub COLHOOP ()
 
         Else
 
+            LastFiveHumanDecision:
             Call LASTFIVEMENU
 
             280 '
             Do
-                I$ = GetKeyPress$
-                I1% = Val(I$)
-            Loop Until I1% >= 0 And I1% <= 5 And Not (I1% = 3 And timeouts(P9) <= 0) And ((I1% = 1 Or I1% = 4) And threePtOpt = 1)
+                If accessibleEngineMode = 1 Then
+                    I$ = AccessibleReadCommand$("Enter a choice from 0 through 5, or 7 / clock to hear the game clock: ")
+                Else
+                    I$ = GetKeyPress$
+                End If
+                If accessibleEngineMode = 1 And (I$ = "7" Or I$ = "clock") Then
+                    Call AccessibleReviewStatus(1)
+                    validLastChoice = 0
+                Else
+                    I1% = Val(I$)
+                    validLastChoice = Len(I$) = 1 And I$ >= "0" And I$ <= "5"
+                    If I1% = 3 And timeouts(P) <= 0 Then validLastChoice = 0
+                    If (I1% = 1 Or I1% = 4) And threePtOpt = 0 Then validLastChoice = 0
+                    If accessibleEngineMode = 1 And validLastChoice = 0 Then Print "That choice is unavailable. Enter a displayed option."
+                End If
+            Loop Until validLastChoice
+
+            '$Include: 'AccessibleLastFiveTestResult.bi'
 
             Color 15, 0
             Call SCOREBOARD
@@ -2256,18 +2607,20 @@ Sub COLHOOP ()
             C1 = 2
             P9 = D
 
-            pbpString$ = "DESIGNATED FOULER (0-4)"
+            pbpString$ = "DESIGNATED FOULER (1-5)"
             Call SELECTPBP(D, 1)
 
             skipInbound% = 0
 
-            If IsDefensePC Then
+            If accessibleEngineMode = 1 And (playerMode = 0 Or playerMode = 1 And D <> compTeam) Then
+                desigFouler = AccessibleReadDefenderChoice%(D)
+            ElseIf IsDefensePC Then
                 desigFouler = Int(Rnd(1) * 5)
             Else
                 Do
                     I$ = GetKeyPress$
-                    desigFouler = Val(I$)
-                Loop Until desigFouler >= 0 And desigFouler <= 4
+                    desigFouler = Val(I$) - 1
+                Loop Until Len(I$) = 1 And I$ >= "1" And I$ <= "5"
 
             End If
 
@@ -2304,6 +2657,7 @@ Sub COLHOOP ()
 
                             pbpString$ = "5 SECOND VIOLATION...TURNOVER"
                             shotViolation = 1
+                            accessibleTurnoverReason = 5
                             GoTo 517
 
                         End If
@@ -2314,6 +2668,7 @@ Sub COLHOOP ()
 
                         pbpString$ = "5 SECOND VIOLATION...TURNOVER"
                         shotViolation = 1
+                        accessibleTurnoverReason = 5
                         GoTo 517
 
                 End Select
@@ -2325,6 +2680,7 @@ Sub COLHOOP ()
                 'NOTE - defAdjVsPass(0, 4) is a value of 5
                 'toChance = 7 + defAdjVsPass(0, 4)
                 toChance = 12
+                Call AccessibleRecordTurnoverCheck(P, toChance, passes)
 
                 If RN1 <= toChance Then
 
@@ -2344,6 +2700,7 @@ Sub COLHOOP ()
 
                     Call LASTSHOT
 
+                    accessibleTurnoverReason = 1
                     GoTo 517
 
                 End If
@@ -2496,12 +2853,14 @@ Sub COLHOOP ()
             '   Def Foul Chance + Off TO Rating + Def TO Rating + Def TO Chance - Pressure Rating
             unforcedTOAdj = teamAdj(P, 5) + teamAdj(D, 6)
             toChance = defAdjVsPass(2, defCategory(D)) + unforcedTOAdj + defAdjVsPass(0, defCategory(D)) - pressureRating(D, 0) + 3
+            Call AccessibleRecordTurnoverCheck(P, toChance, passes)
 
             If resultRoll <= toChance Then
 
                 Call LASTSHOT
 
                 'Turnover
+                accessibleTurnoverReason = 1
                 GoTo 517
 
             End If
@@ -2599,11 +2958,13 @@ Sub COLHOOP ()
             '   Def Foul Chance + Off TO Rating + Def TO Rating + Def TO Chance + OY%
             unforcedTOAdj = teamAdj(P, 5) + teamAdj(D, 6)
             toChance = defAdjVsShot(4, defCoverage(D)) + unforcedTOAdj + defAdjVsShot(2, defCoverage(D)) + OY%
+            Call AccessibleRecordTurnoverCheck(P, toChance, passes)
 
             If resultRoll <= toChance Then
 
                 Call LASTSHOT
 
+                accessibleTurnoverReason = 1
                 GoTo 517
 
             End If
@@ -2972,6 +3333,7 @@ Sub COLHOOP ()
 
     If RN0 = 13 Then
 
+        accessibleTurnoverReason = 0
         GoTo TIEUP
 
     Else
@@ -2979,6 +3341,8 @@ Sub COLHOOP ()
         'Increase player and team TO's
         plyrOff_GAME!(P, lineupIdx(P, ballCarrier), 23) = plyrOff_GAME!(P, lineupIdx(P, ballCarrier), 23) + 1
         turnovers(P) = turnovers(P) + 1
+        Call AccessibleRecordTurnover(P, accessibleTurnoverReason)
+        accessibleTurnoverReason = 0
 
         If shotViolation = 0 Then
             pbpType = 1
@@ -3126,6 +3490,7 @@ Sub COLHOOP ()
 
                     Call LASTSHOT
 
+                    accessibleTurnoverReason = 4
                     GoTo 517
 
                 End If
@@ -3319,7 +3684,9 @@ Sub COLHOOP ()
     If shotChance! <= 0 Then shotChance! = 1
     If shotChance! >= 100 Then shotChance! = 99
 
-    If (autoPlay = 0 Or pbpDelay! > 0) Then
+    'The fixed-position shot display overwrites accessible narration (including
+    'defensive strategy). AccessibleReadPlayChoice announces shot chances instead.
+    If accessibleEngineMode = 0 And (autoPlay = 0 Or pbpDelay! > 0) Then
 
         If pbpOpt = 1 Then
 
@@ -3376,27 +3743,30 @@ Sub COLHOOP ()
     '3 = Foul
     '4 = Shoot (3FGA)
 
-    'Computer Opponent or "Let Computer Shoot"
     scoreDiff = score(P, 0) - score(D, 0)
 
     'Computer Opponent or "Let Computer Shoot"
     If playerMode <> 0 Or coachOpt = 1 Then
 
-        '2nd Half | Overtime, 4 mins left, Offense Ahead, Computer is Visitor / On Offense
-        If (currHalf >= 2 And gameClock! <= 240 And scoreDiff > 0 And playerMode = 1 And P = compTeam) Then
+        'Consider intentional foul
+        If (currHalf >= 2 And gameClock! <= 240 And scoreDiff > 0 And _
+            playerMode = 1 And P = compTeam) Then
 
-            '985
-            pbpString$ = Str$(plyrOff_GAME!(P, lineupIdx(P, ballCarrier), 1)) + " FT%  INTENTIONAL FOUL? (Y/N)"
-
-            Call SELECTPBP(P, 0)
-
-            Do
-                I$ = GetKeyPress$
-            Loop Until UCase$(I$) = "Y" Or UCase$(I$) = "N" Or UCase$(I$) = "3"
-
-            If UCase$(I$) = "Y" Or I$ = "3" Then
-                playChoice = 3
-                GoTo 532
+            If accessibleEngineMode = 1 Then
+                If AccessibleReadStrategicFoulChoice%(D) = 1 Then
+                    playChoice = 3
+                    GoTo 532
+                End If
+            Else
+                pbpString$ = Str$(plyrOff_GAME!(P, lineupIdx(P, ballCarrier), 1)) + " FT%  INTENTIONAL FOUL? (Y/N)"
+                Call SELECTPBP(P, 0)
+                Do
+                    I$ = GetKeyPress$
+                Loop Until UCase$(I$) = "Y" Or UCase$(I$) = "N" Or UCase$(I$) = "3"
+                If UCase$(I$) = "Y" Or I$ = "3" Then
+                    playChoice = 3
+                    GoTo 532
+                End If
             End If
 
         Else
@@ -3404,17 +3774,20 @@ Sub COLHOOP ()
             If IsDefensePC Then
 
                 If currHalf >= 2 And gameClock! <= 60 And scoreDiff > 0 Then
-                    'Less than 30 secs left in H2 / OT and Off is ahead - INTL FOUL
-                    playChoice = 3
-                    GoTo 532
+                    considerFoul = 1
                 Else
+                    considerFoul = 0
+                End If
 
-                    '[Human vs. PC | Human Opponent] AND Coach Shots
-                    If (playerMode = 1 Or playerMode = 0) And coachOpt <> 1 Then
-                        'Get user input
-                        GoTo 530
+                'Human Player Select Shots
+                If IsOffenseHuman And coachOpt <> 1 Then
+                    GoTo 530
+                Else
+                    If considerFoul = 1 Then
+                        'Less than 30 secs left in H2 / OT and Off is ahead - INTL FOUL
+                        playChoice = 3
+                        GoTo 532
                     End If
-
                 End If
 
             End If
@@ -3469,6 +3842,11 @@ Sub COLHOOP ()
 
         'Respond to manual input from user for shot options
         530 '
+        If accessibleEngineMode = 1 Then
+            playChoice = AccessibleReadPlayChoice%(P)
+            If playChoice = 4 Then forcedThree = 1
+            GoTo 532
+        End If
         Do
 
             I$ = GetKeyPress$
@@ -3542,20 +3920,26 @@ Sub COLHOOP ()
     End Select
 
     'Foul was chosen | Computer on offense and last 4 minutes of game
-    If Val(I$) = 3 And (playerMode = 0 Or playerMode = 1 And P = compTeam) And currHalf >= 4 And gameClock! < 240 Then
+    If I$ = "3" And IsDefenseHuman And currHalf >= 2 And gameClock! < 240 Then
         playChoice = 3
     End If
 
-    'Timeout - Human Offense
-    If Val(I$) = 2 And (playerMode = 0 Or playerMode = 1 And D = compTeam) And timeouts(P) > 0 Then
+    If Val(I$) = 2 And IsOffenseHuman And timeouts(P) > 0 Then
+        'Timeout
         playChoice = 2
     End If
 
     P3 = playChoice
 
+    'Human Offense
     If playerMode < 2 Then
-        If (playChoice = 2 And timeouts(P) = 0) Or (playChoice = 3 And currHalf = 1) Or (playChoice = 3 And currHalf = 2 And gameClock! > 240) Or (playChoice = 3 And playerMode = 1 And D = compTeam) Then
-            'Take shot with no timeouts | Take timeout with more than 4 mins left | Take timeout before final half | Take timeout with PC on Defense
+        'No timeouts left,
+        'Take timeout before last 4 minutes
+        'Take timeout before final half
+        'Take timeout with PC on Defense
+        If (playChoice = 2 And timeouts(P) = 0) Or _
+            (playChoice = 3 And (currHalf = 1 Or (currHalf = 2 And gameClock! > 240) Or IsDefensePC)) Then
+            'Allow player a shoot
             GoTo 530
         End If
     End If
@@ -3569,7 +3953,6 @@ Sub COLHOOP ()
             'Try for 3 when in range (always) or when down by 3 late in game
             If threePtRange = 1 Or _
                currHalf >= 2 And gameClock! < 30 And scoreDiff >= 3 Then
-
                 playChoice = 4
             End If
         End If
@@ -4111,6 +4494,7 @@ Sub COLHOOP ()
         Case 4
             ' *** FOUL ***
             foulOnPlay = 99
+            strategicFoul = 1
 
             Call LASTSHOT
             If gameClock! <= 0 Then 170
@@ -4118,16 +4502,18 @@ Sub COLHOOP ()
             C1 = 2
             P9 = D
 
-            pbpString$ = "DESIGNATED FOULER (0-4)"
+            pbpString$ = "DESIGNATED FOULER (1-5)"
             Call SELECTPBP(P, 1)
 
-            If IsDefensePC Then
+            If accessibleEngineMode = 1 And (playerMode = 0 Or playerMode = 1 And D <> compTeam) Then
+                desigFouler = AccessibleReadDefenderChoice%(D)
+            ElseIf IsDefensePC Then
                 desigFouler = Int(Rnd(1) * 5)
             Else
                 Do
                     I$ = GetKeyPress$
-                    desigFouler = Val(I$)
-                Loop Until desigFouler >= 0 And desigFouler <= 4
+                    desigFouler = Val(I$) - 1
+                Loop Until Len(I$) = 1 And I$ >= "1" And I$ <= "5"
             End If
 
             ' ** Intentional foul / designated player **
@@ -4443,6 +4829,7 @@ Sub COLHOOP ()
         Call DELAY
 
         turnovers(D) = turnovers(D) + 1
+        Call AccessibleRecordTurnover(D, 3)
 
         Call UPDATESCREEN
 
@@ -4563,6 +4950,7 @@ Sub COLHOOP ()
             Else
 
                 turnovers(P) = turnovers(P) + 1
+                Call AccessibleRecordTurnover(P, 6)
                 goaltendTOs = goaltendTOs + 1
 
                 pbpString$ = "OFFENSIVE GOAL TENDING"
@@ -5111,6 +5499,7 @@ Sub COLHOOP ()
     If possArrow = D Then
 
         turnovers(P) = turnovers(P) + 1
+        Call AccessibleRecordTurnover(P, 7)
 
         Call DEADBALLOPTIONS(deadballTO)
         If deadballTO = 1 Then
@@ -5235,6 +5624,7 @@ Sub COLHOOP ()
         Else
 
             'Not in bonus
+            strategicFoul = 0
             If gameClock! <= 0 Then 170
 
             Call DEADBALLOPTIONS(deadballTO)
@@ -6232,6 +6622,8 @@ End Sub
 'pbp delay.
 Sub DELAY ()
 
+    If accessibleEngineMode = 1 Then Exit Sub
+
     _Delay pbpDelay!
 
 End Sub
@@ -6246,6 +6638,11 @@ End Sub
 'text window. No text is placed if the
 'delay is 0.
 Sub PBP (teamIdx)
+
+    If accessibleEngineMode = 1 Then
+        If _Trim$(pbpString$) <> "" Then Call AccessibleQueuePbp(teamIdx, RTrim$(pbpString$))
+        Exit Sub
+    End If
 
     M$ = InKey$
 
@@ -8016,6 +8413,8 @@ End Sub
 'for the play-by-play text.
 Sub WINDEX ()
 
+    If accessibleEngineMode = 1 Then Exit Sub
+
     For I = 8 To (7 + MAX_PBP_LINES)
         Locate I, 1
         Call BLANKLINE
@@ -8046,6 +8445,8 @@ End Sub
 'if there is a PBP delay. It also places
 'the cursor further down when done.
 Sub CLEARPBPBOX ()
+
+    If accessibleEngineMode = 1 Then Exit Sub
 
     For I = 8 To (7 + MAX_PBP_LINES):
         Locate I, 1
@@ -8306,6 +8707,7 @@ Function GoodShotChance%
 
     Dim eraPaceAvg, eraShootRate
     Dim teamFGA, teamFTA, teamGames, teamOR, teamTO
+    Dim paceDataAvailable
 
     Shared matchPace
 
@@ -8315,6 +8717,7 @@ Function GoodShotChance%
 
     'https://kenpom.com/blog/the-possession/
     yFactor! = .44
+    paceDataAvailable = 1
 
     For X = 0 To 1
         teamFGA = teamStats_GAME(X, 1)
@@ -8322,12 +8725,25 @@ Function GoodShotChance%
         teamTO = teamStats_GAME(X, 15)
         teamFTA = teamStats_GAME(X, 5)
         teamGames = teamStats_GAME(X, 0)
-        'Ken Pom: Average team possessions / game
-        nbrPoss(X) = ((teamFGA - teamOR) + teamTO + (yFactor! * teamFTA)) / teamGames
+
+        'Older team files may not contain aggregate actual statistics. Detect
+        'that condition before dividing by games played so the existing
+        'era-based fallback receives a valid zero pace factor.
+        If teamGames <= 0 Or teamFGA <= 0 Then
+            paceDataAvailable = 0
+            nbrPoss(X) = 0
+        Else
+            'Ken Pom: Average team possessions / game
+            nbrPoss(X) = ((teamFGA - teamOR) + teamTO + (yFactor! * teamFTA)) / teamGames
+        End If
     Next X
 
     'https://sports.icalculator.com/basketball-pace-factor-calculator.html
-    paceFactor! = 40 * ((nbrPoss(0) + nbrPoss(1)) / 2)
+    If paceDataAvailable = 1 Then
+        paceFactor! = 40 * ((nbrPoss(0) + nbrPoss(1)) / 2)
+    Else
+        paceFactor! = 0
+    End If
 
     If paceFactor! = 0 Then
 
@@ -8705,7 +9121,7 @@ Sub FoulCalled (randomFouler)
 
     Call UPDATESCREEN
 
-    If playerStamina%(D, foulPlayer) = 0 Then
+    If playerStamina%(D, lineupIdx(D, foulPlayer)) = 0 Then
         plyrOff_GAME!(D, lineupIdx(D, foulPlayer), 3) = plyrOff_GAME!(D, lineupIdx(D, foulPlayer), 3) + 1
     End If
 
@@ -8778,11 +9194,15 @@ Sub FoulCalled (randomFouler)
             offStatus = 50
         End If
 
-        If playerMode = 0 Or playerMode = 1 And compTeam <> D Then
+        If IsDefenseHuman Then
             P9 = D
             C1 = 1
-            Call ChooseLineup(D)
-            Call CHANGESTRATEGY(D)
+            If accessibleEngineMode = 1 Then
+                Call AccessibleReplaceFouledOutPlayer(D, foulPlayer)
+            Else
+                Call ChooseLineup(D)
+                Call CHANGESTRATEGY(D)
+            End If
             Call DefPlaySafeNormal(D)
         End If
 
@@ -8926,6 +9346,8 @@ End Sub
 'AI for determining a lineup and strategy
 'for a computer team.
 Sub ComputerCoach (teamIdx)
+
+    If accessibleEngineMode = 1 And AccessibleComputerControlsTeam%(teamIdx) = 0 Then Exit Sub
 
     Shared rosterCandidateIdx()
     Shared sortedStamina(), staminaRosterIdx()
@@ -9607,6 +10029,8 @@ End Sub
 'by the SCOREBOARD routine.
 Sub UPDATESCREEN ()
 
+    If accessibleEngineMode = 1 Then Exit Sub
+
     Call TICKERUPDATE
 
     'Game Clock - Minutes
@@ -9793,6 +10217,8 @@ End Sub
 'for the game interface, including a frame,
 'scoreboard, team options and rosters
 Sub SCOREBOARD ()
+
+    If accessibleEngineMode = 1 Then Exit Sub
 
     Cls
 
@@ -10460,9 +10886,9 @@ End Sub
 'their zone strategy, except for a 2-3 / 3-2.
 Sub ZONECHANGE ()
 
-    'Human Player on Offense
-    If (playerMode = 1 And compTeam = P9 Or playerMode = 0) And _
-        (defStrat(D) = 2 Or defStrat(D) = 7 Or defStrat(D) = 12 Or defStrat(D) >= 15) And (offStrat(P) <= 14 And offStrat(P) >= 10) Then
+    If IsDefenseHuman And _
+        (defStrat(D) = 2 Or defStrat(D) = 7 Or defStrat(D) = 12 Or defStrat(D) >= 15) And _
+        (offStrat(P) <= 14 And offStrat(P) >= 10) Then
 
         Call FRAMEOPTION(8, P)
         Locate 10, 15
@@ -10659,24 +11085,23 @@ End Sub
 'automatically handle player substitution
 Sub EvaluateSubs (teamIdx)
 
+    If accessibleEngineMode = 1 And AccessibleComputerControlsTeam%(teamIdx) = 0 Then Exit Sub
+
     Dim contribPct As Single, remainingContribPct As Single
-    Dim badPlayers, disabledPlayers
+    Dim badPlayers, currPlyrCX, disabledPlayers
     Dim exhaustedPlayers, foulPlayers, tiredPlayers
 
     Shared maxRoster()
-
-    If currHalf >= 2 And gameClock! <= 60 And threePtOpt = 1 And (score(teamIdx, 0) - score(1 - teamIdx, 0) = -3 Or score(teamIdx, 0) - score(1 - teamIdx, 0) = -6) Then
-        offStrat(teamIdx) = 15
-    End If
 
     exhaustedPlayers = 0
     disabledPlayers = 0
     tiredPlayers = 0
     foulPlayers = 0
 
-    skipLogic = 0
+    If currHalf >= 2 And gameClock! <= 60 And threePtOpt = 1 And (score(teamIdx, 0) - score(1 - teamIdx, 0) = -3 Or score(teamIdx, 0) - score(1 - teamIdx, 0) = -6) Then
+        offStrat(teamIdx) = 15
+    End If
 
-    'Computer on Offense
     'offStatus = 50 means team is in BONUS
     If Not (offStatus = 50 And (playerMode = 1 And teamIdx = compTeam) Or (playerMode = 2 And teamIdx = P)) Then
 
@@ -10751,11 +11176,6 @@ Sub EvaluateSubs (teamIdx)
             (currHalf = 2 And gameClock! < 120 And XS = 0) Or _ 
             computerTimeout = 1 Then
 
-            test1 = (tiredPlayers >= 1 And (5 - tiredPlayers) < (maxRoster(teamIdx) - exhaustedPlayers))
-            test2 = (foulPlayers >= 1 And badPlayers < (maxRoster(teamIdx) - 1))
-            test3 = (currHalf = 2 And gameClock! < 120 And XS = 0)
-            test4 = computerTimeout
-
             computerTimeout = 0
 
             Call ComputerCoach(teamIdx)
@@ -10773,6 +11193,8 @@ End Sub
 'This subroutine picks the appropriate
 'defense for the computer team.
 Sub FATIGUE (teamIdx)
+
+    If accessibleEngineMode = 1 And AccessibleComputerControlsTeam%(teamIdx) = 0 Then Exit Sub
 
     'COMPUTER DEFENSE FOR FATIGUE
     FD% = 0
@@ -11014,7 +11436,6 @@ Sub ChooseLineup (teamIdx)
                     Locate LAST_ROW, 1: Print Space$(25);
 
                     Z = lineupIdx(teamIdx, slot)
-                    playerTime(teamIdx, Z) = gameClock!
 
                     nonPlayers = 0
 
@@ -11094,19 +11515,6 @@ Sub ChooseLineup (teamIdx)
 
                     Loop Until posn >= 0 And posn <= 13
 
-                    'FATIGUE
-                    If playerTime(teamIdx, posn) - gameClock! > 60 And playerTime(teamIdx, posn) < 120 Then
-                        tmFatigue(teamIdx, posn) = tmFatigue(teamIdx, posn) + 1
-                    End If
-
-                    If playerTime(teamIdx, posn) - gameClock! >= 120 Then
-                        tmFatigue(teamIdx, posn) = tmFatigue(teamIdx, posn) + 4
-                    End If
-
-                    If tmFatigue(teamIdx, posn) > 0 Then
-                        tmFatigue(teamIdx, posn) = 0
-                    End If
-
                     nonPlayers = 0
 
                     'Clear any warnings during lineup selection
@@ -11114,6 +11522,7 @@ Sub ChooseLineup (teamIdx)
                     Print Space$(40)
 
                     If goodLineup = 1 Then
+                        Call ApplySubstitutionRest(teamIdx, lineupIdx(teamIdx, slot), posn)
                         lineupIdx(teamIdx, slot) = posn
                     End If
 
@@ -11230,11 +11639,25 @@ End Sub
 
 
 '----------------------------------------
-'        DisplayRoster Subroutine
+'        Substitution rest recovery
 '----------------------------------------
-'This subroutine displays the starting
-'lineup for each team and gives the user
-'an interface for changing the lineup
+Sub ApplySubstitutionRest (teamIdx, outgoingPlayer, incomingPlayer)
+
+    playerTime(teamIdx, outgoingPlayer) = gameClock!
+    ' Preserve the original ChooseLineup recovery rules, including the test
+    ' against the stored clock value (not elapsed rest) in the one-point rule.
+    If playerTime(teamIdx, incomingPlayer) - gameClock! > 60 And playerTime(teamIdx, incomingPlayer) < 120 Then
+        tmFatigue(teamIdx, incomingPlayer) = tmFatigue(teamIdx, incomingPlayer) + 1
+    End If
+    If playerTime(teamIdx, incomingPlayer) - gameClock! >= 120 Then
+        tmFatigue(teamIdx, incomingPlayer) = tmFatigue(teamIdx, incomingPlayer) + 4
+    End If
+    If tmFatigue(teamIdx, incomingPlayer) > 0 Then tmFatigue(teamIdx, incomingPlayer) = 0
+
+End Sub
+
+
+'This subroutine displays the starting lineup and allows lineup changes.
 Sub DisplayRoster (teamIdx)
 
     Cls
@@ -11452,6 +11875,11 @@ End Sub
 'players who are taking it safe on defense
 'and determine if they should play normal.
 Sub DefPlaySafeNormal (teamIdx)
+
+    If accessibleEngineMode = 1 Then
+        Call AccessibleDefPlaySafeNormal(teamIdx)
+        Exit Sub
+    End If
 
     Dim playerPos(5), menuPos(5)
 
@@ -12107,16 +12535,11 @@ Sub BALLDISTRIBUTE ()
 
     Call Rolld100(RN0)
 
-    If (playerMode = 0 And coachOpt = 1) Or _
-        (playerMode = 1 And D = compTeam And coachOpt = 1) Or _ 
-        IsOffensePC Then
+    If IsOffensePC Or (IsOffenseHuman And coachOpt = 1) Then
         'Computer in charge - auto determine
-
         Call WHOGETSBALL
-
     Else
 
-        'Select / Case statement
         If defCoverage(D) <> 2 And defCoverage(D) <> 3 Then
 
             If gameAvgTmStamina <= 90 And RN0 <= 15 Then randomCarrier = 0
@@ -12158,6 +12581,11 @@ End Sub
 'This routine prompts the user for a
 'player to pass to.
 Sub GetPassChoice ()
+
+    If accessibleEngineMode = 1 Then
+        ballCarrier = AccessibleReadPassChoice%(P)
+        Exit Sub
+    End If
 
     Do
 
@@ -12245,6 +12673,18 @@ Sub DEADBALLOPTIONS (userTakeTO)
 
     userTakeTO = 0
 
+    If accessibleEngineMode = 1 Then
+        If accessiblePauseEvents = 1 Or accessibleTimeoutMenuPending = 1 Then
+            If playerMode = 1 Then humanTeam = 1 - compTeam Else humanTeam = P
+            Call AccessibleDeadBallMenu(humanTeam, userTakeTO)
+        End If
+        P9 = P
+        C1 = 2
+        Call CheckGameClock
+        Call StealAdjustments
+        Exit Sub
+    End If
+
     prevBall$ = ""
     Call CLEARPBP
 
@@ -12254,15 +12694,11 @@ Sub DEADBALLOPTIONS (userTakeTO)
 
         'User options to continue play
         If playerMode = 2 Then
-            'Or playerMode = 1 And P = compTeam Then
-
             P9 = P
             C1 = 2
             Call CheckGameClock
             Call StealAdjustments
-
         Else
-
             'At least 1 human
             Locate 10, 1
             Color 14, 0
@@ -12301,9 +12737,8 @@ Sub DEADBALLOPTIONS (userTakeTO)
             End If
 
             If P3 = 0 Or _
-                (playerMode = 1 And P = compTeam And (P3 = 1 Or (P3 = 3 And timeouts(P) <= 0))) Or _ 
-                (playerMode = 1 And D = compTeam And (P3 = 2 Or (P3 = 4 And timeouts(D) <= 0))) Then
-
+                (IsOffensePC And (P3 = 1 Or (P3 = 3 And timeouts(P) <= 0))) Or _
+                (IsDefensePC And (P3 = 2 Or (P3 = 4 And timeouts(D) <= 0))) Then
                 'When ENTER is pressed (to continue),
                 'team has no timeouts or computer team
                 P9 = P
@@ -12361,6 +12796,30 @@ End Sub
 Sub STOPPAGE (userTakeTO)
 
     userTakeTO = 0
+
+    If accessibleEngineMode = 1 Then
+        'Keep the original simulator's computer substitution and fatigue
+        'evaluation before presenting accessible coaching options.
+        If playerMode = 2 Then
+            Call EvaluateSubs(0)
+            Call FATIGUE(0)
+            Call EvaluateSubs(1)
+            Call FATIGUE(1)
+        End If
+        If playerMode = 1 Then
+            Call EvaluateSubs(compTeam)
+            Call FATIGUE(compTeam)
+        End If
+        If accessiblePauseEvents = 1 Or accessibleTimeoutMenuPending = 1 Then
+            If playerMode = 1 Then humanTeam = 1 - compTeam Else humanTeam = P
+            Call AccessibleDeadBallMenu(humanTeam, userTakeTO)
+        End If
+        P9 = P
+        C1 = 2
+        Call CheckGameClock
+        Call StealAdjustments
+        Exit Sub
+    End If
 
     Do
 
@@ -12433,9 +12892,8 @@ Sub STOPPAGE (userTakeTO)
             End If
 
             If P3 = 0 Or _ 
-                (playerMode = 1 And P = compTeam And (P3 = 1 Or P3 = 3 Or (P3 = 5 And timeouts(P) <= 0))) Or _ 
-                (playerMode = 1 And D = compTeam And (P3 = 2 Or P3 = 4 Or (P3 = 6 And timeouts(D) <= 0))) Then
-
+                (IsOffensePC And (P3 = 1 Or P3 = 3 Or (P3 = 5 And timeouts(P) <= 0))) Or _
+                (IsDefensePC And (P3 = 2 Or P3 = 4 Or (P3 = 6 And timeouts(D) <= 0))) Then
                 'When ENTER is pressed (to continue),
                 'team has no timeouts or computer team
                 P9 = P
@@ -12528,7 +12986,7 @@ Sub PRESSGUARD ()
     If defCategory(D) = 1 Or defCategory(D) = 2 Then
 
         'Full Court Press only
-        If IsOffensePC Then
+        If IsOffensePC Or accessibleEngineMode = 1 Then
 
             ' COMPUTER GUARD FOR PRESS
             guardNbr = 1
@@ -12738,6 +13196,8 @@ End Sub
 'This subroutine guides the computer AI
 'in how to handle it's strategy.
 Sub ComputerStrategy ()
+
+    If accessibleEngineMode = 1 And AccessibleComputerControlsTeam%(P9) = 0 Then Exit Sub
 
     'P9 is the current team being assigned strategy
     opposeTeam = 1 - P9
@@ -13585,6 +14045,22 @@ End Sub
 'of the game
 Sub LASTFIVEMENU ()
 
+    If accessibleEngineMode = 1 Then
+        Call AccessibleFlushPbp
+        Print
+        Print "Late-game offensive decision."
+        Call AccessiblePrintGameStatus
+        Print "Final five seconds."
+        Print "0. Full-court pass for a two-point shot. Requires 0.1 to 3 seconds."
+        If threePtOpt = 1 Then Print "1. Full-court pass for a three-point shot. Requires 0.1 to 3 seconds."
+        Print "2. Shoot from the backcourt. Requires 0.1 to 0.5 seconds."
+        If timeouts(P) > 0 Then Print "3. Get to half court and call timeout. Requires 1.5 to 2.5 seconds."
+        If threePtOpt = 1 Then Print "4. Work down the floor for a three-point shot. Requires 3 to 4 seconds."
+        Print "5. Work down the floor for a two-point shot. Requires 3 to 5 seconds."
+        Print "7. Hear game clock."
+        Exit Sub
+    End If
+
     Call FRAMEOPTION(12, P)
     Locate 10, 15
 
@@ -13808,7 +14284,7 @@ Sub FreeThrow_OneAndOne (missedLastFT)
 
     offStatus = 50
 
-    Call STOPPAGE(takeTO)
+    If strategicFoul = 0 Then Call STOPPAGE(takeTO)
 
     For I = 0 To 1
         If defCategory(I) = 0 Then
@@ -13845,7 +14321,6 @@ Sub FreeThrow_OneAndOne (missedLastFT)
         playerBaseFTPct = plyrOff_GAME!(P, lineupIdx(P, ballCarrier), 1)
 
         ftShotChance = playerBaseFTPct
-        Print #11, "BASE FT CHANCE:"; Str$(ftShotChance);
 
         'Consider playoff pressure
         If tourneyPlay = 1 Then
@@ -13855,7 +14330,6 @@ Sub FreeThrow_OneAndOne (missedLastFT)
 
             If crunchLevel > 0 Then
 
-                Print #11, ", CRUNCH:YES";
                 'Pressure only on players below 75%, scales with how far below
                 ftPressurePenalty = (75 - playerBaseFTPct) * .10 * crunchLevel
                 ftShotChance = playerBaseFTPct - MAX(ftPressurePenalty, 0)
@@ -13866,20 +14340,14 @@ Sub FreeThrow_OneAndOne (missedLastFT)
 
         'Tired shooter
         If tmFatigue(P, lineupIdx(P, ballCarrier)) <= -5 Then
-            Print #11, ", FATIGUED:YES";
             ftShotChance = CInt(ftShotChance * .9)
-        Else
-            Print #11, ", FATIGUED:NO";
         End If
-
-        Print #11, ", ROLL:"; Str$(shotRoll); ", CHANCE:"; Str$(ftShotChance)
 
         If shotRoll <= ftShotChance Then
 
             'Increase FTM
             plyrOff_GAME!(P, lineupIdx(P, ballCarrier), 10) = plyrOff_GAME!(P, lineupIdx(P, ballCarrier), 10) + 1
 
-            Print #11, "RESULT: MADE FREE THROW!"
             If pbpOpt = 0 Then
                 Call THREEFT(freethrow)
             Else
@@ -13891,8 +14359,6 @@ Sub FreeThrow_OneAndOne (missedLastFT)
             End If
 
         Else
-
-            Print #11, "RESULT: MISSED FREE THROW!"
 
             If pbpOpt = 1 Then
                 Call MISSFT(freethrow)
@@ -13919,6 +14385,8 @@ Sub FreeThrow_OneAndOne (missedLastFT)
         missedLastFT = 0
     End If
 
+    strategicFoul = 0
+
 End Sub
 
 
@@ -13933,7 +14401,10 @@ Sub FreeThrows (ftCount, missedLastFT)
     
     offStatus = 50
 
-    Call STOPPAGE(takeTO)
+    'Intentional fouls already provide a coaching stoppage after both free throws.
+    'Stopping here as well consumed a second key immediately after defender selection;
+    'a buffered/repeated "1" could be interpreted as SUB and open the roster screen.
+    If intentional = 0 And strategicFoul = 0 Then Call STOPPAGE(takeTO)
 
     For I = 0 To 1
         If defCategory(I) = 0 Then
@@ -14010,6 +14481,8 @@ Sub FreeThrows (ftCount, missedLastFT)
     Else
         missedLastFT = 0
     End If
+
+    strategicFoul = 0
 
 End Sub
 
@@ -14191,6 +14664,7 @@ Sub StealOccurred (defPlayer)
 
     plyrOff_GAME!(D, lineupIdx(D, defPlayer), 13) = plyrOff_GAME!(D, lineupIdx(D, defPlayer), 13) + 1
     turnovers(P) = turnovers(P) + 1
+    Call AccessibleRecordTurnover(P, 2)
 
     Call UPDATESCREEN
 
@@ -15884,8 +16358,7 @@ End Sub
 '----------------------------------------
 Sub StartingLineup (gameIdx)
 
-    playerCount = 0
-    nonPlayerCount = 0
+    Dim nonPlayerCount, playerCount
 
     Do
 
@@ -15933,6 +16406,8 @@ End Sub
 '(no prompt) when the game is not autoplay
 Sub GetKeyWhenNoDelay ()
 
+    If accessibleEngineMode = 1 Then Exit Sub
+
     'If we're not in autoplay
     If Not (autoPlay = 1 And playerMode = 2) Then
         I$ = GetKeyPress$
@@ -15944,10 +16419,9 @@ End Sub
 '----------------------------------------
 '       DebugStatTotals Subroutine
 '----------------------------------------
-'This subroutine should only be used
-'when trying to derive base values
-'to calibrate pacing / accuracy for
-'a specific era of Basketball
+'This subroutine should only be used when
+'trying to derive base values to calibrate
+'the pacing / accuracy for a specific era Sub DebugStatTotals
 Sub DebugStatTotals
 
     Dim gameAsst(0 To 1)
@@ -17946,7 +18420,7 @@ End Function
 '----------------------------------------
 '          GetTeamYear Function
 '----------------------------------------
-'This subroutine determines the 4-digit
+'This function determines the 4-digit
 'team year from the team loaded by the
 'file. It uses the 2 digit year to make
 'assumptions. (00 to 24 are year 2000.)
@@ -18017,31 +18491,31 @@ End Function
 
 
 '--------------------------------------------
-'        IsOffensePC Function
+'          IsOffensePC Function
 '--------------------------------------------
 'This function returns TRUE if the computer
 'is on offense
 Function IsOffensePC
     
-    IsOffensePC = (playerMode = 1 And P = compTeam) Or playerMode = 2
+    IsOffensePC = (playerMode = 1 And compTeam = P) Or playerMode = 2
 
 End Function
 
 
 '--------------------------------------------
-'        IsDefensePC Function
+'          IsDefensePC Function
 '--------------------------------------------
 'This function returns TRUE if the computer
 'is on defense
 Function IsDefensePC
 
-    IsDefensePC = (playerMode = 1 And D = compTeam) Or playerMode = 2
+    IsDefensePC = (playerMode = 1 And compTeam = D) Or playerMode = 2
 
 End Function
 
 
 '--------------------------------------------
-'        IsOffenseHuman Function
+'          IsOffenseHuman Function
 '--------------------------------------------
 'This function returns TRUE if a human player
 'is on offense
@@ -18053,7 +18527,7 @@ End Function
 
 
 '--------------------------------------------
-'        IsDefenseHuman Function
+'          IsDefenseHuman Function
 '--------------------------------------------
 'This function returns TRUE if a human player
 'is on defense

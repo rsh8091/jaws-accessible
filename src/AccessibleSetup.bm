@@ -1,0 +1,513 @@
+' Setup navigation uses 1 for forward, 0 for Back, and -1 for Cancel.
+' Configuration steps return their next step, or -1 for Cancel.
+Sub AccessibleSetupNavigation (backLabel$)
+    Print "0. Back to "; backLabel$; "."
+    Print "99. Cancel setup and return to main menu."
+End Sub
+
+Function AccessibleSetupComputer% (gameIdx) Static
+    AccessibleSetupComputer% = accessiblePlayerOpt = 3 Or (accessiblePlayerOpt = 1 And gameIdx = 0) Or (accessiblePlayerOpt = 2 And gameIdx = 1)
+End Function
+
+Function AccessibleSetupPrevious% (setupStep) Static
+    previousStep = setupStep - 1
+    If setupStep = 10 Then
+        If accessibleSetupCustom Then previousStep = 9 Else previousStep = 6
+    End If
+    ' Computer-only lineup and strategy steps do not ask for input.
+    Do
+        skipStep = 0
+        If previousStep = 13 Or previousStep = 14 Then skipStep = AccessibleSetupComputer%(previousStep - 13)
+        If previousStep >= 15 And previousStep <= 18 Then skipStep = AccessibleSetupComputer%(Int((previousStep - 15) / 2))
+        If skipStep Then previousStep = previousStep - 1 Else Exit Do
+    Loop
+    AccessibleSetupPrevious% = previousStep
+End Function
+
+Sub AccessibleSingleGameSetup ()
+    Dim stepNames$(18)
+    Call InitVar
+    visitorYear$ = "": homeYear$ = ""
+    visitorIdx = 0: homeIdx = 0
+    visitorName$ = "": homeName$ = ""
+    Erase accessibleSetupLoadedYear$
+    Erase accessibleSetupLoadedIdx
+    Erase accessibleSetupLineupCount
+    accessiblePlayerOpt = 1: accessibleGameLoc = 1
+    accessibleShotClock = 30: accessibleThreePoint = 1: accessibleFoulsToDQ = 5
+    accessibleSetupCustom = 0
+    accessibleSetupActive = 1
+    stepNames$(0) = "main menu"
+    stepNames$(1) = "visiting team selection": stepNames$(2) = "home team selection"
+    stepNames$(3) = "matchup confirmation": stepNames$(4) = "game control"
+    stepNames$(5) = "game location": stepNames$(6) = "rule-set selection"
+    stepNames$(7) = "shot-clock setting": stepNames$(8) = "three-point setting"
+    stepNames$(9) = "foul-limit setting": stepNames$(10) = "game configuration summary"
+    stepNames$(11) = "visiting roster review": stepNames$(12) = "home roster review"
+    stepNames$(13) = "visiting lineup selection": stepNames$(14) = "home lineup selection"
+    stepNames$(15) = "visiting offensive style": stepNames$(16) = "visiting defensive style"
+    stepNames$(17) = "home offensive style": stepNames$(18) = "home defensive style"
+    Print "Single-game setup"
+    Print "Choose numbered menu options. Back preserves your choices; Cancel returns to the main menu."
+    setupStep = 1
+    Do While setupStep > 0 And setupStep < 19
+        previousStep = AccessibleSetupPrevious%(setupStep)
+        accessibleSetupBackLabel$ = stepNames$(previousStep)
+        result = 1
+        Select Case setupStep
+            Case 1
+                result = AccessibleChooseTeam%("visiting", visitorYear$, visitorIdx, visitorName$)
+            Case 2
+                result = AccessibleChooseTeam%("home", homeYear$, homeIdx, homeName$)
+            Case 3
+                Print "Matchup"
+                Print "Visitor: "; AccessibleTeamDisplay$(visitorName$); " ("; visitorYear$; ")"
+                Print "Home: "; AccessibleTeamDisplay$(homeName$); " ("; homeYear$; ")"
+                Print "1. Confirm matchup and continue."
+                Print "2. Change visiting team."
+                Print "3. Change home team."
+                Call AccessibleSetupNavigation(accessibleSetupBackLabel$)
+                commandValue$ = AccessibleReadCommand$("Enter choice: ")
+                Select Case commandValue$
+                    Case "1", "confirm", "yes", "y"
+                        Print "Matchup confirmed: "; AccessibleTeamDisplay$(visitorName$); " at "; AccessibleTeamDisplay$(homeName$); "."
+                    Case "2", "visitor", "visiting": setupStep = 1: result = 2
+                    Case "3", "home": setupStep = 2: result = 2
+                    Case "0", "back": result = 0
+                    Case "99", "cancel", "exit": result = -1
+                    Case Else: Print "Choose a displayed menu number.": result = 2
+                End Select
+            Case 4 To 10
+                nextStep = AccessibleConfigureGame%(setupStep)
+                If nextStep = -1 Then
+                    result = -1
+                Else
+                    If nextStep = 11 Then
+                        If AccessiblePrepareMatchup%(visitorYear$, homeYear$, visitorIdx, homeIdx) = 0 Then nextStep = 3
+                        ' Apply rules before validating human strategy choices.
+                        threePtOpt = accessibleThreePoint
+                        Select Case accessibleShotClock
+                            Case 45: sClockVal = 1
+                            Case 35: sClockVal = 2
+                            Case 30: sClockVal = 3
+                            Case Else: sClockVal = 0
+                        End Select
+                        For teamIdx = 0 To 1
+                            If accessibleShotClock = 0 And offStrat(teamIdx) = 11 Then
+                                offStrat(teamIdx) = 0
+                                Print "Milk the clock is no longer available. Offensive style reset to MOTION for "; AccessibleTeamDisplay$(gameTeams$(teamIdx)); "."
+                            End If
+                        Next teamIdx
+                    End If
+                    setupStep = nextStep: result = 2
+                End If
+            Case 11, 12
+                gameIdx = setupStep - 11
+                If gameIdx = 0 Then roleName$ = "Visiting" Else roleName$ = "Home"
+                Call AccessibleShowLoadedTeam(gameIdx, roleName$)
+                Print "1. Continue to "; stepNames$(setupStep + 1); "."
+                Call AccessibleSetupNavigation(accessibleSetupBackLabel$)
+                commandValue$ = AccessibleReadCommand$("Enter choice: ")
+                Select Case commandValue$
+                    Case "1", "continue", "confirm"
+                    Case "0", "back": result = 0
+                    Case "99", "cancel", "exit": result = -1
+                    Case Else: Print "Choose a displayed menu number.": result = 2
+                End Select
+            Case 13, 14
+                gameIdx = setupStep - 13
+                If gameIdx = 0 Then roleName$ = "Visiting" Else roleName$ = "Home"
+                computerControlled = AccessibleSetupComputer%(gameIdx)
+                result = AccessibleChooseLineup%(gameIdx, roleName$, computerControlled)
+                If setupStep = 14 And result = 1 Then Print "Starting lineups confirmed. Next, choose your offensive and defensive styles."
+            Case 15 To 18
+                gameIdx = Int((setupStep - 15) / 2)
+                If AccessibleSetupComputer%(gameIdx) = 0 Then
+                    If setupStep = 15 Or setupStep = 17 Then result = AccessibleChooseOffense%(gameIdx) Else result = AccessibleChooseDefense%(gameIdx)
+                End If
+        End Select
+        Select Case result
+            Case -1: setupStep = -1
+            Case 0: setupStep = previousStep
+            Case 1: setupStep = setupStep + 1
+        End Select
+        If setupStep = 19 Then
+            For gameIdx = 0 To 1
+                If AccessibleSetupComputer%(gameIdx) = 0 And offStrat(gameIdx) = 14 And defCoverage(1 - gameIdx) <> 2 Then
+                    Print "The opposing defense changed. Choose an available offensive style for "; AccessibleTeamDisplay$(gameTeams$(gameIdx)); "."
+                    setupStep = 15 + gameIdx * 2
+                    Exit For
+                End If
+            Next gameIdx
+        End If
+    Loop
+    accessibleSetupActive = 0
+    If setupStep = 19 Then
+        Print "Ready for tipoff."
+        setupTest = 0
+        For argumentIdx = 1 To _CommandCount
+            If LCase$(Command$(argumentIdx)) = "--accessible-setup-test" And IsAccessibleTestMode% Then setupTest = 1
+        Next argumentIdx
+        If setupTest Then
+            Call AccessibleSetupSummary
+            For gameIdx = 0 To 1
+                If gameIdx = 0 Then roleName$ = "Visiting" Else roleName$ = "Home"
+                Call AccessiblePrintLineup(gameIdx, roleName$)
+                Print "Setup offense "; LTrim$(Str$(gameIdx)); ": "; _Trim$(offStylesNew$(offStrat(gameIdx)))
+                Print "Setup defense "; LTrim$(Str$(gameIdx)); ": "; _Trim$(defStyles$(defStrat(gameIdx)))
+            Next gameIdx
+            Print "SETUP_TEST_COMPLETE"
+        Else
+            Call AccessibleRunGame
+        End If
+    Else
+        Print "Single-game setup canceled."
+    End If
+End Sub
+
+Sub AccessibleSetupSummary ()
+    Print "Game configuration summary"
+    Select Case accessiblePlayerOpt
+        Case 0: Print "Control: human controls both teams."
+        Case 1: Print "Control: human controls home; computer controls visitor."
+        Case 2: Print "Control: human controls visitor; computer controls home."
+        Case 3: Print "Control: computer controls both teams."
+    End Select
+    If accessibleGameLoc = 1 Then Print "Location: home-court advantage." Else Print "Location: neutral site."
+    If accessibleShotClock = 0 Then Print "Shot clock: none." Else Print "Shot clock: "; LTrim$(Str$(accessibleShotClock)); " seconds."
+    If accessibleThreePoint = 1 Then Print "Three-point shot: yes." Else Print "Three-point shot: no."
+    Print "Fouls to disqualify: "; LTrim$(Str$(accessibleFoulsToDQ)); "."
+End Sub
+
+Function AccessibleConfigureGame% (setupStep) Static
+    AccessibleConfigureGame% = setupStep
+    Print
+    Select Case setupStep
+        Case 4
+            Print "Game control. Current selection: "; LTrim$(Str$(accessiblePlayerOpt + 1)); "."
+            Print "1. Human controls both teams."
+            Print "2. Human controls home; computer controls visitor."
+            Print "3. Human controls visitor; computer controls home."
+            Print "4. Computer controls both teams."
+        Case 5
+            Print "Game location"
+            If accessibleGameLoc = 1 Then Print "Current selection: home-court advantage." Else Print "Current selection: neutral site."
+            Print "1. Home-court advantage."
+            Print "2. Neutral site."
+        Case 6
+            Print "Rule settings"
+            If accessibleSetupCustom Then Print "Current selection: custom rules." Else Print "Current selection: modern college rules."
+            Print "1. Modern college rules: 30-second shot clock, three-point shot, five fouls to disqualify."
+            Print "2. Custom rules."
+        Case 7
+            Print "Custom shot clock. Current selection: "; LTrim$(Str$(accessibleShotClock)); " seconds; zero means none."
+            Print "1. No shot clock."
+            Print "2. 30 seconds."
+            Print "3. 35 seconds."
+            Print "4. 45 seconds."
+        Case 8
+            Print "Custom three-point shot"
+            If accessibleThreePoint Then Print "Current selection: on." Else Print "Current selection: off."
+            Print "1. On."
+            Print "2. Off."
+        Case 9
+            Print "Custom foul limit. Current selection: "; LTrim$(Str$(accessibleFoulsToDQ)); "."
+            Print "1. Five fouls to disqualify."
+            Print "2. Six fouls to disqualify."
+        Case 10
+            Call AccessibleSetupSummary
+            Print "1. Accept these settings and continue to roster review."
+    End Select
+    If setupStep <> 10 Then Print "98. Keep current selection and continue."
+    Call AccessibleSetupNavigation(accessibleSetupBackLabel$)
+    commandValue$ = AccessibleReadCommand$("Enter choice: ")
+    If commandValue$ = "99" Or commandValue$ = "cancel" Or commandValue$ = "exit" Then AccessibleConfigureGame% = -1: Exit Function
+    If commandValue$ = "0" Or commandValue$ = "back" Then AccessibleConfigureGame% = AccessibleSetupPrevious%(setupStep): Exit Function
+    keepChoice = commandValue$ = "98" Or commandValue$ = "keep"
+    validChoice = 0
+    selectedNumber = Val(commandValue$)
+    numericChoice = LTrim$(Str$(selectedNumber)) = commandValue$
+    Select Case setupStep
+        Case 4
+            If keepChoice Then validChoice = 1
+            If numericChoice And selectedNumber >= 1 And selectedNumber <= 4 Then
+                oldControl = accessiblePlayerOpt
+                accessiblePlayerOpt = selectedNumber - 1
+                If oldControl <> accessiblePlayerOpt Then
+                    ' Retain lineups, but revisit all human coaching choices in the normal sequence.
+                    Print "Control changed. Review lineups and strategies for each human-controlled team before tipoff."
+                End If
+                validChoice = 1
+            End If
+        Case 5
+            If keepChoice Then validChoice = 1
+            If commandValue$ = "1" Or commandValue$ = "2" Then accessibleGameLoc = selectedNumber: validChoice = 1
+        Case 6
+            If commandValue$ = "1" Or commandValue$ = "modern" Then
+                accessibleSetupCustom = 0
+                accessibleShotClock = 30: accessibleThreePoint = 1: accessibleFoulsToDQ = 5
+                validChoice = 1
+            ElseIf commandValue$ = "2" Or commandValue$ = "custom" Then
+                accessibleSetupCustom = 1: validChoice = 1
+            ElseIf keepChoice Then
+                validChoice = 1
+            End If
+        Case 7
+            If keepChoice Then validChoice = 1
+            Select Case commandValue$
+                Case "1", "none": accessibleShotClock = 0: validChoice = 1
+                Case "2", "30": accessibleShotClock = 30: validChoice = 1
+                Case "3", "35": accessibleShotClock = 35: validChoice = 1
+                Case "4", "45": accessibleShotClock = 45: validChoice = 1
+            End Select
+        Case 8
+            If keepChoice Then validChoice = 1
+            Select Case commandValue$
+                Case "1", "yes", "y": accessibleThreePoint = 1: validChoice = 1
+                Case "2", "no", "n": accessibleThreePoint = 0: validChoice = 1
+            End Select
+        Case 9
+            If keepChoice Then validChoice = 1
+            Select Case commandValue$
+                Case "1", "5": accessibleFoulsToDQ = 5: validChoice = 1
+                Case "2", "6": accessibleFoulsToDQ = 6: validChoice = 1
+            End Select
+        Case 10
+            If commandValue$ = "1" Or commandValue$ = "confirm" Or commandValue$ = "yes" Or commandValue$ = "y" Then validChoice = 1
+    End Select
+    If validChoice Then
+        AccessibleConfigureGame% = setupStep + 1
+        If setupStep = 6 And accessibleSetupCustom = 0 Then AccessibleConfigureGame% = 10
+    Else
+        Print "Choose a displayed menu number. Current settings are unchanged."
+    End If
+End Function
+
+Function AccessibleChooseTeam% (roleName$, yearNumber$, chosenIdx, teamName$) Static
+    Dim matchIndices(MAX_TEAMS)
+    AccessibleChooseTeam% = 0
+    draftYear$ = yearNumber$
+    teamStep = 1
+    pageStart = 1
+    Do
+        Print "Choose the "; roleName$; " team."
+        Select Case teamStep
+            Case 1
+                If draftYear$ <> "" Then Print "Current season ID: "; draftYear$
+                If chosenIdx > 0 Then Print "Current team: "; AccessibleTeamDisplay$(teamName$); " ("; yearNumber$; ")."
+                Print "1. Enter a season ID."
+                If draftYear$ <> "" Then Print "2. Keep current season and continue."
+                If chosenIdx > 0 Then Print "98. Keep current team and continue."
+                Call AccessibleSetupNavigation(accessibleSetupBackLabel$)
+                commandValue$ = AccessibleReadCommand$("Enter choice: ")
+                Select Case commandValue$
+                    Case "0", "back": Exit Function
+                    Case "99", "cancel", "exit": AccessibleChooseTeam% = -1: Exit Function
+                    Case "98", "keep"
+                        If chosenIdx > 0 Then AccessibleChooseTeam% = 1: Exit Function Else Print "No team has been selected yet."
+                    Case "1": teamStep = 2
+                    Case "2"
+                        If draftYear$ <> "" Then
+                            If AccessibleLoadTeams%(draftYear$) Then teamStep = 3
+                        Else
+                            Print "Enter a season ID first."
+                        End If
+                    Case Else
+                        If commandValue$ <> "" Then
+                            If AccessibleLoadTeams%(commandValue$) Then draftYear$ = commandValue$: teamStep = 3 Else Print "No team data was found for season ID "; commandValue$; "."
+                        Else
+                            Print "Choose a displayed menu number."
+                        End If
+                End Select
+            Case 2
+                Print "Enter a season ID, such as 2025."
+                Call AccessibleSetupNavigation("season menu")
+                commandValue$ = AccessibleReadCommand$("Season ID: ")
+                Select Case commandValue$
+                    Case "0", "back": teamStep = 1
+                    Case "99", "cancel", "exit": AccessibleChooseTeam% = -1: Exit Function
+                    Case Else
+                        If commandValue$ <> "" Then
+                            If AccessibleLoadTeams%(commandValue$) Then draftYear$ = commandValue$: teamStep = 3 Else Print "No team data was found for season ID "; commandValue$; "."
+                        Else
+                            Print "Enter a season ID or choose a displayed navigation option."
+                        End If
+                End Select
+            Case 3, 4
+                searchValue$ = ""
+                If teamStep = 3 Then
+                    Print "Team selection for season "; draftYear$; "."
+                    Print "1. Search by team name."
+                    Print "2. Browse all teams."
+                    If chosenIdx > 0 And draftYear$ = yearNumber$ Then Print "98. Keep "; AccessibleTeamDisplay$(teamName$); " and continue."
+                    Call AccessibleSetupNavigation("season menu")
+                    commandValue$ = AccessibleReadCommand$("Enter choice: ")
+                    Select Case commandValue$
+                        Case "0", "back": teamStep = 1
+                        Case "99", "cancel", "exit": AccessibleChooseTeam% = -1: Exit Function
+                        Case "98", "keep"
+                            If chosenIdx > 0 And draftYear$ = yearNumber$ Then AccessibleChooseTeam% = 1: Exit Function Else Print "Choose a team from this season first."
+                        Case "1": teamStep = 4
+                        Case "2", "list": searchValue$ = "list"
+                        Case Else
+                            If commandValue$ <> "" Then searchValue$ = commandValue$ Else Print "Choose a displayed menu number."
+                    End Select
+                Else
+                    Print "Enter part of a team name."
+                    Call AccessibleSetupNavigation("team selection menu")
+                    commandValue$ = AccessibleReadCommand$("Team search: ")
+                    Select Case commandValue$
+                        Case "0", "back": teamStep = 3
+                        Case "99", "cancel", "exit": AccessibleChooseTeam% = -1: Exit Function
+                        Case Else
+                            If commandValue$ <> "" Then searchValue$ = commandValue$ Else Print "Enter a team name or choose a displayed navigation option."
+                    End Select
+                End If
+                If searchValue$ <> "" Then
+                    matchCount = 0
+                    For teamIdx = 1 To teamIndex(0)
+                        If searchValue$ = "list" Or InStr(AccessibleTeamSearchKey$(teamNames$(teamIdx)), AccessibleTeamSearchKey$(searchValue$)) > 0 Then
+                            matchCount = matchCount + 1: matchIndices(matchCount) = teamIdx
+                        End If
+                    Next teamIdx
+                    If matchCount = 0 Then
+                        Print "No teams matched. Try another search."
+                    Else
+                        pageStart = 1: resultsBack = teamStep: teamStep = 5
+                    End If
+                End If
+            Case 5
+                Print LTrim$(Str$(matchCount)); " team(s) matched."
+                displayCount = matchCount - pageStart + 1
+                If displayCount > 25 Then displayCount = 25
+                For matchIdx = 1 To displayCount
+                    Print LTrim$(Str$(matchIdx)); ". "; AccessibleTeamDisplay$(teamNames$(matchIndices(pageStart + matchIdx - 1)))
+                Next matchIdx
+                If pageStart + displayCount <= matchCount Then Print "26. Next page of teams."
+                If pageStart > 1 Then Print "27. Previous page of teams."
+                Print "28. Start a new search."
+                If resultsBack = 4 Then backLabel$ = "team search" Else backLabel$ = "team selection menu"
+                Call AccessibleSetupNavigation(backLabel$)
+                commandValue$ = AccessibleReadCommand$("Enter choice: ")
+                Select Case commandValue$
+                    Case "0", "back": teamStep = resultsBack
+                    Case "99", "cancel", "exit": AccessibleChooseTeam% = -1: Exit Function
+                    Case "26"
+                        If pageStart + displayCount <= matchCount Then pageStart = pageStart + 25 Else Print "This is the last page."
+                    Case "27"
+                        If pageStart > 1 Then pageStart = pageStart - 25 Else Print "This is the first page."
+                    Case "28", "search": teamStep = 4
+                    Case Else
+                        selectedNumber = Val(commandValue$)
+                        If selectedNumber >= 1 And selectedNumber <= displayCount And LTrim$(Str$(selectedNumber)) = commandValue$ Then
+                            chosenIdx = teamIndex(matchIndices(pageStart + selectedNumber - 1))
+                            teamName$ = teamNames$(matchIndices(pageStart + selectedNumber - 1))
+                            yearNumber$ = draftYear$
+                            Print "Selected "; AccessibleTeamDisplay$(teamName$); " as the "; roleName$; " team."
+                            AccessibleChooseTeam% = 1: Exit Function
+                        Else
+                            Print "Choose a displayed team or navigation number."
+                        End If
+                End Select
+        End Select
+    Loop
+End Function
+
+Function AccessibleChooseLineup% (gameIdx, roleName$, computerControlled) Static
+    Dim eligibleIndices(14)
+    AccessibleChooseLineup% = 0
+    Print roleName$; " starting lineup for "; AccessibleTeamDisplay$(gameTeams$(gameIdx)); "."
+    If computerControlled Then
+        Call AccessibleAutoLineup(gameIdx)
+        accessibleSetupLineupCount(gameIdx) = 5
+        Print "The computer selected this lineup."
+        Call AccessiblePrintLineup(gameIdx, roleName$)
+        AccessibleChooseLineup% = 1: Exit Function
+    End If
+    If accessibleSetupLineupCount(gameIdx) = 5 Then
+        Print "Current selected lineup."
+        Call AccessiblePrintLineup(gameIdx, roleName$)
+    End If
+    eligibleCount = 0
+    For playerIdx = 0 To 13
+        If playerActive%(gameIdx, playerIdx) = 1 And players$(gameIdx, playerIdx) <> "" And UCase$(players$(gameIdx, playerIdx)) <> "XXX" Then
+            eligibleCount = eligibleCount + 1: eligibleIndices(eligibleCount) = playerIdx
+        End If
+    Next playerIdx
+    slot = 0
+    Do
+        If slot = 5 Then
+            Call AccessiblePrintLineup(gameIdx, roleName$)
+            Print "1. Confirm this lineup and continue."
+            Call AccessibleSetupNavigation("center selection")
+            commandValue$ = AccessibleReadCommand$("Enter choice: ")
+            Select Case commandValue$
+                Case "1", "confirm", "yes", "y": AccessibleChooseLineup% = 1: Exit Function
+                Case "0", "back": slot = 4
+                Case "99", "cancel", "exit": AccessibleChooseLineup% = -1: Exit Function
+                Case Else: Print "Choose a displayed menu number."
+            End Select
+        Else
+            Print "Role: "; AccessibleLineupRole$(slot); "."
+            If slot < accessibleSetupLineupCount(gameIdx) Then Print "Current selection: "; players$(gameIdx, lineupIdx(gameIdx, slot)); "."
+            For playerNumber = 1 To eligibleCount
+                Print LTrim$(Str$(playerNumber)); ". "; players$(gameIdx, eligibleIndices(playerNumber)); ", "; AccessiblePlayerPosition$(gameIdx, eligibleIndices(playerNumber)); "."
+            Next playerNumber
+            Print "90. Use the recommended lineup and continue."
+            Print "91. Repeat the player list."
+            If accessibleSetupLineupCount(gameIdx) = 5 Then Print "97. Keep the current lineup and continue."
+            If slot < accessibleSetupLineupCount(gameIdx) Then Print "98. Keep this player and continue to the next position."
+            If slot = 0 Then backLabel$ = accessibleSetupBackLabel$ Else backLabel$ = LCase$(AccessibleLineupRole$(slot - 1)) + " selection"
+            Call AccessibleSetupNavigation(backLabel$)
+            commandValue$ = AccessibleReadCommand$("Enter choice: ")
+            Select Case commandValue$
+                Case "0", "back"
+                    If slot = 0 Then Exit Function Else slot = slot - 1
+                Case "99", "cancel", "exit": AccessibleChooseLineup% = -1: Exit Function
+                Case "90", "auto"
+                    Call AccessibleAutoLineup(gameIdx)
+                    accessibleSetupLineupCount(gameIdx) = 5
+                    Call AccessiblePrintLineup(gameIdx, roleName$)
+                    AccessibleChooseLineup% = 1: Exit Function
+                Case "91", "repeat", "list"
+                Case "97", "keep"
+                    If accessibleSetupLineupCount(gameIdx) = 5 Then
+                        Call AccessiblePrintLineup(gameIdx, roleName$)
+                        AccessibleChooseLineup% = 1: Exit Function
+                    Else
+                        Print "Choose all five players before keeping the lineup."
+                    End If
+                Case "98"
+                    If slot < accessibleSetupLineupCount(gameIdx) Then slot = slot + 1 Else Print "No player has been selected for this position."
+                Case Else
+                    selectedNumber = Val(commandValue$)
+                    If selectedNumber >= 1 And selectedNumber <= eligibleCount And LTrim$(Str$(selectedNumber)) = commandValue$ Then
+                        selectedPlayer = eligibleIndices(selectedNumber)
+                        duplicatePlayer = 0
+                        For checkSlot = 0 To slot - 1
+                            If lineupIdx(gameIdx, checkSlot) = selectedPlayer Then duplicatePlayer = 1
+                        Next checkSlot
+                        If duplicatePlayer Then
+                            Print "That player is already in the lineup."
+                        Else
+                            ' Preserve later choices unless this player also occupies a later role.
+                            For checkSlot = slot + 1 To accessibleSetupLineupCount(gameIdx) - 1
+                                If lineupIdx(gameIdx, checkSlot) = selectedPlayer Then
+                                    accessibleSetupLineupCount(gameIdx) = checkSlot
+                                    Print "This player occupied a later position. Review that position and those after it."
+                                    Exit For
+                                End If
+                            Next checkSlot
+                            If accessibleSetupLineupCount(gameIdx) < slot + 1 Then accessibleSetupLineupCount(gameIdx) = slot + 1
+                            lineupIdx(gameIdx, slot) = selectedPlayer
+                            Print "Selected "; players$(gameIdx, selectedPlayer); "."
+                            If AccessiblePlayerMatchesRole%(gameIdx, selectedPlayer, slot) = 0 Then Print "Warning: recorded position does not match the "; LCase$(AccessibleLineupRole$(slot)); " role."
+                            slot = slot + 1
+                        End If
+                    Else
+                        Print "Choose a displayed player or navigation number."
+                    End If
+            End Select
+        End If
+    Loop
+End Function

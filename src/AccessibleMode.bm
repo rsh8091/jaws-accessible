@@ -1,0 +1,2051 @@
+Function IsAccessibleMode% Static
+
+    IsAccessibleMode% = 0
+
+    For argIndex% = 1 To _CommandCount
+        argument$ = Command$(argIndex%)
+        argument$ = LCase$(_Trim$(argument$))
+
+        If argument$ = "--accessible" Or argument$ = "-a" Or argument$ = "/accessible" Then
+            IsAccessibleMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
+Function IsAccessibleTestMode% Static
+
+    IsAccessibleTestMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--accessible-test" Then
+            IsAccessibleTestMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
+Function IsAccessibleHalftimeTestMode% Static
+
+    IsAccessibleHalftimeTestMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--accessible-halftime-test" Then
+            IsAccessibleHalftimeTestMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
+Function IsAccessibleComputerSubsTestMode% Static
+
+    IsAccessibleComputerSubsTestMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--accessible-computer-subs-test" Then
+            IsAccessibleComputerSubsTestMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
+Function IsAccessibleFoulOutSubsTestMode% Static
+
+    IsAccessibleFoulOutSubsTestMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--accessible-foul-out-subs-test" Then
+            IsAccessibleFoulOutSubsTestMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
+Function IsAccessiblePlaySafeTestMode% Static
+
+    IsAccessiblePlaySafeTestMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--accessible-play-safe-test" Then
+            IsAccessiblePlaySafeTestMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
+Function IsAccessibleBoxscoreTestMode% Static
+
+    IsAccessibleBoxscoreTestMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--accessible-boxscore-test" Then
+            IsAccessibleBoxscoreTestMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
+Function IsAccessibleBoxscoreTransitionTestMode% Static
+
+    IsAccessibleBoxscoreTransitionTestMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--accessible-boxscore-transition-test" Then
+            IsAccessibleBoxscoreTransitionTestMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
+Function IsAccessibleBoxscoreHtmlTestMode% Static
+
+    IsAccessibleBoxscoreHtmlTestMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--accessible-boxscore-html-test" Then
+            IsAccessibleBoxscoreHtmlTestMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
+Function IsAccessibleOvertimeTestMode% Static
+
+    IsAccessibleOvertimeTestMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--accessible-overtime-test" Then
+            IsAccessibleOvertimeTestMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
+Function IsAccessibleIntentionalFoulTestMode% Static
+
+    IsAccessibleIntentionalFoulTestMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--accessible-intentional-foul-test" Then
+            IsAccessibleIntentionalFoulTestMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
+Function IsAccessibleJawsIntentionalFoulTestMode% Static
+
+    IsAccessibleJawsIntentionalFoulTestMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--jaws-intentional-foul-test" Then
+            IsAccessibleJawsIntentionalFoulTestMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
+Function IsAccessibleJawsOvertimeTestMode% Static
+
+    IsAccessibleJawsOvertimeTestMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--jaws-overtime-test" Then
+            IsAccessibleJawsOvertimeTestMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
+Function IsAccessibleStrategyOwnershipTestMode% Static
+
+    IsAccessibleStrategyOwnershipTestMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--accessible-strategy-ownership-test" Then
+            IsAccessibleStrategyOwnershipTestMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
+Function IsAccessibleTurnoverDiagnosticMode% Static
+
+    IsAccessibleTurnoverDiagnosticMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--accessible-turnover-diagnostic" Then
+            IsAccessibleTurnoverDiagnosticMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
+Function IsAccessibleNarrationDiagnosticMode% Static
+
+    IsAccessibleNarrationDiagnosticMode% = 0
+    For argIndex% = 1 To _CommandCount
+        argument$ = LCase$(_Trim$(Command$(argIndex%)))
+        If argument$ = "--accessible-narration-diagnostic" Then
+            IsAccessibleNarrationDiagnosticMode% = 1
+            Exit Function
+        End If
+    Next argIndex%
+
+End Function
+
+
+Function AccessibleComputerControlsTeam% (teamIdx) Static
+
+    AccessibleComputerControlsTeam% = 0
+    If playerMode = 2 Then AccessibleComputerControlsTeam% = 1
+    If playerMode = 1 And teamIdx = compTeam Then AccessibleComputerControlsTeam% = 1
+
+End Function
+
+
+Function AccessibleRunStrategyOwnershipTest% () Static
+
+    AccessibleRunStrategyOwnershipTest% = 0
+    If playerMode <> 1 Then
+        Print "Strategy ownership validation requires one human team and one computer team."
+        Exit Function
+    End If
+
+    humanTeam = 1 - compTeam
+    savedHumanOffense = offStrat(humanTeam)
+    savedHumanDefense = defStrat(humanTeam)
+    Print "Automated accessible strategy ownership validation."
+    savedControlMode = playerMode
+    savedComputerTeam = compTeam
+    savedOffenseTeam = P
+    savedDefenseTeam = D
+    ownershipFailed = 0
+    For testControlMode = 0 To 2
+        playerMode = testControlMode
+        For testComputerTeam = 0 To 1
+            compTeam = testComputerTeam
+            For testOffenseTeam = 0 To 1
+                P = testOffenseTeam: D = 1 - P
+                expectedOffensePC = (playerMode = 2 Or (playerMode = 1 And P = compTeam))
+                expectedDefensePC = (playerMode = 2 Or (playerMode = 1 And D = compTeam))
+                If IsOffensePC <> expectedOffensePC Or IsDefensePC <> expectedDefensePC Then ownershipFailed = 1
+                If IsOffenseHuman <> (Not expectedOffensePC) Or IsDefenseHuman <> (Not expectedDefensePC) Then ownershipFailed = 1
+            Next testOffenseTeam
+        Next testComputerTeam
+    Next testControlMode
+    playerMode = savedControlMode: compTeam = savedComputerTeam
+    P = savedOffenseTeam: D = savedDefenseTeam
+    If ownershipFailed Then
+        Print "Team control classification failed."
+        Exit Function
+    End If
+    Print "Team control classification passed for both sides and all control modes."
+    Print "Human strategy baseline: "; offStylesNew$(savedHumanOffense); " and "; defStyles$(savedHumanDefense); "."
+
+    P9 = humanTeam
+    Call ComputerStrategy
+    Call ComputerCoach(humanTeam)
+    currHalf = 2
+    gameClock! = 45
+    score(humanTeam, 0) = 50
+    score(compTeam, 0) = 53
+    computerTimeout = 1
+    Call EvaluateSubs(humanTeam)
+    For testSlot = 0 To 4
+        tmFatigue(humanTeam, lineupIdx(humanTeam, testSlot)) = -5
+    Next testSlot
+    Call FATIGUE(humanTeam)
+
+    P9 = compTeam
+    Call ComputerStrategy
+    Call ComputerCoach(compTeam)
+    computerTimeout = 1
+    Call EvaluateSubs(compTeam)
+    Call FATIGUE(compTeam)
+
+    Call AccessibleResetPeriodDefense
+
+    If offStrat(humanTeam) <> savedHumanOffense Or defStrat(humanTeam) <> savedHumanDefense Then
+        Print "Human strategy ownership validation failed."
+        Print "Expected offense "; LTrim$(Str$(savedHumanOffense)); " and defense "; LTrim$(Str$(savedHumanDefense)); "."
+        Print "Actual offense "; LTrim$(Str$(offStrat(humanTeam))); " and defense "; LTrim$(Str$(defStrat(humanTeam))); "."
+        Exit Function
+    End If
+
+    Print "Human strategy ownership validation passed."
+    AccessibleRunStrategyOwnershipTest% = 1
+
+End Function
+
+
+Sub AccessibleResetPeriodDefense ()
+
+    savedDefense0 = defStrat(0)
+    savedDefense1 = defStrat(1)
+    Erase defStrat, defCoverage, defCategory
+
+    If AccessibleComputerControlsTeam%(0) = 0 Then
+        defStrat(0) = savedDefense0
+        Call CategorizeDefense(0)
+    End If
+    If AccessibleComputerControlsTeam%(1) = 0 Then
+        defStrat(1) = savedDefense1
+        Call CategorizeDefense(1)
+    End If
+
+End Sub
+
+
+Sub AccessibleResetTurnoverDiagnostic ()
+
+    accessibleTurnoverReason = 0
+    Erase accessibleDiagDirect, accessibleDiagSteals, accessibleDiagOffensiveFouls
+    Erase accessibleDiagShotClock, accessibleDiagInbound, accessibleDiagGoaltend, accessibleDiagHeldBall
+    Erase accessibleDiagChecks, accessibleDiagThresholdTotal, accessibleDiagChecksAfterFirstPass, accessibleDiagMaxPasses
+    Erase accessibleDiagMotionPressureChecks, accessibleDiagMotionPressureTurnovers
+
+End Sub
+
+
+Sub AccessibleRecordTurnoverCheck (teamIdx, threshold, passNumber)
+
+    If accessibleTurnoverDiagnosticActive = 0 Then Exit Sub
+    accessibleDiagChecks(teamIdx) = accessibleDiagChecks(teamIdx) + 1
+    accessibleDiagThresholdTotal(teamIdx) = accessibleDiagThresholdTotal(teamIdx) + threshold
+    If passNumber > 1 Then accessibleDiagChecksAfterFirstPass(teamIdx) = accessibleDiagChecksAfterFirstPass(teamIdx) + 1
+    If passNumber > accessibleDiagMaxPasses(teamIdx) Then accessibleDiagMaxPasses(teamIdx) = passNumber
+    If offStrat(teamIdx) = 0 And defCoverage(1 - teamIdx) = 1 Then accessibleDiagMotionPressureChecks(teamIdx) = accessibleDiagMotionPressureChecks(teamIdx) + 1
+
+End Sub
+
+
+Sub AccessibleRecordTurnover (teamIdx, reasonCode)
+
+    If accessibleTurnoverDiagnosticActive = 0 Then Exit Sub
+    Select Case reasonCode
+        Case 1: accessibleDiagDirect(teamIdx) = accessibleDiagDirect(teamIdx) + 1
+        Case 2: accessibleDiagSteals(teamIdx) = accessibleDiagSteals(teamIdx) + 1
+        Case 3: accessibleDiagOffensiveFouls(teamIdx) = accessibleDiagOffensiveFouls(teamIdx) + 1
+        Case 4: accessibleDiagShotClock(teamIdx) = accessibleDiagShotClock(teamIdx) + 1
+        Case 5: accessibleDiagInbound(teamIdx) = accessibleDiagInbound(teamIdx) + 1
+        Case 6: accessibleDiagGoaltend(teamIdx) = accessibleDiagGoaltend(teamIdx) + 1
+        Case 7: accessibleDiagHeldBall(teamIdx) = accessibleDiagHeldBall(teamIdx) + 1
+    End Select
+    If offStrat(teamIdx) = 0 And defCoverage(1 - teamIdx) = 1 Then accessibleDiagMotionPressureTurnovers(teamIdx) = accessibleDiagMotionPressureTurnovers(teamIdx) + 1
+
+End Sub
+
+
+Sub AccessiblePrintTurnoverDiagnostic ()
+
+    Shared matchPace
+
+    Print "TURNOVER_DIAGNOSTIC visitor="; LTrim$(Str$(turnovers(0))); " home="; LTrim$(Str$(turnovers(1))); " possessions="; LTrim$(Str$(accessibleEnginePossessions)); " visitor_score="; LTrim$(Str$(score(0, 0))); " home_score="; LTrim$(Str$(score(1, 0)))
+    Print "PACE_DIAGNOSTIC match_pace="; LTrim$(Str$(matchPace))
+    For teamIdx = 0 To 1
+        If accessibleDiagChecks(teamIdx) > 0 Then averageThreshold = accessibleDiagThresholdTotal(teamIdx) / accessibleDiagChecks(teamIdx) Else averageThreshold = 0
+        Print "TURNOVER_DETAIL team="; LTrim$(Str$(teamIdx)); " direct="; LTrim$(Str$(accessibleDiagDirect(teamIdx))); " steals="; LTrim$(Str$(accessibleDiagSteals(teamIdx))); " offensive_fouls="; LTrim$(Str$(accessibleDiagOffensiveFouls(teamIdx))); " shot_clock="; LTrim$(Str$(accessibleDiagShotClock(teamIdx))); " inbound="; LTrim$(Str$(accessibleDiagInbound(teamIdx))); " goaltend="; LTrim$(Str$(accessibleDiagGoaltend(teamIdx))); " held_ball="; LTrim$(Str$(accessibleDiagHeldBall(teamIdx))); " checks="; LTrim$(Str$(accessibleDiagChecks(teamIdx))); " checks_after_first_pass="; LTrim$(Str$(accessibleDiagChecksAfterFirstPass(teamIdx))); " max_passes="; LTrim$(Str$(accessibleDiagMaxPasses(teamIdx))); " average_threshold="; LTrim$(Str$(CInt(averageThreshold))); " motion_pressure_checks="; LTrim$(Str$(accessibleDiagMotionPressureChecks(teamIdx))); " motion_pressure_turnovers="; LTrim$(Str$(accessibleDiagMotionPressureTurnovers(teamIdx)))
+    Next teamIdx
+
+End Sub
+
+
+Function AccessibleHtml$ (value$) Static
+
+    htmlValue$ = String.Replace$(value$, "&", "&amp;")
+    htmlValue$ = String.Replace$(htmlValue$, "<", "&lt;")
+    htmlValue$ = String.Replace$(htmlValue$, ">", "&gt;")
+    htmlValue$ = String.Replace$(htmlValue$, Chr$(34), "&quot;")
+    AccessibleHtml$ = htmlValue$
+
+End Function
+
+
+Function AccessibleReadCommand$ (promptText$) Static
+
+    Print promptText$;
+    Line Input commandValue$
+    AccessibleReadCommand$ = LCase$(_Trim$(commandValue$))
+
+End Function
+
+
+Sub AccessibleMainMenu ()
+
+    accessiblePauseEvents = 1
+    If IsAccessibleTestMode% = 1 Then accessiblePauseEvents = 0
+    Print "Courtside College Basketball, version "; GAME_VERSION$
+    Print "Accessible command-line mode."
+    Print "All choices can be entered as a number or a word."
+    Print
+
+    If IsAccessibleBoxscoreTestMode% = 1 Then
+        Print "Accessible box score test mode."
+        Call AccessibleLoadBoxscoreFixture
+        If IsAccessibleBoxscoreHtmlTestMode% = 1 Then
+            htmlSeparator$ = "/"
+            If InStr(_OS$, "[WINDOWS]") > 0 Then htmlSeparator$ = "\"
+            htmlPath$ = _CWD$ + htmlSeparator$ + "accessible-boxscore.html"
+            Call AccessibleWriteHtmlBoxscore(htmlPath$)
+            Print "Accessible HTML box score created: "; htmlPath$
+            Print "Exiting Courtside College Basketball."
+            Exit Sub
+        ElseIf IsAccessibleBoxscoreTransitionTestMode% = 1 Then
+            Print "Automated accessible box score validation."
+            Call AccessiblePrintGameSummary
+            Call AccessiblePrintTeamTotals(0)
+            Call AccessiblePrintPlayerList(0)
+            Call AccessiblePrintPlayerStats(0, 4)
+            Call AccessiblePrintPlayerStats(0, 5)
+            Print "You have completed the visiting team player box score for "; AccessibleTeamDisplay$(gameTeams$(0)); "."
+            Print "Moving to the home team player box score for "; AccessibleTeamDisplay$(gameTeams$(1)); "."
+            Call AccessiblePrintTeamTotals(1)
+            Call AccessiblePrintPlayerList(1)
+            Call AccessiblePrintPlayerStats(1, 5)
+            Print "You have completed the home team player box score for "; AccessibleTeamDisplay$(gameTeams$(1)); "."
+            Print "Exiting Courtside College Basketball."
+            Exit Sub
+        Else
+            Call AccessiblePrintRegulationSummary
+            Call AccessiblePostgameMenu
+            Print
+            Print "Box score test complete. Returning to the accessible main menu."
+            Print
+        End If
+    End If
+
+    exitRequested% = 0
+
+    Do
+        Print "Main menu"
+        Print "1. Play a single game."
+        Print "2. Accessibility help."
+        Print "3. Exit."
+
+        commandValue$ = AccessibleReadCommand$("Enter choice: ")
+        Print
+
+        Select Case commandValue$
+            Case "1", "play", "game", "single"
+                Call AccessibleSingleGameSetup
+
+            Case "2", "help", "h", "?"
+                Call AccessibleShowHelp
+
+            Case "3", "exit", "quit", "q"
+                Print "Exiting Courtside College Basketball."
+                exitRequested% = 1
+
+            Case Else
+                Print "Choice not recognized. Enter 1 for play, 2 for help, or 3 to exit."
+        End Select
+
+        If exitRequested% = 0 Then Print
+    Loop Until exitRequested% = 1
+
+End Sub
+
+
+Sub AccessibleRunGame ()
+
+    Print
+    Print "Original simulator validation."
+    If IsAccessibleTurnoverDiagnosticMode% = 1 Then
+        Print "Automated full-game turnover diagnostic."
+        accessibleEngineLimit = 0
+        accessibleEngineStopClock = 0
+    ElseIf IsAccessibleHalftimeTestMode% = 1 Then
+        Print "Automated halftime transition validation."
+        accessibleEngineLimit = 0
+        accessibleEngineStopClock = 0
+    ElseIf accessiblePlayerOpt = 3 Then
+        Print "The original game engine will coach both teams for six possessions."
+        accessibleEngineLimit = 6
+        accessibleEngineStopClock = 0
+    Else
+        If accessiblePauseEvents = 0 Then
+            Print "The original game engine will play one possession for each team."
+            accessibleEngineLimit = 2
+            accessibleEngineStopClock = 0
+        Else
+            Print "The original game engine will play through the end of regulation."
+            Print "Halftime includes an accessible review before the second half begins."
+            accessibleEngineLimit = 0
+            accessibleEngineStopClock = 0
+        End If
+        Print "Computer play runs continuously. Your team pauses when a decision is required."
+    End If
+    Print "Play-by-play is being presented through the accessible command-line adapter."
+
+    accessiblePreparedGame = 1
+    accessibleEngineMode = 1
+    accessibleTurnoverDiagnosticActive = IsAccessibleTurnoverDiagnosticMode%
+    If accessibleTurnoverDiagnosticActive = 1 Then Call AccessibleResetTurnoverDiagnostic
+    accessibleEnginePossessions = 0
+    accessibleEngineLastTeam = -1
+    accessibleEngineHumanPrompted = 0
+    accessibleEngineStopRequested = 0
+    accessibleLastPbp$ = ""
+    accessiblePbpGroupCount = 0
+    accessiblePbpGroupTeam = -1
+    Erase accessiblePbpGroup$
+    Erase accessiblePbpGroupSequence&
+    Call AccessibleStartNarrationDiagnostic
+    Call COLHOOP
+    Call AccessibleFlushPbp
+    Call AccessibleStopNarrationDiagnostic
+
+    accessibleEngineMode = 0
+    accessiblePreparedGame = 0
+    accessibleTurnoverDiagnosticActive = 0
+    Print "Returning to the main menu."
+
+End Sub
+
+
+Function AccessiblePrepareJawsIntentionalFoulTest% () Static
+
+    AccessiblePrepareJawsIntentionalFoulTest% = 0
+    Print "Manual JAWS intentional-foul test."
+    If playerMode <> 1 Then
+        Print "This test requires one human-controlled team and one computer-controlled team."
+        Print "Restart the test and choose control option 2 or 3."
+        ignoredCommand$ = AccessibleReadCommand$("Press Enter to return to the accessible menu: ")
+        Exit Function
+    End If
+
+    currHalf = 2
+    gameClock! = 180
+    P = compTeam
+    D = 1 - compTeam
+    ballCarrier = 0
+    teamFouls(D) = 6
+    score(P, 0) = score(D, 0) + 1
+    score(P, 2) = score(P, 0)
+    shotChance! = 50
+    threePtShotChance = 35
+    Print "The game is prepared with the computer ahead by one point and holding the ball with three minutes remaining."
+    Print "The normal game engine will handle the foul, free throws, possession change, and all remaining play."
+    AccessiblePrepareJawsIntentionalFoulTest% = 1
+
+End Function
+
+
+Sub AccessiblePrepareJawsOvertimeTest ()
+
+    Print "Manual JAWS overtime test."
+    Print "Regulation is ending with the score tied at 70."
+    Print "The normal simulator will handle the overtime transition and the complete overtime period."
+    score(0, 1) = 35
+    score(0, 2) = 35
+    score(0, 0) = 70
+    score(1, 1) = 35
+    score(1, 2) = 35
+    score(1, 0) = 70
+    'This shortcut runs before the opening tip normally initializes the simulator's
+    'offense and defense indexes. Give the artificial end-of-regulation state a
+    'valid pair so overtime status and strategy announcements name the correct team.
+    P = 0
+    D = 1
+    P9 = P
+    ballCarrier = -1
+    currHalf = 2
+    gameClock! = 0
+
+End Sub
+
+
+Sub AccessiblePrintHalftimeSummary ()
+
+    Print "Halftime."
+    Print "Score: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 0))); "."
+    Print "First-half team fouls: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(teamFouls(0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(teamFouls(1))); "."
+    Print "Timeouts remaining: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(timeouts(0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(timeouts(1))); "."
+    Print "Halftime rest applied. Temporary fatigue has been reset."
+
+End Sub
+
+
+Function AccessibleHalftimeMenu% Static
+
+    Call AccessibleFlushPbp
+    AccessibleHalftimeMenu% = 0
+    Cls
+    Call AccessiblePrintHalftimeSummary
+    Do
+        Print
+        Print "Halftime options"
+        Print "1. Start the second half."
+        Print "2. Hear the current visiting lineup."
+        Print "3. Hear the current home lineup."
+        If accessiblePlayerOpt < 3 Then Print "4. Make a halftime substitution."
+        Print "5. End the game segment at halftime."
+        If accessiblePlayerOpt < 3 Then
+            Print "6. Change offensive style."
+            Print "7. Change defensive style."
+        End If
+        commandValue$ = AccessibleReadCommand$("Enter choice: ")
+
+        Select Case commandValue$
+            Case "1", "continue", "start", "second half"
+                AccessibleHalftimeMenu% = 1
+                Exit Do
+            Case "2", "visitor", "visiting"
+                Call AccessiblePrintLineupCondition(0)
+                commandValue$ = AccessibleReadCommand$("Press Enter to return to halftime options: ")
+            Case "3", "home"
+                Call AccessiblePrintLineupCondition(1)
+                commandValue$ = AccessibleReadCommand$("Press Enter to return to halftime options: ")
+            Case "4", "sub", "substitute", "substitution"
+                Call AccessibleHalftimeSubstitution
+            Case "5", "finish", "end", "quit", "exit"
+                Exit Do
+            Case "6", "offense"
+                Call AccessibleHalftimeStrategy(0)
+            Case "7", "defense"
+                Call AccessibleHalftimeStrategy(1)
+            Case Else
+                Print "Enter a displayed numbered choice."
+                commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
+        End Select
+    Loop
+
+End Function
+
+
+Sub AccessibleHalftimeStrategy (defenseChoice)
+
+    If currHalf >= 3 Then periodLabel$ = "overtime" Else periodLabel$ = "halftime"
+
+    If accessiblePlayerOpt = 3 Then
+        Print "Both teams are computer controlled."
+        Exit Sub
+    End If
+    If accessiblePlayerOpt = 0 Then
+        Do
+            Print "Choose the team whose "; periodLabel$; " strategy to change."
+            Print "1. Visiting team."
+            Print "2. Home team."
+            Print "0. Back to "; periodLabel$; " options."
+            teamChoice$ = AccessibleReadCommand$("Enter choice: ")
+            Select Case teamChoice$
+                Case "1": strategyTeam = 0: Exit Do
+                Case "2": strategyTeam = 1: Exit Do
+                Case "0", "back", "cancel": Exit Sub
+                Case Else: Print "Choose 1, 2, or 0."
+            End Select
+        Loop
+    Else
+        If accessiblePlayerOpt = 1 Then strategyTeam = 1 Else strategyTeam = 0
+    End If
+    'The clock is zero at halftime; validate tactics for the start of half two,
+    'not for the final seconds. Restore it for the remaining halftime review.
+    savedHalftimeClock! = gameClock!
+    If currHalf >= 3 Then gameClock! = 300 Else gameClock! = 1200
+    If defenseChoice Then
+        ignoredChoice = AccessibleChooseDefense%(strategyTeam)
+    Else
+        ignoredChoice = AccessibleChooseOffense%(strategyTeam)
+    End If
+    gameClock! = savedHalftimeClock!
+
+End Sub
+
+
+Sub AccessiblePrintRegulationSummary ()
+
+    Call AccessibleFlushPbp
+    Cls
+    If currHalf > 3 Then
+        Print "End of overtime "; LTrim$(Str$(currHalf - 3)); "."
+        Print "Final score: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 0))); "."
+    Else
+        Print "End of regulation."
+        Print "Final regulation score: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 0))); "."
+    End If
+    Print "Timeouts remaining: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(timeouts(0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(timeouts(1))); "."
+    Print "The game is over."
+    commandValue$ = AccessibleReadCommand$("Press Enter to continue to postgame options: ")
+
+End Sub
+
+
+Sub AccessiblePrintOvertimeTransition (overtimeNumber)
+
+    Call AccessibleFlushPbp
+    Cls
+    If overtimeNumber = 1 Then
+        Print "End of regulation."
+        Print "The score is tied: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 0))); "."
+    Else
+        Print "End of overtime "; LTrim$(Str$(overtimeNumber - 1)); "."
+        Print "The score remains tied: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 0))); "."
+    End If
+    Print "Overtime "; LTrim$(Str$(overtimeNumber)); " will be five minutes."
+    Print "Each team receives one additional timeout."
+
+End Sub
+
+Function AccessibleOvertimeMenu% (overtimeNumber)
+    AccessibleOvertimeMenu% = 0
+    Call AccessiblePrintOvertimeTransition(overtimeNumber)
+    Do
+        Print "Overtime options"
+        Print "1. Start overtime."
+        Print "2. Hear the current visiting lineup."
+        Print "3. Hear the current home lineup."
+        If accessiblePlayerOpt < 3 Then Print "4. Make an overtime substitution."
+        Print "5. End the game segment before overtime."
+        If accessiblePlayerOpt < 3 Then
+            Print "6. Change offensive style."
+            Print "7. Change defensive style."
+        End If
+        commandValue$ = AccessibleReadCommand$("Enter choice: ")
+        Select Case commandValue$
+            Case "1", "start", "continue"
+                Print "Starting overtime lineups."
+                Call AccessiblePrintLineup(0, "Visiting " + AccessibleTeamDisplay$(gameTeams$(0)))
+                Call AccessiblePrintLineup(1, "Home " + AccessibleTeamDisplay$(gameTeams$(1)))
+                commandValue$ = AccessibleReadCommand$("Press Enter to begin overtime: ")
+                AccessibleOvertimeMenu% = 1
+                Exit Function
+            Case "2", "visitor", "visiting"
+                Call AccessiblePrintLineupCondition(0)
+                commandValue$ = AccessibleReadCommand$("Press Enter to return to overtime options: ")
+            Case "3", "home"
+                Call AccessiblePrintLineupCondition(1)
+                commandValue$ = AccessibleReadCommand$("Press Enter to return to overtime options: ")
+            Case "4", "sub", "substitute"
+                Call AccessibleHalftimeSubstitution
+            Case "5", "end", "quit", "exit"
+                Exit Function
+            Case "6", "offense"
+                Call AccessibleHalftimeStrategy(0)
+            Case "7", "defense"
+                Call AccessibleHalftimeStrategy(1)
+            Case Else
+                Print "Enter a displayed numbered choice."
+        End Select
+    Loop
+End Function
+
+
+Sub AccessiblePostgameMenu ()
+
+    Do
+        Cls
+        Print "Postgame options."
+        Print "1. Hear the game summary."
+        Print "2. Hear the visiting team box score."
+        Print "3. Hear the home team box score."
+        Print "4. Create the HTML box score and open the folder containing it."
+        Print "5. Return to the main menu."
+        commandValue$ = AccessibleReadCommand$("Enter choice: ")
+        Select Case commandValue$
+            Case "1"
+                Call AccessiblePrintGameSummary
+                commandValue$ = AccessibleReadCommand$("Press Enter to return to postgame options: ")
+            Case "2"
+                Call AccessibleTeamBoxscoreMenu(0)
+            Case "3"
+                Call AccessibleTeamBoxscoreMenu(1)
+            Case "4"
+                Call AccessibleOpenHtmlBoxscore
+            Case "5"
+                Exit Do
+            Case Else
+                Print "Enter a choice from 1 through 5."
+                commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
+        End Select
+    Loop
+
+End Sub
+
+
+Sub AccessibleOpenHtmlBoxscore ()
+
+    htmlSeparator$ = "/"
+    If InStr(_OS$, "[WINDOWS]") > 0 Then htmlSeparator$ = "\"
+    htmlPath$ = _CWD$ + htmlSeparator$ + "accessible-boxscore.html"
+    Call AccessibleWriteHtmlBoxscore(htmlPath$)
+    Print "The accessible HTML box score has been created."
+    Print "The folder containing the accessible box score is opening."
+    Print "The file is named accessible-boxscore.html."
+    Print "Locate that file and press Enter to open it in your preferred browser."
+    localOsType$ = Left$(_OS$, InStr(2, _OS$, "[") - 1)
+    Select Case localOsType$
+        Case "[WINDOWS]"
+            launchCommand$ = "explorer.exe " + Chr$(34) + _CWD$ + Chr$(34)
+        Case "[MAC]", "[MACOSX]"
+            launchCommand$ = "open " + Chr$(34) + _CWD$ + Chr$(34)
+        Case Else
+            launchCommand$ = "xdg-open " + Chr$(34) + _CWD$ + Chr$(34)
+    End Select
+    Shell _DontWait launchCommand$
+    commandValue$ = AccessibleReadCommand$("After reviewing accessible-boxscore.html, return to the game and press Enter to continue: ")
+
+End Sub
+
+
+Sub AccessibleWriteHtmlBoxscore (htmlPath$)
+
+    htmlFile = FreeFile
+    Open htmlPath$ For Output As #htmlFile
+    Print #htmlFile, "<!doctype html>"
+    Print #htmlFile, "<html lang=" + Chr$(34) + "en" + Chr$(34) + "><head><meta charset=" + Chr$(34) + "utf-8" + Chr$(34) + ">"
+    Print #htmlFile, "<meta name=" + Chr$(34) + "viewport" + Chr$(34) + " content=" + Chr$(34) + "width=device-width, initial-scale=1" + Chr$(34) + ">"
+    Print #htmlFile, "<title>Box score: " + AccessibleHtml$(gameTeams$(0)) + " versus " + AccessibleHtml$(gameTeams$(1)) + "</title>"
+    Print #htmlFile, "<style>body{font-family:Arial,sans-serif;line-height:1.5;max-width:90rem;margin:1rem auto;padding:0 1rem;color:#111;background:#fff}table{border-collapse:collapse;width:100%;margin:1rem 0 2rem}caption{font-size:1.35rem;font-weight:bold;text-align:left;padding:.5rem 0}th,td{border:1px solid #555;padding:.45rem;text-align:right}th[scope=row]{text-align:left}thead th{background:#eee}tfoot th,tfoot td{font-weight:bold;background:#f4f4f4}.table-wrap{overflow-x:auto}</style></head><body><main>"
+    Print #htmlFile, "<h1>Courtside College Basketball box score</h1>"
+    If score(0, 0) > score(1, 0) Then
+        resultText$ = gameTeams$(0) + " defeated " + gameTeams$(1) + ", " + LTrim$(Str$(score(0, 0))) + " to " + LTrim$(Str$(score(1, 0))) + "."
+    ElseIf score(1, 0) > score(0, 0) Then
+        resultText$ = gameTeams$(1) + " defeated " + gameTeams$(0) + ", " + LTrim$(Str$(score(1, 0))) + " to " + LTrim$(Str$(score(0, 0))) + "."
+    Else
+        resultText$ = "The game ended tied at " + LTrim$(Str$(score(0, 0))) + "."
+    End If
+    Print #htmlFile, "<section aria-labelledby=" + Chr$(34) + "summary-heading" + Chr$(34) + "><h2 id=" + Chr$(34) + "summary-heading" + Chr$(34) + ">Game summary</h2>"
+    Print #htmlFile, "<p><strong>" + AccessibleHtml$(resultText$) + "</strong></p>"
+    Print #htmlFile, "<ul><li>First half: " + AccessibleHtml$(gameTeams$(0)) + " " + LTrim$(Str$(score(0, 1))) + ", " + AccessibleHtml$(gameTeams$(1)) + " " + LTrim$(Str$(score(1, 1))) + ".</li>"
+    Print #htmlFile, "<li>Second half: " + AccessibleHtml$(gameTeams$(0)) + " " + LTrim$(Str$(score(0, 2))) + ", " + AccessibleHtml$(gameTeams$(1)) + " " + LTrim$(Str$(score(1, 2))) + ".</li>"
+    If currHalf > 3 Then
+        For overtimeIdx = 3 To currHalf - 1
+            Print #htmlFile, "<li>Overtime " + LTrim$(Str$(overtimeIdx - 2)) + ": " + AccessibleHtml$(gameTeams$(0)) + " " + LTrim$(Str$(score(0, overtimeIdx))) + ", " + AccessibleHtml$(gameTeams$(1)) + " " + LTrim$(Str$(score(1, overtimeIdx))) + ".</li>"
+        Next overtimeIdx
+    End If
+    Print #htmlFile, "</ul></section>"
+    Print #htmlFile, "<p id=" + Chr$(34) + "table-help" + Chr$(34) + ">Each table uses player names as row headings and statistics as column headings. DNP means did not play.</p>"
+    Call AccessibleWriteHtmlTeamTable(htmlFile, 0)
+    Call AccessibleWriteHtmlTeamTable(htmlFile, 1)
+    Print #htmlFile, "</main></body></html>"
+    Close #htmlFile
+
+End Sub
+
+
+Sub AccessibleWriteHtmlTeamTable (htmlFile, teamIdx)
+
+    Erase statTotals
+    For playerIdx = 0 To 13
+        If players$(teamIdx, playerIdx) <> "XXX" Then
+            statTotals(0) = statTotals(0) + plyrOff_GAME!(teamIdx, playerIdx, 8)
+            statTotals(1) = statTotals(1) + plyrOff_GAME!(teamIdx, playerIdx, 7)
+            statTotals(2) = statTotals(2) + plyrOff_GAME!(teamIdx, playerIdx, 10)
+            statTotals(3) = statTotals(3) + plyrOff_GAME!(teamIdx, playerIdx, 9)
+            statTotals(5) = statTotals(5) + plyrOff_GAME!(teamIdx, playerIdx, 8) * 2 + plyrOff_GAME!(teamIdx, playerIdx, 10) + threeFG(teamIdx, playerIdx, 0)
+            statTotals(6) = statTotals(6) + plyrOff_GAME!(teamIdx, playerIdx, 12)
+            statTotals(7) = statTotals(7) + plyrOff_GAME!(teamIdx, playerIdx, 14)
+            statTotals(8) = statTotals(8) + plyrOff_GAME!(teamIdx, playerIdx, 15)
+            statTotals(9) = statTotals(9) + plyrOff_GAME!(teamIdx, playerIdx, 13)
+            statTotals(10) = statTotals(10) + timePlayed(teamIdx, playerIdx)
+            statTotals(11) = statTotals(11) + plyrOff_GAME!(teamIdx, playerIdx, 24)
+            statTotals(13) = statTotals(13) + threeFG(teamIdx, playerIdx, 0)
+            statTotals(14) = statTotals(14) + threeFG(teamIdx, playerIdx, 1)
+        End If
+    Next playerIdx
+
+    teamId$ = "team-" + LTrim$(Str$(teamIdx))
+    Print #htmlFile, "<section aria-labelledby=" + Chr$(34) + teamId$ + Chr$(34) + "><h2 id=" + Chr$(34) + teamId$ + Chr$(34) + ">" + AccessibleHtml$(gameTeams$(teamIdx)) + "</h2><div class=" + Chr$(34) + "table-wrap" + Chr$(34) + ">"
+    Print #htmlFile, "<table aria-describedby=" + Chr$(34) + "table-help" + Chr$(34) + "><caption>" + AccessibleHtml$(gameTeams$(teamIdx)) + " player and team statistics</caption>"
+    Print #htmlFile, "<thead><tr>"
+    Print #htmlFile, "<th scope=" + Chr$(34) + "col" + Chr$(34) + ">Player</th><th scope=" + Chr$(34) + "col" + Chr$(34) + ">Minutes</th><th scope=" + Chr$(34) + "col" + Chr$(34) + ">Field goals</th><th scope=" + Chr$(34) + "col" + Chr$(34) + ">Three-pointers</th><th scope=" + Chr$(34) + "col" + Chr$(34) + ">Free throws</th>"
+    Print #htmlFile, "<th scope=" + Chr$(34) + "col" + Chr$(34) + ">Offensive rebounds</th><th scope=" + Chr$(34) + "col" + Chr$(34) + ">Total rebounds</th><th scope=" + Chr$(34) + "col" + Chr$(34) + ">Points</th><th scope=" + Chr$(34) + "col" + Chr$(34) + ">Fouls</th><th scope=" + Chr$(34) + "col" + Chr$(34) + ">Assists</th><th scope=" + Chr$(34) + "col" + Chr$(34) + ">Blocks</th><th scope=" + Chr$(34) + "col" + Chr$(34) + ">Steals</th><th scope=" + Chr$(34) + "col" + Chr$(34) + ">Turnovers</th>"
+    Print #htmlFile, "</tr></thead><tbody>"
+    For playerIdx = 0 To 13
+        If players$(teamIdx, playerIdx) <> "XXX" Then
+            If timePlayed(teamIdx, playerIdx) = 0 Then
+                minutesText$ = "DNP"
+            Else
+                playerMinutes = Int(timePlayed(teamIdx, playerIdx) / 60)
+                playerSeconds = timePlayed(teamIdx, playerIdx) - playerMinutes * 60
+                minutesText$ = LTrim$(Str$(playerMinutes)) + ":" + Right$("0" + LTrim$(Str$(playerSeconds)), 2)
+            End If
+            playerPoints = plyrOff_GAME!(teamIdx, playerIdx, 8) * 2 + plyrOff_GAME!(teamIdx, playerIdx, 10) + threeFG(teamIdx, playerIdx, 0)
+            Print #htmlFile, "<tr><th scope=" + Chr$(34) + "row" + Chr$(34) + ">" + AccessibleHtml$(players$(teamIdx, playerIdx)) + "</th>"
+            Print #htmlFile, "<td>" + minutesText$ + "</td><td>" + LTrim$(Str$(plyrOff_GAME!(teamIdx, playerIdx, 8))) + " of " + LTrim$(Str$(plyrOff_GAME!(teamIdx, playerIdx, 7))) + "</td><td>" + LTrim$(Str$(threeFG(teamIdx, playerIdx, 0))) + " of " + LTrim$(Str$(threeFG(teamIdx, playerIdx, 1))) + "</td><td>" + LTrim$(Str$(plyrOff_GAME!(teamIdx, playerIdx, 10))) + " of " + LTrim$(Str$(plyrOff_GAME!(teamIdx, playerIdx, 9))) + "</td>"
+            Print #htmlFile, "<td>" + LTrim$(Str$(plyrOff_GAME!(teamIdx, playerIdx, 24))) + "</td><td>" + LTrim$(Str$(plyrOff_GAME!(teamIdx, playerIdx, 11))) + "</td><td>" + LTrim$(Str$(playerPoints)) + "</td><td>" + LTrim$(Str$(plyrOff_GAME!(teamIdx, playerIdx, 12))) + "</td><td>" + LTrim$(Str$(plyrOff_GAME!(teamIdx, playerIdx, 14))) + "</td><td>" + LTrim$(Str$(plyrOff_GAME!(teamIdx, playerIdx, 15))) + "</td><td>" + LTrim$(Str$(plyrOff_GAME!(teamIdx, playerIdx, 13))) + "</td><td>" + LTrim$(Str$(plyrOff_GAME!(teamIdx, playerIdx, 23))) + "</td></tr>"
+        End If
+    Next playerIdx
+    Print #htmlFile, "</tbody><tfoot><tr><th scope=" + Chr$(34) + "row" + Chr$(34) + ">Team totals</th>"
+    Print #htmlFile, "<td>" + LTrim$(Str$(Int(statTotals(10) / 60))) + "</td><td>" + LTrim$(Str$(statTotals(0))) + " of " + LTrim$(Str$(statTotals(1))) + "</td><td>" + LTrim$(Str$(statTotals(13))) + " of " + LTrim$(Str$(statTotals(14))) + "</td><td>" + LTrim$(Str$(statTotals(2))) + " of " + LTrim$(Str$(statTotals(3))) + "</td>"
+    Print #htmlFile, "<td>" + LTrim$(Str$(statTotals(11))) + "</td><td>" + LTrim$(Str$(teamRebounds(teamIdx))) + "</td><td>" + LTrim$(Str$(score(teamIdx, 0))) + "</td><td>" + LTrim$(Str$(statTotals(6))) + "</td><td>" + LTrim$(Str$(statTotals(7))) + "</td><td>" + LTrim$(Str$(statTotals(8))) + "</td><td>" + LTrim$(Str$(statTotals(9))) + "</td><td>" + LTrim$(Str$(turnovers(teamIdx))) + "</td></tr></tfoot></table></div></section>"
+
+End Sub
+
+
+Sub AccessiblePrintGameSummary ()
+
+    Cls
+    Print "Game summary."
+    If score(0, 0) > score(1, 0) Then
+        Print AccessibleTeamDisplay$(gameTeams$(0)); " defeated "; AccessibleTeamDisplay$(gameTeams$(1)); ", "; LTrim$(Str$(score(0, 0))); " to "; LTrim$(Str$(score(1, 0))); "."
+    ElseIf score(1, 0) > score(0, 0) Then
+        Print AccessibleTeamDisplay$(gameTeams$(1)); " defeated "; AccessibleTeamDisplay$(gameTeams$(0)); ", "; LTrim$(Str$(score(1, 0))); " to "; LTrim$(Str$(score(0, 0))); "."
+    Else
+        Print "The game ended tied at "; LTrim$(Str$(score(0, 0))); "."
+    End If
+    Print "First-half score: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 1))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 1))); "."
+    Print "Second-half scoring: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 2))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 2))); "."
+    If currHalf > 3 Then
+        For overtimeIdx = 3 To currHalf - 1
+            Print "Overtime "; LTrim$(Str$(overtimeIdx - 2)); " scoring: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, overtimeIdx))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, overtimeIdx))); "."
+        Next overtimeIdx
+    End If
+
+End Sub
+
+
+Sub AccessibleTeamBoxscoreMenu (teamIdx)
+
+    Do
+        Cls
+        Print AccessibleTeamDisplay$(gameTeams$(teamIdx)); " box score."
+        Print "1. Hear team totals."
+        Print "2. Hear player statistics."
+        Print "3. Hear the player list."
+        Print "4. Hear the other team."
+        Print "5. Return to postgame options."
+        commandValue$ = AccessibleReadCommand$("Enter choice: ")
+        Select Case commandValue$
+            Case "1"
+                Call AccessiblePrintTeamTotals(teamIdx)
+                commandValue$ = AccessibleReadCommand$("Press Enter to return to team box score options: ")
+            Case "2"
+                Call AccessiblePlayerBoxscoreMenu(teamIdx)
+            Case "3"
+                Call AccessiblePrintPlayerList(teamIdx)
+                commandValue$ = AccessibleReadCommand$("Press Enter to return to team box score options: ")
+            Case "4"
+                teamIdx = 1 - teamIdx
+            Case "5"
+                Exit Do
+            Case Else
+                Print "Enter a choice from 1 through 5."
+                commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
+        End Select
+    Loop
+
+End Sub
+
+
+Sub AccessiblePrintTeamTotals (teamIdx)
+
+    Erase statTotals
+    For playerIdx = 0 To 13
+        If players$(teamIdx, playerIdx) <> "XXX" Then
+            statTotals(0) = statTotals(0) + plyrOff_GAME!(teamIdx, playerIdx, 8)
+            statTotals(1) = statTotals(1) + plyrOff_GAME!(teamIdx, playerIdx, 7)
+            statTotals(2) = statTotals(2) + plyrOff_GAME!(teamIdx, playerIdx, 10)
+            statTotals(3) = statTotals(3) + plyrOff_GAME!(teamIdx, playerIdx, 9)
+            statTotals(4) = statTotals(4) + plyrOff_GAME!(teamIdx, playerIdx, 11)
+            statTotals(5) = statTotals(5) + plyrOff_GAME!(teamIdx, playerIdx, 8) * 2 + plyrOff_GAME!(teamIdx, playerIdx, 10) + threeFG(teamIdx, playerIdx, 0)
+            statTotals(6) = statTotals(6) + plyrOff_GAME!(teamIdx, playerIdx, 12)
+            statTotals(7) = statTotals(7) + plyrOff_GAME!(teamIdx, playerIdx, 14)
+            statTotals(8) = statTotals(8) + plyrOff_GAME!(teamIdx, playerIdx, 15)
+            statTotals(9) = statTotals(9) + plyrOff_GAME!(teamIdx, playerIdx, 13)
+            statTotals(10) = statTotals(10) + timePlayed(teamIdx, playerIdx)
+            statTotals(11) = statTotals(11) + plyrOff_GAME!(teamIdx, playerIdx, 24)
+            statTotals(13) = statTotals(13) + threeFG(teamIdx, playerIdx, 0)
+            statTotals(14) = statTotals(14) + threeFG(teamIdx, playerIdx, 1)
+        End If
+    Next playerIdx
+
+    Print AccessibleTeamDisplay$(gameTeams$(teamIdx)); " team totals."
+    Print LTrim$(Str$(score(teamIdx, 0))); " points."
+    Print "Field goals: "; LTrim$(Str$(statTotals(0))); " made of "; LTrim$(Str$(statTotals(1))); " attempted.";
+    If statTotals(1) > 0 Then Print " "; LTrim$(Str$(CInt(statTotals(0) / statTotals(1) * 100))); " percent." Else Print
+    Print "Three-pointers: "; LTrim$(Str$(statTotals(13))); " made of "; LTrim$(Str$(statTotals(14))); " attempted.";
+    If statTotals(14) > 0 Then Print " "; LTrim$(Str$(CInt(statTotals(13) / statTotals(14) * 100))); " percent." Else Print
+    Print "Free throws: "; LTrim$(Str$(statTotals(2))); " made of "; LTrim$(Str$(statTotals(3))); " attempted.";
+    If statTotals(3) > 0 Then Print " "; LTrim$(Str$(CInt(statTotals(2) / statTotals(3) * 100))); " percent." Else Print
+    Print "Offensive rebounds: "; LTrim$(Str$(statTotals(11))); "."
+    Print "Total rebounds: "; LTrim$(Str$(teamRebounds(teamIdx))); "."
+    Print "Personal fouls: "; LTrim$(Str$(statTotals(6))); "."
+    Print "Assists: "; LTrim$(Str$(statTotals(7))); "."
+    Print "Blocks: "; LTrim$(Str$(statTotals(8))); "."
+    Print "Steals: "; LTrim$(Str$(statTotals(9))); "."
+    Print "Turnovers: "; LTrim$(Str$(turnovers(teamIdx))); "."
+    Print "Combined player minutes: "; LTrim$(Str$(Int(statTotals(10) / 60))); "."
+
+End Sub
+
+
+Sub AccessiblePrintPlayerList (teamIdx)
+
+    Print AccessibleTeamDisplay$(gameTeams$(teamIdx)); " players."
+    For playerIdx = 0 To 13
+        If players$(teamIdx, playerIdx) <> "XXX" Then
+            playerPoints = plyrOff_GAME!(teamIdx, playerIdx, 8) * 2 + plyrOff_GAME!(teamIdx, playerIdx, 10) + threeFG(teamIdx, playerIdx, 0)
+            If timePlayed(teamIdx, playerIdx) = 0 Then
+                Print LTrim$(Str$(playerIdx + 1)); ". "; players$(teamIdx, playerIdx); ", did not play."
+            Else
+                Print LTrim$(Str$(playerIdx + 1)); ". "; players$(teamIdx, playerIdx); ", "; LTrim$(Str$(playerPoints)); " points."
+            End If
+        End If
+    Next playerIdx
+
+End Sub
+
+
+Sub AccessiblePlayerBoxscoreMenu (teamIdx)
+
+    playerIdx = 0
+    If IsAccessibleBoxscoreTransitionTestMode% = 1 Then playerIdx = 5
+    Do While playerIdx <= 13
+        If players$(teamIdx, playerIdx) <> "XXX" Then Exit Do
+        playerIdx = playerIdx + 1
+    Loop
+    If playerIdx > 13 Then Exit Sub
+
+    Do
+        Cls
+        Call AccessiblePrintPlayerStats(teamIdx, playerIdx)
+        Print
+        Print "Player options."
+        Print "1. Next player."
+        Print "2. Previous player."
+        Print "3. Repeat this player."
+        Print "4. Hear team totals."
+        Print "5. Hear the player list."
+        Print "6. Hear the other team."
+        Print "7. Return to team box score options."
+        commandValue$ = AccessibleReadCommand$("Enter choice: ")
+        Select Case commandValue$
+            Case "1"
+                nextPlayer = playerIdx + 1
+                Do While nextPlayer <= 13
+                    If players$(teamIdx, nextPlayer) <> "XXX" Then Exit Do
+                    nextPlayer = nextPlayer + 1
+                Loop
+                If nextPlayer <= 13 Then
+                    playerIdx = nextPlayer
+                ElseIf teamIdx = 0 Then
+                    Print "You have completed the visiting team player box score for "; AccessibleTeamDisplay$(gameTeams$(teamIdx)); "."
+                    Print "Moving to the home team player box score for "; AccessibleTeamDisplay$(gameTeams$(1)); "."
+                    commandValue$ = AccessibleReadCommand$("Press Enter to continue to the home team: ")
+                    teamIdx = 1
+                    playerIdx = 0
+                    If IsAccessibleBoxscoreTransitionTestMode% = 1 Then playerIdx = 5
+                    Do While playerIdx <= 13
+                        If players$(teamIdx, playerIdx) <> "XXX" Then Exit Do
+                        playerIdx = playerIdx + 1
+                    Loop
+                Else
+                    Print "You have completed the home team player box score for "; AccessibleTeamDisplay$(gameTeams$(teamIdx)); "."
+                    commandValue$ = AccessibleReadCommand$("Press Enter to return to team box score options: ")
+                    Exit Do
+                End If
+            Case "2"
+                nextPlayer = playerIdx - 1
+                Do While nextPlayer >= 0
+                    If players$(teamIdx, nextPlayer) <> "XXX" Then Exit Do
+                    nextPlayer = nextPlayer - 1
+                Loop
+                If nextPlayer >= 0 Then playerIdx = nextPlayer Else Print "This is the first player.": commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
+            Case "3"
+                'The loop repeats the current player.
+            Case "4"
+                Call AccessiblePrintTeamTotals(teamIdx)
+                commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
+            Case "5"
+                Call AccessiblePrintPlayerList(teamIdx)
+                commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
+            Case "6"
+                teamIdx = 1 - teamIdx
+                playerIdx = 0
+                Do While playerIdx <= 13
+                    If players$(teamIdx, playerIdx) <> "XXX" Then Exit Do
+                    playerIdx = playerIdx + 1
+                Loop
+            Case "7"
+                Exit Do
+            Case Else
+                Print "Enter a choice from 1 through 7."
+                commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
+        End Select
+    Loop
+
+End Sub
+
+
+Sub AccessiblePrintPlayerStats (teamIdx, playerIdx)
+
+    Print players$(teamIdx, playerIdx); "."
+    If timePlayed(teamIdx, playerIdx) = 0 Then
+        Print "Did not play."
+        Exit Sub
+    End If
+    playerPoints = plyrOff_GAME!(teamIdx, playerIdx, 8) * 2 + plyrOff_GAME!(teamIdx, playerIdx, 10) + threeFG(teamIdx, playerIdx, 0)
+    playerMinutes = Int(timePlayed(teamIdx, playerIdx) / 60)
+    playerSeconds = timePlayed(teamIdx, playerIdx) - playerMinutes * 60
+    Print "Minutes played: "; LTrim$(Str$(playerMinutes)); " minutes, "; LTrim$(Str$(playerSeconds)); " seconds."
+    Print "Points: "; LTrim$(Str$(playerPoints)); "."
+    Print "Field goals: "; LTrim$(Str$(plyrOff_GAME!(teamIdx, playerIdx, 8))); " made of "; LTrim$(Str$(plyrOff_GAME!(teamIdx, playerIdx, 7))); " attempted."
+    Print "Three-pointers: "; LTrim$(Str$(threeFG(teamIdx, playerIdx, 0))); " made of "; LTrim$(Str$(threeFG(teamIdx, playerIdx, 1))); " attempted."
+    Print "Free throws: "; LTrim$(Str$(plyrOff_GAME!(teamIdx, playerIdx, 10))); " made of "; LTrim$(Str$(plyrOff_GAME!(teamIdx, playerIdx, 9))); " attempted."
+    Print "Offensive rebounds: "; LTrim$(Str$(plyrOff_GAME!(teamIdx, playerIdx, 24))); "."
+    Print "Total rebounds: "; LTrim$(Str$(plyrOff_GAME!(teamIdx, playerIdx, 11))); "."
+    Print "Personal fouls: "; LTrim$(Str$(plyrOff_GAME!(teamIdx, playerIdx, 12))); "."
+    Print "Assists: "; LTrim$(Str$(plyrOff_GAME!(teamIdx, playerIdx, 14))); "."
+    Print "Blocks: "; LTrim$(Str$(plyrOff_GAME!(teamIdx, playerIdx, 15))); "."
+    Print "Steals: "; LTrim$(Str$(plyrOff_GAME!(teamIdx, playerIdx, 13))); "."
+    Print "Turnovers: "; LTrim$(Str$(plyrOff_GAME!(teamIdx, playerIdx, 23))); "."
+
+End Sub
+
+
+Sub AccessibleLoadBoxscoreFixture ()
+
+    Erase players$, plyrOff_GAME!, threeFG, timePlayed, score, teamRebounds, turnovers, timeouts
+    gameTeams$(0) = "DUKE"
+    gameTeams$(1) = "SYRACUSE"
+    score(0, 1) = 34: score(0, 2) = 38: score(0, 0) = 72
+    score(1, 1) = 37: score(1, 2) = 41: score(1, 0) = 78
+    timeouts(0) = 1: timeouts(1) = 2
+    teamRebounds(0) = 33: teamRebounds(1) = 37
+    turnovers(0) = 13: turnovers(1) = 11
+
+    For teamIdx = 0 To 1
+        For playerIdx = 0 To 13
+            players$(teamIdx, playerIdx) = "XXX"
+        Next playerIdx
+    Next teamIdx
+
+    players$(0, 0) = "J. ROACH": players$(0, 1) = "T. PROCTOR": players$(0, 2) = "K. FILIPOWSKI": players$(0, 3) = "M. MITCHELL": players$(0, 4) = "D. Lively": players$(0, 5) = "J. Blakes"
+    players$(1, 0) = "G. MCNAMARA": players$(1, 1) = "H. WARRICK": players$(1, 2) = "C. ANTHONY": players$(1, 3) = "C. FORTH": players$(1, 4) = "K. DUANY": players$(1, 5) = "B. EDELIN"
+
+    For teamIdx = 0 To 1
+        For playerIdx = 0 To 4
+            timePlayed(teamIdx, playerIdx) = 2400
+            plyrOff_GAME!(teamIdx, playerIdx, 7) = 8 + playerIdx
+            plyrOff_GAME!(teamIdx, playerIdx, 8) = 3 + (playerIdx Mod 3)
+            threeFG(teamIdx, playerIdx, 1) = 2 + playerIdx
+            threeFG(teamIdx, playerIdx, 0) = playerIdx Mod 3
+            plyrOff_GAME!(teamIdx, playerIdx, 9) = 4
+            plyrOff_GAME!(teamIdx, playerIdx, 10) = 3
+            plyrOff_GAME!(teamIdx, playerIdx, 24) = playerIdx Mod 2
+            plyrOff_GAME!(teamIdx, playerIdx, 11) = 3 + playerIdx
+            plyrOff_GAME!(teamIdx, playerIdx, 12) = 2
+            plyrOff_GAME!(teamIdx, playerIdx, 14) = 1 + playerIdx
+            plyrOff_GAME!(teamIdx, playerIdx, 15) = playerIdx Mod 2
+            plyrOff_GAME!(teamIdx, playerIdx, 13) = playerIdx Mod 3
+            plyrOff_GAME!(teamIdx, playerIdx, 23) = 1 + (playerIdx Mod 2)
+        Next playerIdx
+        'Exercise a did-not-play player before the final roster entry.
+        timePlayed(teamIdx, 5) = timePlayed(teamIdx, 4)
+        For fixtureStat = 0 To 24
+            plyrOff_GAME!(teamIdx, 5, fixtureStat) = plyrOff_GAME!(teamIdx, 4, fixtureStat)
+        Next fixtureStat
+        threeFG(teamIdx, 5, 0) = threeFG(teamIdx, 4, 0)
+        threeFG(teamIdx, 5, 1) = threeFG(teamIdx, 4, 1)
+        timePlayed(teamIdx, 4) = 0
+        For fixtureStat = 0 To 24
+            plyrOff_GAME!(teamIdx, 4, fixtureStat) = 0
+        Next fixtureStat
+        threeFG(teamIdx, 4, 0) = 0: threeFG(teamIdx, 4, 1) = 0
+    Next teamIdx
+
+    'Keep the fixture internally consistent with the displayed final score.
+    plyrOff_GAME!(0, 0, 8) = 8: plyrOff_GAME!(0, 0, 7) = 12
+    threeFG(0, 0, 0) = 1: threeFG(0, 0, 1) = 3
+    plyrOff_GAME!(0, 0, 10) = 7: plyrOff_GAME!(0, 0, 9) = 8
+    plyrOff_GAME!(1, 0, 8) = 10: plyrOff_GAME!(1, 0, 7) = 14
+    threeFG(1, 0, 0) = 2: threeFG(1, 0, 1) = 4
+    plyrOff_GAME!(1, 0, 10) = 8: plyrOff_GAME!(1, 0, 9) = 10
+
+End Sub
+
+
+Function AccessibleReadPassChoice% (teamIdx) Static
+
+    Print
+    Print "Choose who receives the pass for "; AccessibleTeamDisplay$(gameTeams$(teamIdx)); "."
+    For slot = 0 To 4
+        Print LTrim$(Str$(slot + 1)); ". "; AccessibleLineupRole$(slot); ": "; players$(teamIdx, lineupIdx(teamIdx, slot)); "."
+    Next slot
+    Do
+        commandValue$ = AccessibleReadCommand$("Enter a player number: ")
+        selectedNumber = Val(commandValue$)
+        If selectedNumber >= 1 And selectedNumber <= 5 And LTrim$(Str$(selectedNumber)) = commandValue$ Then
+            AccessibleReadPassChoice% = selectedNumber - 1
+            'Remove the completed recipient list before the simulator narrates the
+            'resulting pass, preventing a screen reader from revisiting the list and
+            'the preceding play as part of the new console update.
+            Cls
+            Exit Function
+        End If
+        Print "Enter a displayed player number from 1 through 5."
+    Loop
+
+End Function
+
+
+Function AccessibleReadDefenderChoice% (teamIdx) Static
+
+    Do
+        Print
+        Print "Choose the defender for "; AccessibleTeamDisplay$(gameTeams$(teamIdx)); "."
+        For slot = 0 To 4
+            Print LTrim$(Str$(slot + 1)); ". "; AccessibleLineupRole$(slot); ": "; players$(teamIdx, lineupIdx(teamIdx, slot)); "."
+        Next slot
+        commandValue$ = AccessibleReadCommand$("Enter a defender number, or repeat: ")
+        If commandValue$ = "repeat" Or commandValue$ = "list" Then
+            Print "Repeating the defender choices."
+            _Continue
+        End If
+        selectedNumber = Val(commandValue$)
+        If selectedNumber >= 1 And selectedNumber <= 5 And LTrim$(Str$(selectedNumber)) = commandValue$ Then
+            AccessibleReadDefenderChoice% = selectedNumber - 1
+            Print "Selected "; players$(teamIdx, lineupIdx(teamIdx, selectedNumber - 1)); " to commit the foul."
+            Exit Function
+        End If
+        Print "Enter a displayed defender number from 1 through 5, or repeat."
+    Loop
+
+End Function
+
+
+Function AccessibleReadStrategicFoulChoice% (defendingTeam) Static
+
+    AccessibleReadStrategicFoulChoice% = 0
+    Call AccessibleFlushPbp
+    Do
+        Cls
+        Print "Late-game defensive decision."
+        Call AccessiblePrintGameStatus
+        Print AccessibleTeamDisplay$(gameTeams$(P)); " has the ball and is ahead."
+        Print "Should "; AccessibleTeamDisplay$(gameTeams$(defendingTeam)); " foul to stop the clock?"
+        Print "1. Continue defending without fouling."
+        Print "2. Foul and choose the defender."
+        commandValue$ = AccessibleReadCommand$("Enter choice: ")
+        Select Case commandValue$
+            Case "1", "no", "n", "continue", "defend"
+                Exit Function
+            Case "2", "yes", "y", "foul"
+                AccessibleReadStrategicFoulChoice% = 1
+                Exit Function
+            Case Else
+                Print "Enter 1 to continue defending or 2 to foul."
+                commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
+        End Select
+    Loop
+
+End Function
+
+
+Function AccessibleReadPlayChoice% (teamIdx) Static
+
+    Shared threePtShotChance
+    accessibleEngineHumanPrompted = 1
+    Do
+        'The previous decision clears its completed screen before the simulator
+        'generates another play. Flush new narration onto that already-clean screen
+        'so a screen reader does not revisit the prior play during this refresh.
+        savedPauseEvents = accessiblePauseEvents
+        accessiblePauseEvents = 0
+        Call AccessibleFlushPbp
+        accessiblePauseEvents = savedPauseEvents
+        Print
+        Print "Your team, "; AccessibleTeamDisplay$(gameTeams$(teamIdx)); ", is on offense."
+        Print players$(teamIdx, lineupIdx(teamIdx, ballCarrier)); " has the ball."
+        If sClockVal > 0 Then Print "Shot clock: "; LTrim$(Str$(shotClock)); " seconds remaining."
+        If shotType = 4 Then
+            Print "Current three-point shot chance: "; LTrim$(Str$(threePtShotChance)); " percent."
+        Else
+            Print "Current two-point shot chance: "; LTrim$(Str$(CInt(shotChance!))); " percent."
+        End If
+        Select Case shotType
+            Case 1
+                Print "Current situation: tightly guarded."
+            Case 2
+                Print "Current situation: open inside."
+            Case 3
+                Print "Current situation: good opportunity close to the basket."
+            Case 4
+                Print "Current situation: open from three-point range."
+            Case Else
+                Print "Current situation: normal defensive coverage."
+        End Select
+        Print "Offensive choices"
+        Print "1. Pass."
+        Print "2. Attempt a two-point shot."
+        If threePtOpt = 1 Then Print "3. Attempt a three-point shot."
+        Print "4. Call timeout."
+        Print "5. Hear score, clock, and possession."
+        Print "6. Hear lineup condition."
+        Print "7. Hear game clock."
+        commandValue$ = AccessibleReadCommand$("Enter choice: ")
+
+        Select Case commandValue$
+            Case "1", "pass"
+                AccessibleReadPlayChoice% = 0
+                Cls
+                Exit Function
+            Case "2", "shoot 2", "shoot2", "two"
+                AccessibleReadPlayChoice% = 1
+                Cls
+                Exit Function
+            Case "3", "shoot 3", "shoot3", "three"
+                If threePtOpt = 1 Then
+                    AccessibleReadPlayChoice% = 4
+                    Cls
+                    Exit Function
+                Else
+                    Print "The three-point shot is disabled for this game."
+                End If
+            Case "4", "timeout", "time out"
+                If timeouts(teamIdx) > 0 Then
+                    accessibleTimeoutMenuPending = 1
+                    AccessibleReadPlayChoice% = 2
+                    Cls
+                    Exit Function
+                Else
+                    Print "Your team has no timeouts remaining."
+                End If
+            Case "5", "status", "score"
+                Call AccessibleReviewStatus(0)
+            Case "7", "clock"
+                Call AccessibleReviewStatus(1)
+            Case "6", "lineup", "condition", "fatigue", "stamina"
+                Call AccessiblePrintLineupCondition(teamIdx)
+                commandValue$ = AccessibleReadCommand$("Press Enter to return to offensive choices: ")
+            Case Else
+                If threePtOpt = 1 Then Print "Enter a choice from 1 through 7." Else Print "Enter 1, 2, 4, 5, 6, or 7."
+        End Select
+        Cls
+    Loop
+
+End Function
+
+
+Sub AccessiblePrintLineupCondition (teamIdx)
+
+    Print
+    Print "Lineup condition for "; AccessibleTeamDisplay$(gameTeams$(teamIdx)); "."
+    For slot = 0 To 4
+        playerIdx = lineupIdx(teamIdx, slot)
+        Print AccessibleLineupRole$(slot); ": "; players$(teamIdx, playerIdx); ", stamina "; LTrim$(Str$(playerStamina%(teamIdx, playerIdx))); ", fatigue "; LTrim$(Str$(Abs(tmFatigue(teamIdx, playerIdx)))); " of 5."
+    Next slot
+
+End Sub
+
+
+Sub AccessiblePrintGameClock ()
+
+    remainingSeconds = Int(gameClock!)
+    If remainingSeconds < 0 Then remainingSeconds = 0
+    clockMinutes = Int(remainingSeconds / 60)
+    clockSeconds = remainingSeconds - clockMinutes * 60
+    clockText$ = ""
+    If clockMinutes > 0 Then
+        clockText$ = LTrim$(Str$(clockMinutes)) + " minute"
+        If clockMinutes <> 1 Then clockText$ = clockText$ + "s"
+    End If
+    If clockSeconds > 0 Or clockMinutes = 0 Then
+        If clockText$ <> "" Then clockText$ = clockText$ + " "
+        clockText$ = clockText$ + LTrim$(Str$(clockSeconds)) + " second"
+        If clockSeconds <> 1 Then clockText$ = clockText$ + "s"
+    End If
+    Select Case currHalf
+        Case 1: periodText$ = "First half"
+        Case 2: periodText$ = "Second half"
+        Case Else: periodText$ = "Overtime " + LTrim$(Str$(currHalf - 2))
+    End Select
+    Print periodText$; ", "; clockText$; " remaining."
+
+End Sub
+
+
+Sub AccessibleReviewStatus (clockOnly)
+
+    If clockOnly Then Call AccessiblePrintGameClock Else Call AccessiblePrintGameStatus
+    Do
+        reviewCommand$ = AccessibleReadCommand$("Press Enter to return to offensive choices, or type clock to hear the time again: ")
+        Select Case reviewCommand$
+            Case "": Exit Do
+            Case "clock": Call AccessiblePrintGameClock
+            Case Else: Print "Press Enter to return, or type clock."
+        End Select
+    Loop
+
+End Sub
+
+
+Sub AccessiblePrintGameStatus ()
+
+    Print "Score: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(score(0, 0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(score(1, 0))); "."
+    Call AccessiblePrintGameClock
+    Print "Possession: "; AccessibleTeamDisplay$(gameTeams$(P)); "."
+    If sClockVal > 0 Then Print "Shot clock: "; LTrim$(Str$(shotClock)); "."
+    Print "Offensive strategy: "; AccessibleTeamDisplay$(gameTeams$(P)); " is running "; _Trim$(offStylesNew$(offStrat(P))); "."
+    Print "Defensive strategy: "; AccessibleTeamDisplay$(gameTeams$(D)); " is running "; _Trim$(defStyles$(defStrat(D))); "."
+
+End Sub
+
+
+Sub AccessibleQueuePbp (teamIdx, eventText$)
+    If accessibleEngineStopRequested = 1 Then Exit Sub
+
+    If eventText$ = "" Then Exit Sub
+    If accessiblePbpGroupCount > 0 And teamIdx <> accessiblePbpGroupTeam Then Call AccessibleFlushPbp
+    If accessiblePbpGroupCount = 0 Then accessiblePbpGroupTeam = teamIdx
+    accessiblePbpGroupCount = accessiblePbpGroupCount + 1
+    accessibleNarrationSequence& = accessibleNarrationSequence& + 1
+    accessiblePbpGroup$(accessiblePbpGroupCount) = eventText$
+    accessiblePbpGroupSequence&(accessiblePbpGroupCount) = accessibleNarrationSequence&
+    If accessibleNarrationDiagnosticActive = 1 Then
+        Print #accessibleNarrationDiagnosticFile, "QUEUE|sequence="; LTrim$(Str$(accessibleNarrationSequence&)); "|possession="; LTrim$(Str$(accessibleEnginePossessions)); "|team="; LTrim$(Str$(teamIdx)); "|slot="; LTrim$(Str$(accessiblePbpGroupCount)); "|text="; eventText$
+    End If
+    accessibleLastPbp$ = eventText$
+    If accessiblePbpGroupCount >= 3 Then Call AccessibleFlushPbp
+
+End Sub
+
+
+Sub AccessibleFlushPbp ()
+
+    If accessiblePbpGroupCount = 0 Then Exit Sub
+    If accessibleNarrationDiagnosticActive = 1 Then
+        Print #accessibleNarrationDiagnosticFile, "FLUSH_BEGIN|possession="; LTrim$(Str$(accessibleEnginePossessions)); "|team="; LTrim$(Str$(accessiblePbpGroupTeam)); "|count="; LTrim$(Str$(accessiblePbpGroupCount))
+    End If
+    If accessiblePauseEvents = 1 Then Cls
+    Print "Play-by-play: "; AccessibleTeamDisplay$(gameTeams$(accessiblePbpGroupTeam)); "."
+    For eventIdx = 1 To accessiblePbpGroupCount
+        Print accessiblePbpGroup$(eventIdx)
+        If accessibleNarrationDiagnosticActive = 1 Then
+            Print #accessibleNarrationDiagnosticFile, "PRINT|sequence="; LTrim$(Str$(accessiblePbpGroupSequence&(eventIdx))); "|possession="; LTrim$(Str$(accessibleEnginePossessions)); "|team="; LTrim$(Str$(accessiblePbpGroupTeam)); "|text="; accessiblePbpGroup$(eventIdx)
+        End If
+    Next eventIdx
+    If accessiblePauseEvents = 1 Then
+        Do
+            accessibleContinue$ = AccessibleReadCommand$("Press Enter to continue, or type end to finish this segment: ")
+            Select Case accessibleContinue$
+                Case "", "continue": Exit Do
+                Case "end", "quit", "q"
+                    accessibleEngineStopRequested = 1
+                    Exit Do
+                Case "clock": Call AccessiblePrintGameClock
+                Case Else: Print "Press Enter to continue, or type clock or end."
+            End Select
+        Loop
+    End If
+    accessiblePbpGroupCount = 0
+    accessiblePbpGroupTeam = -1
+    Erase accessiblePbpGroup$
+    Erase accessiblePbpGroupSequence&
+    If accessibleNarrationDiagnosticActive = 1 Then Print #accessibleNarrationDiagnosticFile, "FLUSH_END"
+
+End Sub
+
+
+Sub AccessibleStartNarrationDiagnostic ()
+
+    accessibleNarrationDiagnosticActive = IsAccessibleNarrationDiagnosticMode%
+    accessibleNarrationSequence& = 0
+    If accessibleNarrationDiagnosticActive = 0 Then Exit Sub
+    accessibleNarrationDiagnosticFile = FreeFile
+    Open "accessible-narration.log" For Output As #accessibleNarrationDiagnosticFile
+    Print #accessibleNarrationDiagnosticFile, "Accessible narration diagnostic"
+    Print #accessibleNarrationDiagnosticFile, "Each sequence number should have one QUEUE record and one PRINT record."
+
+End Sub
+
+
+Sub AccessibleStopNarrationDiagnostic ()
+
+    If accessibleNarrationDiagnosticActive = 0 Then Exit Sub
+    Print #accessibleNarrationDiagnosticFile, "DIAGNOSTIC_END|sequences="; LTrim$(Str$(accessibleNarrationSequence&))
+    Close #accessibleNarrationDiagnosticFile
+    accessibleNarrationDiagnosticActive = 0
+    accessibleNarrationDiagnosticFile = 0
+
+End Sub
+
+
+Sub AccessibleDeadBallMenu (humanTeam, userTakeTO)
+
+    userTakeTO = 0
+    timeoutCharged = accessibleTimeoutMenuPending
+    If timeoutCharged = 1 Then
+        'The timeout menu immediately confirms the stoppage, so do not require a
+        'separate Enter press for the queued timeout play-by-play message.
+        savedPauseEvents = accessiblePauseEvents
+        accessiblePauseEvents = 0
+        Call AccessibleFlushPbp
+        accessiblePauseEvents = savedPauseEvents
+    Else
+        Call AccessibleFlushPbp
+    End If
+    Do
+        Cls
+        If timeoutCharged = 1 Then
+            Print "Timeout options for "; AccessibleTeamDisplay$(gameTeams$(humanTeam)); "."
+            Print "You may make substitutions before continuing play."
+            Print "Timeouts remaining: "; AccessibleTeamDisplay$(gameTeams$(0)); " "; LTrim$(Str$(timeouts(0))); ", "; AccessibleTeamDisplay$(gameTeams$(1)); " "; LTrim$(Str$(timeouts(1))); "."
+        Else
+            Print "Dead-ball options for "; AccessibleTeamDisplay$(gameTeams$(humanTeam)); "."
+        End If
+        Call AccessiblePrintGameStatus
+        Print "1. Continue play."
+        Print "2. Make a substitution."
+        Print "3. Hear the current lineup."
+        Print "4. Change offensive style."
+        Print "5. Change defensive style."
+        Print "6. Call timeout."
+        Print "7. End this game segment."
+        commandValue$ = AccessibleReadCommand$("Enter choice: ")
+        Select Case commandValue$
+            Case "1", "continue", "play", "enter"
+                Exit Do
+            Case "2", "sub", "substitute", "substitution"
+                substitutionResult = AccessibleSubstitutionMenu%(humanTeam, timeoutCharged * 2)
+            Case "3", "lineup", "roster"
+                If humanTeam = 0 Then roleName$ = "Visiting" Else roleName$ = "Home"
+                Call AccessiblePrintLineup(humanTeam, roleName$)
+            Case "4", "offense", "offensive style"
+                ignoredChoice = AccessibleChooseOffense%(humanTeam)
+            Case "5", "defense", "defensive style", "strategy"
+                ignoredChoice = AccessibleChooseDefense%(humanTeam)
+            Case "6", "timeout", "time out"
+                If timeouts(humanTeam) > 0 Then
+                    Call TimeoutCalled(humanTeam)
+                    timeoutCharged = 1
+                    Print "Timeout charged to "; AccessibleTeamDisplay$(gameTeams$(humanTeam)); "."
+                    Print "You may now make a substitution or choose another timeout option."
+                Else
+                    Print "Your team has no timeouts remaining."
+                End If
+            Case "7", "end", "quit", "exit", "q"
+                accessibleEngineStopRequested = 1
+                Exit Do
+            Case Else
+                Print "Enter a choice from 1 through 7."
+        End Select
+    Loop
+    accessibleTimeoutMenuPending = 0
+
+End Sub
+
+
+Sub AccessibleReplaceFouledOutPlayer (humanTeam, fouledSlot)
+
+    outgoingPlayer = lineupIdx(humanTeam, fouledSlot)
+    Cls
+    Do
+        Print players$(humanTeam, outgoingPlayer); " has fouled out."
+        Print "Choose a replacement for "; LCase$(AccessibleLineupRole$(fouledSlot)); "."
+        Print "A valid replacement is required before play can resume. Back and Cancel are unavailable."
+        Print "Available substitutes"
+        For playerIdx = 0 To 13
+            If playerActive%(humanTeam, playerIdx) = 1 And playerInLineup%(humanTeam, playerIdx) = 0 And plyrOff_GAME!(humanTeam, playerIdx, 12) < foulsToDQ And players$(humanTeam, playerIdx) <> "" And UCase$(players$(humanTeam, playerIdx)) <> "XXX" Then
+                Print LTrim$(Str$(playerIdx + 1)); ". "; players$(humanTeam, playerIdx); ", "; AccessiblePlayerPosition$(humanTeam, playerIdx); ", fouls "; LTrim$(Str$(plyrOff_GAME!(humanTeam, playerIdx, 12))); "."
+            End If
+        Next playerIdx
+
+        commandValue$ = AccessibleReadCommand$("Choose a displayed substitute number: ")
+        selectedPlayer = Val(commandValue$) - 1
+        validSelection = 1
+        If selectedPlayer < 0 Or selectedPlayer > 13 Then validSelection = 0
+        If validSelection = 1 Then
+            If LTrim$(Str$(selectedPlayer + 1)) <> commandValue$ Then validSelection = 0
+        End If
+        If validSelection = 1 Then
+            If playerActive%(humanTeam, selectedPlayer) = 0 Then validSelection = 0
+            If playerInLineup%(humanTeam, selectedPlayer) = 1 Then validSelection = 0
+            If plyrOff_GAME!(humanTeam, selectedPlayer, 12) >= foulsToDQ Then validSelection = 0
+            If players$(humanTeam, selectedPlayer) = "" Or UCase$(players$(humanTeam, selectedPlayer)) = "XXX" Then validSelection = 0
+        End If
+        If validSelection = 0 Then Print "That player is not an available substitute."
+    Loop Until validSelection = 1
+
+    Call ApplySubstitutionRest(humanTeam, outgoingPlayer, selectedPlayer)
+    lineupIdx(humanTeam, fouledSlot) = selectedPlayer
+    Print players$(humanTeam, selectedPlayer); " replaces "; players$(humanTeam, outgoingPlayer); " as "; LCase$(AccessibleLineupRole$(fouledSlot)); "."
+    commandValue$ = AccessibleReadCommand$("Press Enter to continue: ")
+
+End Sub
+
+
+Sub AccessibleDefPlaySafeNormal (teamIdx)
+
+    Dim playerPos(5)
+
+    Do
+        Cls
+        choiceCount = 0
+        For slot = 0 To 4
+            If plyrOff_GAME!(teamIdx, lineupIdx(teamIdx, slot), 22) = 50 Then
+                choiceCount = choiceCount + 1
+                playerPos(choiceCount) = slot
+            End If
+        Next slot
+        If choiceCount = 0 Then Exit Do
+        Print "Players currently playing safe who can return to normal defense"
+        For choiceIdx = 1 To choiceCount
+            slot = playerPos(choiceIdx)
+            Print LTrim$(Str$(choiceIdx)); ". "; players$(teamIdx, lineupIdx(teamIdx, slot))
+        Next choiceIdx
+
+        commandValue$ = AccessibleReadCommand$("Choose a player number to return to normal defense, or press Enter to continue: ")
+        If commandValue$ = "" Or commandValue$ = "continue" Or commandValue$ = "c" Or commandValue$ = "z" Then Exit Do
+        selectedChoice = Val(commandValue$)
+        validSelection = 1
+        If selectedChoice < 1 Or selectedChoice > choiceCount Then validSelection = 0
+        If validSelection = 1 Then
+            If LTrim$(Str$(selectedChoice)) <> commandValue$ Then validSelection = 0
+        End If
+        If validSelection = 0 Then
+            Print "Enter one of the displayed player numbers, or press Enter to continue."
+        Else
+            selectedSlot = playerPos(selectedChoice)
+            selectedPlayer = lineupIdx(teamIdx, selectedSlot)
+            plyrOff_GAME!(teamIdx, selectedPlayer, 17) = plyrOff_GAME!(teamIdx, selectedPlayer, 17) * 3
+            plyrOff_GAME!(teamIdx, selectedPlayer, 22) = 0
+            Print players$(teamIdx, selectedPlayer); " will now play normal defense."
+            Call StealAdjustments
+            dFG_Pct_Adj(teamIdx) = dFG_Pct_Adj(teamIdx) - 1
+            commandValue$ = AccessibleReadCommand$("Press Enter to return to the defensive safety choices: ")
+        End If
+    Loop
+
+    Do
+        Cls
+        choiceCount = 0
+        For slot = 0 To 4
+            selectedPlayer = lineupIdx(teamIdx, slot)
+            If plyrOff_GAME!(teamIdx, selectedPlayer, 22) = 0 And foulTrouble%(teamIdx, selectedPlayer) = 1 Then
+                choiceCount = choiceCount + 1
+                playerPos(choiceCount) = slot
+            End If
+        Next slot
+        If choiceCount = 0 Then Exit Do
+        Print "Players in foul trouble who can be made to play safe"
+        For choiceIdx = 1 To choiceCount
+            slot = playerPos(choiceIdx)
+            Print LTrim$(Str$(choiceIdx)); ". "; players$(teamIdx, lineupIdx(teamIdx, slot))
+        Next choiceIdx
+
+        commandValue$ = AccessibleReadCommand$("Choose a player number to play safe, or press Enter to continue the game: ")
+        If commandValue$ = "" Or commandValue$ = "continue" Or commandValue$ = "c" Or commandValue$ = "z" Then Exit Do
+        selectedChoice = Val(commandValue$)
+        validSelection = 1
+        If selectedChoice < 1 Or selectedChoice > choiceCount Then validSelection = 0
+        If validSelection = 1 Then
+            If LTrim$(Str$(selectedChoice)) <> commandValue$ Then validSelection = 0
+        End If
+        If validSelection = 0 Then
+            Print "Enter one of the displayed player numbers, or press Enter to continue the game."
+        Else
+            selectedSlot = playerPos(selectedChoice)
+            selectedPlayer = lineupIdx(teamIdx, selectedSlot)
+            plyrOff_GAME!(teamIdx, selectedPlayer, 17) = Int((plyrOff_GAME!(teamIdx, selectedPlayer, 17) + 1) / 3)
+            plyrOff_GAME!(teamIdx, selectedPlayer, 22) = 50
+            Print players$(teamIdx, selectedPlayer); " will now play safe."
+            Call StealAdjustments
+            dFG_Pct_Adj(teamIdx) = dFG_Pct_Adj(teamIdx) + 1
+            commandValue$ = AccessibleReadCommand$("Press Enter to return to the defensive safety choices: ")
+        End If
+    Loop
+
+    MJ = 0
+    Call CheckGameClock
+    Call StealAdjustments
+
+End Sub
+
+
+Function AccessiblePrepareMatchup% (visitorYear$, homeYear$, visitorIdx, homeIdx) Static
+
+    Shared FY%()
+    Shared rosterStatus()
+
+    AccessiblePrepareMatchup% = 0
+
+    For gameIdx = 0 To 1
+        If gameIdx = 0 Then
+            selectedIdx = visitorIdx
+            targetYear$ = visitorYear$
+        Else
+            selectedIdx = homeIdx
+            targetYear$ = homeYear$
+        End If
+
+        If accessibleSetupLoadedYear$(gameIdx) <> targetYear$ Or accessibleSetupLoadedIdx(gameIdx) <> selectedIdx Then
+            If accessibleSetupLoadedIdx(gameIdx) > 0 Then Print "Team changed. Review the new lineup and strategies for this team."
+            accessibleSetupLineupCount(gameIdx) = 0
+            accessibleSetupLoadedIdx(gameIdx) = 0
+            For setupSlot = 0 To 4
+                lineupIdx(gameIdx, setupSlot) = -1
+            Next setupSlot
+            For setupPlayer = 0 To 13
+                rosterStatus(gameIdx, setupPlayer) = 0
+            Next setupPlayer
+            offStrat(gameIdx) = 0: defStrat(gameIdx) = 0
+            crashBoards(gameIdx) = 0
+            Call CategorizeDefense(gameIdx)
+            diskIDs$(gameIdx) = targetYear$
+            teamGender$(gameIdx) = GetTeamGender$(targetYear$)
+            teamYears(gameIdx) = Val(targetYear$)
+
+            Call ReadGameTeam(targetYear$, gameTeams$(gameIdx), selectedIdx, gameIdx)
+            validData = 0
+            Call ReadGameExtraData(targetYear$, selectedIdx, gameIdx, validData)
+            If validData = 0 Then
+                Print "The data for "; AccessibleTeamDisplay$(gameTeams$(gameIdx)); " could not be loaded."
+                Exit Function
+            End If
+
+            FY%(gameIdx) = 2 * teamRat_GAME(gameIdx, 3) - teamRat_GAME(gameIdx, 4)
+            Call StartingLineup(gameIdx)
+            Call TEAMSETUP(gameIdx)
+            accessibleSetupLoadedYear$(gameIdx) = targetYear$
+            accessibleSetupLoadedIdx(gameIdx) = selectedIdx
+        End If
+    Next gameIdx
+
+    Print
+    Print "Teams loaded successfully."
+    AccessiblePrepareMatchup% = 1
+
+End Function
+
+
+Sub AccessibleShowLoadedTeam (gameIdx, roleName$)
+
+    Print
+    Print roleName$; " team: "; AccessibleTeamDisplay$(gameTeams$(gameIdx))
+    If gameCoaches$(gameIdx) <> "" Then Print "Coach: "; gameCoaches$(gameIdx)
+    If gameArena$(gameIdx) <> "" Then Print "Arena: "; gameArena$(gameIdx)
+    Print "Roster:"
+    rosterNumber = 0
+    For playerIdx = 0 To 13
+        If players$(gameIdx, playerIdx) <> "" And UCase$(players$(gameIdx, playerIdx)) <> "XXX" Then
+            rosterNumber = rosterNumber + 1
+            Print LTrim$(Str$(rosterNumber)); ". "; players$(gameIdx, playerIdx); ", "; AccessiblePlayerPosition$(gameIdx, playerIdx);
+            If playerActive%(gameIdx, playerIdx) = 0 Then Print ", unavailable";
+            Print "."
+        End If
+    Next playerIdx
+
+End Sub
+
+
+Function AccessibleChooseOffense% (gameIdx) Static
+
+    AccessibleChooseOffense% = 0
+    Do
+        Print
+        Print "Offensive style for "; AccessibleTeamDisplay$(gameTeams$(gameIdx)); "."
+        Print "Current style: "; offStylesNew$(offStrat(gameIdx)); "."
+        For offenseIdx = 0 To 15
+            Print LTrim$(Str$(offenseIdx + 1)); ". "; offStylesNew$(offenseIdx); "."
+        Next offenseIdx
+        If accessibleSetupActive Then
+            Print "98. Keep current style and continue."
+            Call AccessibleSetupNavigation(accessibleSetupBackLabel$)
+        End If
+        If accessibleSetupActive Then
+            commandValue$ = AccessibleReadCommand$("Enter choice: ")
+        Else
+            Print "0. Back without changing style."
+            commandValue$ = AccessibleReadCommand$("Choose an offensive style from 1 through 16, or 0 for Back: ")
+        End If
+        If accessibleSetupActive Then
+            If commandValue$ = "99" Or commandValue$ = "cancel" Or commandValue$ = "exit" Then AccessibleChooseOffense% = -1: Exit Function
+            If commandValue$ = "0" Or commandValue$ = "back" Then Exit Function
+            If commandValue$ = "98" Or commandValue$ = "keep" Then commandValue$ = LTrim$(Str$(offStrat(gameIdx) + 1))
+        Else
+            If commandValue$ = "0" Or commandValue$ = "back" Or commandValue$ = "cancel" Then Exit Function
+        End If
+        selectedNumber = Val(commandValue$)
+        If selectedNumber >= 1 And selectedNumber <= 16 And LTrim$(Str$(selectedNumber)) = commandValue$ Then
+            selectedOffense = selectedNumber - 1
+            invalidReason$ = ""
+            If (selectedOffense = 9 Or selectedOffense = 10 Or selectedOffense = 13 Or selectedOffense = 15) And (currHalf < 2 Or gameClock! > 180) Then invalidReason$ = "That offensive style is only available during the last three minutes of the second half or overtime."
+            If selectedOffense = 14 And defCoverage(1 - gameIdx) <> 2 Then invalidReason$ = "Hold ball is only available against a passive zone."
+            If selectedOffense = 10 And score(gameIdx, 0) - score(1 - gameIdx, 0) > -11 Then invalidReason$ = "Delay offense is only available when trailing by at least 11 points."
+            If selectedOffense = 15 And threePtOpt = 0 Then invalidReason$ = "Shoot only three-pointers is unavailable because the three-point shot is disabled."
+            If selectedOffense = 11 And sClockVal = 0 Then invalidReason$ = "Milk the clock is unavailable because the shot clock is disabled."
+            If selectedOffense = 13 And score(gameIdx, 0) - score(1 - gameIdx, 0) <= 0 Then invalidReason$ = "Total stall is only available while leading."
+            If invalidReason$ <> "" Then
+                Print invalidReason$
+            Else
+                offStrat(gameIdx) = selectedOffense
+                crashBoards(gameIdx) = 0
+                Print "Offensive style set to "; offStylesNew$(selectedOffense); "."
+                If currHalf >= 2 And gameClock! <= 120 Then
+                    Do
+                        commandValue$ = AccessibleReadCommand$("Crash the offensive boards during the last two minutes, yes or no: ")
+                        If commandValue$ <> "yes" And commandValue$ <> "y" And commandValue$ <> "1" And commandValue$ <> "no" And commandValue$ <> "n" And commandValue$ <> "0" Then Print "Enter yes or no."
+                    Loop Until commandValue$ = "yes" Or commandValue$ = "y" Or commandValue$ = "1" Or commandValue$ = "no" Or commandValue$ = "n" Or commandValue$ = "0"
+                    If commandValue$ = "yes" Or commandValue$ = "y" Or commandValue$ = "1" Then crashBoards(gameIdx) = 1
+                    If crashBoards(gameIdx) = 1 Then Print "The team will crash the offensive boards." Else Print "The team will not crash the offensive boards."
+                End If
+                AccessibleChooseOffense% = 1
+                If accessibleSetupActive = 0 Then commandValue$ = AccessibleReadCommand$("Press Enter to return to the menu: ")
+                Exit Function
+            End If
+        Else
+            Print "Enter a displayed offensive-style number from 1 through 16, or back."
+        End If
+    Loop
+
+End Function
+
+
+Function AccessibleChooseDefense% (gameIdx) Static
+
+    AccessibleChooseDefense% = 0
+    Do
+        Print
+        Print "Defensive style for "; AccessibleTeamDisplay$(gameTeams$(gameIdx)); "."
+        Print "Current style: "; defStyles$(defStrat(gameIdx)); "."
+        For defenseIdx = 0 To 17
+            Print LTrim$(Str$(defenseIdx + 1)); ". "; defStyles$(defenseIdx); "."
+        Next defenseIdx
+        If accessibleSetupActive Then
+            Print "98. Keep current style and continue."
+            Call AccessibleSetupNavigation(accessibleSetupBackLabel$)
+        End If
+        If accessibleSetupActive Then
+            commandValue$ = AccessibleReadCommand$("Enter choice: ")
+        Else
+            Print "0. Back without changing style."
+            commandValue$ = AccessibleReadCommand$("Choose a defensive style from 1 through 18, or 0 for Back: ")
+        End If
+        If accessibleSetupActive Then
+            If commandValue$ = "99" Or commandValue$ = "cancel" Or commandValue$ = "exit" Then AccessibleChooseDefense% = -1: Exit Function
+            If commandValue$ = "0" Or commandValue$ = "back" Then Exit Function
+            If commandValue$ = "98" Or commandValue$ = "keep" Then commandValue$ = LTrim$(Str$(defStrat(gameIdx) + 1))
+        Else
+            If commandValue$ = "0" Or commandValue$ = "back" Or commandValue$ = "cancel" Then Exit Function
+        End If
+        selectedNumber = Val(commandValue$)
+        If selectedNumber >= 1 And selectedNumber <= 18 And LTrim$(Str$(selectedNumber)) = commandValue$ Then
+            selectedDefense = selectedNumber - 1
+            If selectedDefense = 14 And (currHalf < 2 Or gameClock! > 180) Then
+                Print "Full-court denial is only available during the last three minutes of the second half or overtime."
+            Else
+                defStrat(gameIdx) = selectedDefense
+                Call CategorizeDefense(gameIdx)
+                Print "Defensive style set to "; defStyles$(selectedDefense); "."
+                AccessibleChooseDefense% = 1
+                If accessibleSetupActive = 0 Then commandValue$ = AccessibleReadCommand$("Press Enter to return to the menu: ")
+                Exit Function
+            End If
+        Else
+            Print "Enter a displayed defensive-style number from 1 through 18, or back."
+        End If
+    Loop
+
+End Function
+
+
+Sub AccessibleAutoLineup (gameIdx)
+
+    For slot = 0 To 4
+        bestPlayer = -1
+        bestContribution! = -1
+
+        'First pass: honor the recorded position whenever possible.
+        For playerIdx = 0 To 13
+            alreadyChosen = 0
+            For checkSlot = 0 To slot - 1
+                If lineupIdx(gameIdx, checkSlot) = playerIdx Then alreadyChosen = 1
+            Next checkSlot
+            If alreadyChosen = 0 And playerActive%(gameIdx, playerIdx) = 1 And players$(gameIdx, playerIdx) <> "" And UCase$(players$(gameIdx, playerIdx)) <> "XXX" And AccessiblePlayerMatchesRole%(gameIdx, playerIdx, slot) = 1 Then
+                If plyrOff_GAME!(gameIdx, playerIdx, 3) > bestContribution! Then
+                    bestContribution! = plyrOff_GAME!(gameIdx, playerIdx, 3)
+                    bestPlayer = playerIdx
+                End If
+            End If
+        Next playerIdx
+
+        'Fallback: use the best remaining eligible player and announce why.
+        If bestPlayer = -1 Then
+            bestContribution! = -1
+            For playerIdx = 0 To 13
+                alreadyChosen = 0
+                For checkSlot = 0 To slot - 1
+                    If lineupIdx(gameIdx, checkSlot) = playerIdx Then alreadyChosen = 1
+                Next checkSlot
+                If alreadyChosen = 0 And playerActive%(gameIdx, playerIdx) = 1 And players$(gameIdx, playerIdx) <> "" And UCase$(players$(gameIdx, playerIdx)) <> "XXX" Then
+                    If plyrOff_GAME!(gameIdx, playerIdx, 3) > bestContribution! Then
+                        bestContribution! = plyrOff_GAME!(gameIdx, playerIdx, 3)
+                        bestPlayer = playerIdx
+                    End If
+                End If
+            Next playerIdx
+            If bestPlayer >= 0 Then
+                Print "Warning: no available player with a recorded "; LCase$(AccessibleLineupRole$(slot)); " position."
+                Print players$(gameIdx, bestPlayer); " was assigned to "; LCase$(AccessibleLineupRole$(slot)); " based on contribution rating."
+            End If
+        End If
+        lineupIdx(gameIdx, slot) = bestPlayer
+    Next slot
+
+End Sub
+
+
+Sub AccessiblePrintLineup (gameIdx, roleName$)
+
+    Print roleName$; " lineup:"
+    For slot = 0 To 4
+        playerIdx = lineupIdx(gameIdx, slot)
+        If playerIdx >= 0 Then
+            Print LTrim$(Str$(slot + 1)); ". "; AccessibleLineupRole$(slot); ": "; players$(gameIdx, playerIdx); ", "; AccessiblePlayerPosition$(gameIdx, playerIdx); "."
+        End If
+    Next slot
+
+End Sub
+
+
+Function AccessiblePlayerPosition$ (gameIdx, playerIdx) Static
+
+    positionText$ = RTrim$(positions_GAME$(gameIdx, playerIdx))
+    If positionText$ = "" Then
+        AccessiblePlayerPosition$ = "position not provided in this season's data"
+    Else
+        AccessiblePlayerPosition$ = "position " + positionText$
+    End If
+
+End Function
+
+
+Function AccessibleLineupRole$ (slot) Static
+
+    Select Case slot
+        Case 0: AccessibleLineupRole$ = "First guard"
+        Case 1: AccessibleLineupRole$ = "Second guard"
+        Case 2: AccessibleLineupRole$ = "First forward"
+        Case 3: AccessibleLineupRole$ = "Second forward"
+        Case 4: AccessibleLineupRole$ = "Center"
+        Case Else: AccessibleLineupRole$ = "Unknown role"
+    End Select
+
+End Function
+
+
+Function AccessiblePlayerMatchesRole% (gameIdx, playerIdx, slot) Static
+
+    positionText$ = UCase$(RTrim$(positions_GAME$(gameIdx, playerIdx)))
+    AccessiblePlayerMatchesRole% = 0
+    If slot <= 1 And InStr(positionText$, "G") > 0 Then AccessiblePlayerMatchesRole% = 1
+    If slot >= 2 And slot <= 3 And InStr(positionText$, "F") > 0 Then AccessiblePlayerMatchesRole% = 1
+    If slot = 4 And InStr(positionText$, "C") > 0 Then AccessiblePlayerMatchesRole% = 1
+
+End Function
+
+
+Function AccessibleTeamSearchKey$ (teamName$) Static
+
+    searchName$ = LCase$(_Trim$(AccessibleTeamDisplay$(teamName$)))
+    searchName$ = String.Replace$(searchName$, ".", "")
+    If Left$(searchName$, 2) = "n " Then searchName$ = "north " + Mid$(searchName$, 3)
+    If Left$(searchName$, 2) = "s " Then searchName$ = "south " + Mid$(searchName$, 3)
+    If Left$(searchName$, 2) = "e " Then searchName$ = "east " + Mid$(searchName$, 3)
+    If Left$(searchName$, 2) = "w " Then searchName$ = "west " + Mid$(searchName$, 3)
+    searchName$ = " " + searchName$ + " "
+    searchName$ = String.Replace$(searchName$, " state ", " st ")
+    searchName$ = String.Replace$(searchName$, " saint ", " st ")
+    AccessibleTeamSearchKey$ = _Trim$(searchName$)
+
+End Function
+
+
+Function AccessibleTeamDisplay$ (teamName$) Static
+
+    displayName$ = RTrim$(teamName$)
+    If Len(displayName$) >= 4 Then
+        If Mid$(displayName$, 3, 1) = " " And Val(Left$(displayName$, 2)) > 0 Then displayName$ = Mid$(displayName$, 4)
+    End If
+    AccessibleTeamDisplay$ = displayName$
+
+End Function
+
+
+Function AccessibleLoadTeams% (yearNumber$) Static
+
+    AccessibleLoadTeams% = 0
+    teamFile$ = diskPaths$(0) + TEAM_FILE_NAME$ + "." + yearNumber$
+    dataFile$ = diskPaths$(0) + DATA_FILE_NAME$ + "." + yearNumber$
+
+    If Not _FileExists(teamFile$) Or Not _FileExists(dataFile$) Then Exit Function
+
+    Open teamFile$ For Random As #1 Len = TEAM_SIZE_BYTES
+    fileLength& = LOF(1)
+    numberTeams = fileLength& / TEAM_SIZE_BYTES
+    If numberTeams > MAX_TEAMS Then numberTeams = MAX_TEAMS
+    Field #1, 15 As Q$(0)
+
+    For teamIdx = 1 To numberTeams
+        Get #1, teamIdx
+        teamNames$(teamIdx) = Q$(0)
+        teamIndex(teamIdx) = teamIdx
+    Next teamIdx
+    Close #1
+
+    teamIndex(0) = numberTeams
+    AccessibleLoadTeams% = numberTeams
+
+End Function
+
+
+Sub AccessibleShowHelp ()
+
+    Print "Accessibility help"
+    Print
+    Print "This is a menu-driven game. Type a menu choice, then press Enter."
+    Print
+    Print "These are common navigation choices you will see or hear frequently:"
+    Print "1: Continue or start play."
+    Print "0: Go back."
+    Print "98: Keep your current selection."
+    Print "99: Cancel."
+    Print
+    Print "Each menu explains what its numbered choices do."
+    Print
+    Print "Typed commands, such as back, are optional."
+    Print
+    Print "The game pauses at key points so you can review the text with your screen reader."
+    Print "Press Enter when prompted to continue."
+    Print "During play, offense and defense selections are confirmed before you press Enter to return to the menu."
+    Print
+    commandValue$ = AccessibleReadCommand$("Press Enter to return to the main menu: ")
+
+End Sub
+
+'$Include: 'AccessibleSetup.bm'
+
+'$Include: 'AccessibleSubstitutions.bm'
