@@ -43,16 +43,38 @@ function Invoke-ReviewCase([string]$Name,[string]$File,[string[]]$InputLines,[st
     }
     if ($output.Contains('Original simulator validation.')) { throw "$Name unexpectedly started gameplay" }
     if ($Name -eq 'cancel-review' -and $output.Contains('Schedule navigation.')) { throw 'Navigation printed before the user finished reviewing the page' }
+    if ($Name -like 'detail-*') {
+        $details = [regex]::Matches($output, '(?s)Game detail: (\d+) of 101\.(.*?)1 or Enter for navigation choices')
+        if ($details.Count -eq 0) { throw 'No individual game details were shown' }
+        foreach ($detail in $details) {
+            $games = [regex]::Matches($detail.Groups[2].Value, '(?m)^Game (\d+)\.')
+            if ($games.Count -ne 1 -or $games[0].Groups[1].Value -ne $detail.Groups[1].Value) { throw 'Game detail included the wrong game or multiple games' }
+        }
+        if ($Name -eq 'detail-browse') {
+            $sequence = @($details | ForEach-Object { $_.Groups[1].Value }) -join ','
+            if ($sequence -ne '8,9,8,8') { throw "Unexpected detail navigation: $sequence" }
+            if ([regex]::Matches($output, '(?m)^Games 6 through 10 of 101\.').Count -ne 2) { throw 'Back did not restore the original schedule page' }
+        }
+    }
     Write-Output "PASS: $Name"
 }
 
 try {
     (Get-Item $schedule).IsReadOnly = $true
-    Invoke-ReviewCase 'browse-readonly' $schedule @('3','2','','2','','1','','2','','3','bad','102','99','','4','','1','','1','','3','0','','0','0','4') @(
+    $pageCommands = @('3','2','','2','','1','','2')
+    for ($page=0; $page -lt 20; $page++) { $pageCommands += @('','1') }
+    $pageCommands += @('','1','','4','','0','0','4')
+    Invoke-ReviewCase 'browse-readonly' $schedule $pageCommands @(
         'Games 1 through 5 of 101.','Games 6 through 10 of 101.','Games 96 through 100 of 101.',
         'Games 101 through 101 of 101.','This is the first page.','This is the last page.',
         "Game 1. $visitor (2025) at $homeTeam (2025).",'Date: 11/10/2025.','Time: 7:05 PM.',
-        "Final score: $visitor 72, $homeTeam 68.",'Not played.','Choose a whole game number from 1 through 101.')
+        "Final score: $visitor 72, $homeTeam 68.",'Not played.')
+    Invoke-ReviewCase 'detail-browse' $schedule @('3','2','','1','','3','bad','102','8','','1','','2','','3','0','0','0','4') @(
+        'Game detail: 8 of 101.','Game detail: 9 of 101.','Choose a whole game number from 1 through 101.','0. Back to the schedule page.')
+    Invoke-ReviewCase 'detail-first' $schedule @('3','2','','3','1','','2','','invalid','','0','0','0','4') @('This is the first game.','Choose a displayed number.')
+    Invoke-ReviewCase 'detail-last' $schedule @('3','2','','3','101','','1','','99','4') @('This is the last game.')
+    Invoke-ReviewCase 'detail-game99' $schedule @('3','2','','3','99','99','4') @('Game detail: 99 of 101.')
+    Invoke-ReviewCase 'goto-back' $schedule @('3','2','','3','0','0','0','4') @('Games 1 through 5 of 101.')
     Invoke-ReviewCase 'cancel-picker' '' @('3','invalid','2','0','4') @('Schedule selection canceled.','Choose 2 to open a schedule')
     Invoke-ReviewCase 'cancel-review' $schedule @('3','2','99','4') @('Read-only review.')
     Invoke-ReviewCase 'review-pause-input' $schedule @('3','2','invalid','1','99','4') @('Choose 1 or press Enter for navigation choices','Schedule navigation. Games 1 through 5 of 101.')

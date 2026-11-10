@@ -105,36 +105,7 @@ Sub AccessibleReviewSchedule (filePath$)
         If lastGame > gameCount Then lastGame = gameCount
         Print "Games "; LTrim$(Str$(firstGame)); " through "; LTrim$(Str$(lastGame)); " of "; LTrim$(Str$(gameCount)); "."
         For gameNumber = firstGame To lastGame
-            recordText = Mid$(contents$, CLng(gameNumber - 1) * SCHEDULE_SIZE_BYTES + 1, SCHEDULE_SIZE_BYTES)
-            visitor = CVI(Mid$(recordText, 1, 2)): home = CVI(Mid$(recordText, 3, 2))
-            visitorSeason$ = RTrim$(Mid$(recordText, 43, 5)): homeSeason$ = RTrim$(Mid$(recordText, 48, 5))
-            visitorName$ = AccessibleScheduleTeam$(visitorSeason$, visitor)
-            homeName$ = AccessibleScheduleTeam$(homeSeason$, home)
-            Print "Game "; LTrim$(Str$(gameNumber)); ". "; visitorName$; " ("; visitorSeason$; ") at "; homeName$; " ("; homeSeason$; ")."
-            monthNumber = CVI(Mid$(recordText, 35, 2)): dayNumber = CVI(Mid$(recordText, 33, 2)): yearNumber = CVI(Mid$(recordText, 37, 2))
-            If monthNumber >= 1 And monthNumber <= 12 And dayNumber >= 1 And dayNumber <= 31 And yearNumber >= 0 Then
-                Print "Date: "; LTrim$(Str$(monthNumber)); "/"; LTrim$(Str$(dayNumber)); "/"; LTrim$(Str$(yearNumber)); ". ";
-            Else
-                Print "Date unavailable. ";
-            End If
-            timeNumber = CVI(Mid$(recordText, 31, 2))
-            hourNumber = timeNumber \ 100: minuteNumber = timeNumber Mod 100
-            If timeNumber >= 0 And hourNumber < 24 And minuteNumber < 60 Then
-                period$ = " AM": If hourNumber >= 12 Then period$ = " PM"
-                hourNumber = hourNumber Mod 12: If hourNumber = 0 Then hourNumber = 12
-                Print "Time: "; LTrim$(Str$(hourNumber)); ":"; Right$("0" + LTrim$(Str$(minuteNumber)), 2); period$; "."
-            Else
-                Print "Time unavailable."
-            End If
-            completed = CVI(Mid$(recordText, 27, 2))
-            If completed = 1 Then
-                Print "Final score: "; visitorName$; " "; LTrim$(Str$(CVI(Mid$(recordText, 39, 2)))); ", "; homeName$; " "; LTrim$(Str$(CVI(Mid$(recordText, 41, 2)))); "."
-            ElseIf completed = 0 Then
-                Print "Not played."
-            Else
-                Print "Game status unavailable."
-            End If
-            If visitorName$ = "Team unavailable" Or homeName$ = "Team unavailable" Then Print "A referenced team could not be read. Check that the matching team data is installed."
+            Call AccessiblePrintScheduleGame(contents$, gameNumber)
         Next
         Print
         Do
@@ -168,7 +139,9 @@ Sub AccessibleReviewSchedule (filePath$)
                     If target$ = "cancel" Then accessibleScheduleReturnMain = 1: Exit Sub
                     targetValue# = Val(target$)
                     If targetValue# >= 1 And targetValue# <= gameCount And target$ = LTrim$(Str$(Fix(targetValue#))) Then
-                        firstGame = Int((targetValue# - 1) / 5) * 5 + 1
+                        selectedGame = targetValue#
+                        Call AccessibleReviewScheduleGame(contents$, selectedGame)
+                        If accessibleScheduleReturnMain Then Exit Sub
                         Exit Do
                     End If
                     Print "Choose a whole game number from 1 through "; LTrim$(Str$(gameCount)); "."
@@ -177,4 +150,76 @@ Sub AccessibleReviewSchedule (filePath$)
             Case Else: notice$ = "Choose a displayed number."
         End Select
     Loop
+End Sub
+
+Sub AccessibleReviewScheduleGame (contents$, selectedGame)
+    gameCount = Len(contents$) / SCHEDULE_SIZE_BYTES
+    currentGame = selectedGame
+    notice$ = ""
+    Do
+        Cls
+        If notice$ <> "" Then Print notice$: notice$ = ""
+        Print "Game detail: "; LTrim$(Str$(currentGame)); " of "; LTrim$(Str$(gameCount)); "."
+        Call AccessiblePrintScheduleGame(contents$, currentGame)
+        Print
+        Do
+            choice$ = AccessibleReadCommand$("1 or Enter for navigation choices, 0 for Back, or 99 to cancel: ")
+            If choice$ = "0" Or choice$ = "back" Then Exit Sub
+            If choice$ = "99" Or choice$ = "cancel" Then accessibleScheduleReturnMain = 1: Exit Sub
+            If choice$ = "1" Or choice$ = "" Then Exit Do
+            Print "Choose 1 or press Enter for navigation choices, 0 for Back, or 99 to cancel."
+        Loop
+        Cls
+        Print "Game navigation. Game "; LTrim$(Str$(currentGame)); "."
+        Print "1. Next game."
+        Print "2. Previous game."
+        Print "3. Repeat this game."
+        Print "0. Back to the schedule page."
+        Print "99. Cancel and return to the main menu."
+        choice$ = AccessibleReadCommand$("Enter choice: ")
+        Select Case choice$
+            Case "1", "next"
+                If currentGame < gameCount Then currentGame = currentGame + 1 Else notice$ = "This is the last game."
+            Case "2", "previous"
+                If currentGame > 1 Then currentGame = currentGame - 1 Else notice$ = "This is the first game."
+            Case "3", "repeat"
+            Case "0", "back": Exit Sub
+            Case "99", "cancel": accessibleScheduleReturnMain = 1: Exit Sub
+            Case Else: notice$ = "Choose a displayed number."
+        End Select
+    Loop
+End Sub
+
+Sub AccessiblePrintScheduleGame (contents$, gameNumber)
+    Dim recordText As String
+            recordText = Mid$(contents$, CLng(gameNumber - 1) * SCHEDULE_SIZE_BYTES + 1, SCHEDULE_SIZE_BYTES)
+            visitor = CVI(Mid$(recordText, 1, 2)): home = CVI(Mid$(recordText, 3, 2))
+            visitorSeason$ = RTrim$(Mid$(recordText, 43, 5)): homeSeason$ = RTrim$(Mid$(recordText, 48, 5))
+            visitorName$ = AccessibleScheduleTeam$(visitorSeason$, visitor)
+            homeName$ = AccessibleScheduleTeam$(homeSeason$, home)
+            Print "Game "; LTrim$(Str$(gameNumber)); ". "; visitorName$; " ("; visitorSeason$; ") at "; homeName$; " ("; homeSeason$; ")."
+            monthNumber = CVI(Mid$(recordText, 35, 2)): dayNumber = CVI(Mid$(recordText, 33, 2)): yearNumber = CVI(Mid$(recordText, 37, 2))
+            If monthNumber >= 1 And monthNumber <= 12 And dayNumber >= 1 And dayNumber <= 31 And yearNumber >= 0 Then
+                Print "Date: "; LTrim$(Str$(monthNumber)); "/"; LTrim$(Str$(dayNumber)); "/"; LTrim$(Str$(yearNumber)); ". ";
+            Else
+                Print "Date unavailable. ";
+            End If
+            timeNumber = CVI(Mid$(recordText, 31, 2))
+            hourNumber = timeNumber \ 100: minuteNumber = timeNumber Mod 100
+            If timeNumber >= 0 And hourNumber < 24 And minuteNumber < 60 Then
+                period$ = " AM": If hourNumber >= 12 Then period$ = " PM"
+                hourNumber = hourNumber Mod 12: If hourNumber = 0 Then hourNumber = 12
+                Print "Time: "; LTrim$(Str$(hourNumber)); ":"; Right$("0" + LTrim$(Str$(minuteNumber)), 2); period$; "."
+            Else
+                Print "Time unavailable."
+            End If
+            completed = CVI(Mid$(recordText, 27, 2))
+            If completed = 1 Then
+                Print "Final score: "; visitorName$; " "; LTrim$(Str$(CVI(Mid$(recordText, 39, 2)))); ", "; homeName$; " "; LTrim$(Str$(CVI(Mid$(recordText, 41, 2)))); "."
+            ElseIf completed = 0 Then
+                Print "Not played."
+            Else
+                Print "Game status unavailable."
+            End If
+            If visitorName$ = "Team unavailable" Or homeName$ = "Team unavailable" Then Print "A referenced team could not be read. Check that the matching team data is installed."
 End Sub

@@ -21,13 +21,18 @@ is still needed; the program cannot detect when a screen reader finishes speakin
 
 - 1: Next page.
 - 2: Previous page.
-- 3: Go to a game number (opens its page).
+- 3: Go to a game number (opens only that game's details).
 - 4: Repeat the page.
 - 0: Back to Schedules and Boxscores.
 - 99: Cancel and return to the main menu.
 
 At the game-number prompt, all numbers from 1 through the schedule length are
 game numbers, including 99. Use 0 to return to review. Typed `cancel` is optional.
+
+The game-detail screen waits for 1 or Enter before showing navigation:
+1 Next game, 2 Previous game, 3 Repeat, 0 Back to the original schedule page,
+or 99 Cancel to the main menu. Back and Cancel also work at the reading pause.
+Moving between individual games does not move the underlying schedule page.
 
 ## Implementation boundary
 

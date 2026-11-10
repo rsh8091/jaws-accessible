@@ -2049,6 +2049,7 @@ Sub AccessibleShowHelp ()
     Print "Choose a schedule in the Windows Open dialog. Tab moves between controls; Escape cancels."
     Print "Review five games at a time. Use the numbered choices for next, previous, or go to a game."
     Print "Each schedule page waits for you. Choose 1 or press Enter when ready for navigation choices."
+    Print "Go to a game reads only that game. Use Next, Previous, or Repeat; Back returns to your schedule page."
     Print "Choose 0 to go back or 99 to return to the main menu."
     Print
     commandValue$ = AccessibleReadCommand$("Press Enter to return to the main menu: ")
