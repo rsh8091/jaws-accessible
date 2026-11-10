@@ -19,7 +19,7 @@ foreach ($case in $cases) {
  $inputFile=Join-Path $results ($case.Name+'.input.txt')
  $outputFile=Join-Path $results ($case.Name+'.output.txt')
  $errorFile=Join-Path $results ($case.Name+'.error.txt')
- $ending = if($case.Periods -gt 0){@('','5','3')}else{@('3')}
+ $ending = if($case.Periods -gt 0){@('','5','4')}else{@('4')}
  [IO.File]::WriteAllLines($inputFile,$setup+$case.Commands+$ending)
  $arguments=@('--accessible','--accessible-test','--accessible-overtime-test',('--overtime-control='+$case.Control))
  if($case.Name -eq 'manual-end'){$arguments=@('--accessible','--jaws-overtime-test')}

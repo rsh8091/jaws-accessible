@@ -25,6 +25,13 @@ Declare Function AccessibleHtml$ (value$) Static
 Declare Function AccessibleReadCommand$ (promptText$) Static
 Declare Sub AccessibleMainMenu ()
 Declare Sub AccessibleShowHelp ()
+Dim Shared accessibleScheduleReading%, accessibleScheduleReadFailed%
+Dim Shared accessibleScheduleReturnMain
+Declare Sub AccessibleScheduleMenu ()
+Declare Sub AccessibleReviewSchedule (filePath$)
+Declare Function AccessibleScheduleBytes$ (filePath$, byteOffset&, byteCount&) Static
+Declare Function AccessibleScheduleTeam$ (season$, teamNumber) Static
+Declare Function AccessiblePickSchedule$ () Static
 Declare Sub AccessibleSingleGameSetup ()
 Declare Function AccessibleChooseTeam% (roleName$, yearNumber$, chosenIdx, teamName$) Static
 Declare Function AccessibleLoadTeams% (yearNumber$) Static

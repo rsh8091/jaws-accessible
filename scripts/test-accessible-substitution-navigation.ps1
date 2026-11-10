@@ -14,7 +14,7 @@ function Invoke-SubstitutionCase {
     $inputPath = Join-Path $resultsDirectory "$Name.input.txt"
     $outputPath = Join-Path $resultsDirectory "$Name.output.txt"
     $errorPath = Join-Path $resultsDirectory "$Name.error.txt"
-    [IO.File]::WriteAllLines($inputPath, $setup + $Commands + @('3'))
+    [IO.File]::WriteAllLines($inputPath, $setup + $Commands + @('4'))
     $process = Start-Process -FilePath $executablePath -ArgumentList '--accessible','--accessible-test','--accessible-substitution-test',"--substitution-case=$Scenario","--rest-seconds=$BenchSeconds","--rest-fatigue=$Fatigue","--rest-clock=$GameSeconds" -WorkingDirectory (Split-Path $executablePath) -WindowStyle Hidden -RedirectStandardInput $inputPath -RedirectStandardOutput $outputPath -RedirectStandardError $errorPath -PassThru
     if (-not $process.WaitForExit(15000)) {
         Stop-Process -Id $process.Id -Force # Only this automated test process.

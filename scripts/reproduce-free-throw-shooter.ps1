@@ -13,7 +13,7 @@ foreach ($case in @(
     $inputFile = Join-Path $results ($case.Name + '.input.txt')
     $outputFile = Join-Path $results ($case.Name + '.output.txt')
     $errorFile = Join-Path $results ($case.Name + '.error.txt')
-    [IO.File]::WriteAllLines($inputFile, $setup + $case.Commands + @('','','','','','','3'))
+    [IO.File]::WriteAllLines($inputFile, $setup + $case.Commands + @('','','','','','','4'))
     $process = Start-Process -FilePath $executable -ArgumentList '--accessible','--accessible-test','--accessible-substitution-test',('--substitution-case=' + $case.Scenario) -WorkingDirectory (Split-Path $executable) -WindowStyle Hidden -RedirectStandardInput $inputFile -RedirectStandardOutput $outputFile -RedirectStandardError $errorFile -PassThru
     if (-not $process.WaitForExit(15000)) {
         Stop-Process -Id $process.Id -Force

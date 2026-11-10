@@ -7,7 +7,7 @@ $executablePath = (Resolve-Path -LiteralPath $Executable).Path
 $scriptedInput = @(
     '1', '2025', 'duke', '1', '2003', 'syracuse', '1', '1',
     '2', '1', '1', 'confirm', 'continue', 'continue', 'auto', '1', '1',
-    '1', '2', '3', '3'
+    '1', '2', '3', '4'
 )
 
 Push-Location (Split-Path -Parent $executablePath)

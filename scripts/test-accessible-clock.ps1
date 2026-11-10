@@ -4,7 +4,7 @@ $executablePath = (Resolve-Path -LiteralPath $Executable).Path
 $setup = @('1','2025','duke','1','2003','syracuse','1','1','2','1','1','confirm','continue','continue','auto','1','1')
 # Numbered clock, alias, full status, repeated review requests, invalid entries,
 # then an explicit pass. Two computer pauses exercise continue and end.
-$commands = @('7','clock','invalid','','clock','','5','clock','','1','clock','clock','invalid','','clock','end','3')
+$commands = @('7','clock','invalid','','clock','','5','clock','','1','clock','clock','invalid','','clock','end','4')
 Push-Location (Split-Path -Parent $executablePath)
 try {
     $transcript = ($setup + $commands) | & $executablePath --accessible --accessible-test --accessible-clock-test 2>&1 | Out-String

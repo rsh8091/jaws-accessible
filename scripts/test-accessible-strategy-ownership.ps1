@@ -23,7 +23,7 @@ $scriptedInput = [System.Collections.Generic.List[string]]::new()
     '1', '2025', 'duke', '1', '2003', 'syracuse', '1', '1',
     '2', '1', '1', 'confirm', 'continue', 'continue', 'auto', '1', '1'
 ) | ForEach-Object { $scriptedInput.Add($_) }
-$scriptedInput.Add('3')
+$scriptedInput.Add('4')
 
 Push-Location (Split-Path -Parent $executablePath)
 try {

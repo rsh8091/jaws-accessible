@@ -451,7 +451,8 @@ Sub AccessibleMainMenu ()
         Print "Main menu"
         Print "1. Play a single game."
         Print "2. Accessibility help."
-        Print "3. Exit."
+        Print "3. Schedules and Boxscores."
+        Print "4. Exit."
 
         commandValue$ = AccessibleReadCommand$("Enter choice: ")
         Print
@@ -463,12 +464,15 @@ Sub AccessibleMainMenu ()
             Case "2", "help", "h", "?"
                 Call AccessibleShowHelp
 
-            Case "3", "exit", "quit", "q"
+            Case "4", "exit", "quit", "q"
                 Print "Exiting Courtside College Basketball."
                 exitRequested% = 1
 
+            Case "3", "schedules"
+                Call AccessibleScheduleMenu
+
             Case Else
-                Print "Choice not recognized. Enter 1 for play, 2 for help, or 3 to exit."
+                Print "Choice not recognized. Enter 1 for play, 2 for help, 3 for schedules, or 4 to exit."
         End Select
 
         If exitRequested% = 0 Then Print
@@ -2041,6 +2045,11 @@ Sub AccessibleShowHelp ()
     Print "The game pauses at key points so you can review the text with your screen reader."
     Print "Press Enter when prompted to continue."
     Print "During play, offense and defense selections are confirmed before you press Enter to return to the menu."
+    Print "Main menu choice 3 opens Schedules and Boxscores; choice 4 exits. Schedule review is read-only for now."
+    Print "Choose a schedule in the Windows Open dialog. Tab moves between controls; Escape cancels."
+    Print "Review five games at a time. Use the numbered choices for next, previous, or go to a game."
+    Print "Each schedule page waits for you. Choose 1 or press Enter when ready for navigation choices."
+    Print "Choose 0 to go back or 99 to return to the main menu."
     Print
     commandValue$ = AccessibleReadCommand$("Press Enter to return to the main menu: ")
 
@@ -2049,3 +2058,5 @@ End Sub
 '$Include: 'AccessibleSetup.bm'
 
 '$Include: 'AccessibleSubstitutions.bm'
+
+'$Include: 'AccessibleSchedules.bm'

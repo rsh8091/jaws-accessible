@@ -11,7 +11,7 @@ $results = [System.Collections.Generic.List[object]]::new()
 for ($run = 1; $run -le $Runs; $run++) {
     $scriptedInput = @(
         '1', '1999', 'syracuse', '1', '1999', 'pitt', '1', '1',
-        '4', '1', '1', 'confirm', 'continue', 'continue', '3'
+        '4', '1', '1', 'confirm', 'continue', 'continue', '4'
     )
 
     Push-Location (Split-Path -Parent $executablePath)

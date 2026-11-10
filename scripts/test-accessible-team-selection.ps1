@@ -5,7 +5,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $executablePath = (Resolve-Path -LiteralPath $Executable).Path
-$scriptedInput = @('1', '2025', 'michigan state', '1', '2025', "saint mary's", '1', '1', '4', '1', '1', 'confirm', 'continue', 'continue', '3')
+$scriptedInput = @('1', '2025', 'michigan state', '1', '2025', "saint mary's", '1', '1', '4', '1', '1', 'confirm', 'continue', 'continue', '4')
 Push-Location (Split-Path -Parent $executablePath)
 try {
     $transcript = $scriptedInput | & $executablePath --accessible --accessible-test 2>&1 | Out-String

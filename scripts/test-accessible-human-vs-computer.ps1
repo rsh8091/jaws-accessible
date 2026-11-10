@@ -14,10 +14,10 @@ $scriptedInput = [System.Collections.Generic.List[string]]::new()
 # Two is a valid second-player pass target and a two-point-shot choice.
 # Extra entries safely cover random original-engine pass prompts.
 1..40 | ForEach-Object { $scriptedInput.Add('2') }
-$scriptedInput.Add('3')
+$scriptedInput.Add('4')
 # Surplus shot choices can open Help after the engine segment finishes.
 # One Exit can be consumed by Help's Enter pause; the next exits the menu.
-$scriptedInput.Add('3')
+$scriptedInput.Add('4')
 
 $results = Join-Path $PSScriptRoot '..\dist\human-vs-computer-test'
 New-Item -ItemType Directory -Force -Path $results | Out-Null

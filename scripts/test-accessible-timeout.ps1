@@ -8,7 +8,7 @@ $scriptedInput = [System.Collections.Generic.List[string]]::new()
 @(
     '1', '2025', 'duke', '1', '2003', 'syracuse', '1', '1',
     '2', '1', '1', 'confirm', 'continue', 'continue', 'auto', '1', '1',
-    '2', '5', '5', '', '1', '3'
+    '2', '5', '5', '', '1', '4'
 ) | ForEach-Object { $scriptedInput.Add($_) }
 
 Push-Location (Split-Path -Parent $executablePath)

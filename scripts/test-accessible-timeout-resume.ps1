@@ -19,7 +19,7 @@ foreach ($case in $cases) {
     $outputPath = Join-Path $results ($case.Name + '.output.txt')
     $errorPath = Join-Path $results ($case.Name + '.error.txt')
     # First pause: Enter. Second: invalid 1 then Enter. Third: invalid 2 then Enter.
-    [IO.File]::WriteAllLines($inputPath, $setup + $case.Menu + @('','1','','2','',$case.Play,'3'))
+    [IO.File]::WriteAllLines($inputPath, $setup + $case.Menu + @('','1','','2','',$case.Play,'4'))
     $process = Start-Process -FilePath $executablePath -ArgumentList '--accessible','--accessible-test','--accessible-substitution-test','--substitution-case=timeout-resume','--rest-clock=300' -WorkingDirectory (Split-Path $executablePath) -WindowStyle Hidden -RedirectStandardInput $inputPath -RedirectStandardOutput $outputPath -RedirectStandardError $errorPath -PassThru
     if (-not $process.WaitForExit(15000)) {
         Stop-Process -Id $process.Id -Force

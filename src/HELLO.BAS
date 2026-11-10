@@ -398,6 +398,11 @@ System
 
 Errhandler:
 
+If accessibleScheduleReading% Then
+    accessibleScheduleReadFailed% = 1
+    Resume Next
+End If
+
 Open cfgPath$ + "errlog" For Append As #10
 Print #10, "An error occurred. Please contact support with the following information:"
 Print #10, "Error #"; Err; "on program file line"; _ErrorLine

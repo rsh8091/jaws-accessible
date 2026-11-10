@@ -7,7 +7,7 @@ $ErrorActionPreference = 'Stop'
 $executablePath = (Resolve-Path -LiteralPath $Executable).Path
 $executableDirectory = Split-Path -Parent $executablePath
 $logPath = Join-Path $executableDirectory 'accessible-narration.log'
-$scriptedInput = @('1', '2025', 'syracuse', '1', '2025', 'boston col', '1', '1', '4', '1', '1', 'confirm', 'continue', 'continue', '3')
+$scriptedInput = @('1', '2025', 'syracuse', '1', '2025', 'boston col', '1', '1', '4', '1', '1', 'confirm', 'continue', 'continue', '4')
 
 Push-Location $executableDirectory
 try {

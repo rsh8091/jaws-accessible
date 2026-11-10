@@ -41,7 +41,7 @@ foreach ($expected in $expectedText) {
     }
 }
 
-$menuInput = @('continue', '5', '3')
+$menuInput = @('continue', '5', '4')
 Push-Location (Split-Path -Parent $executablePath)
 try {
     $menuTranscript = $menuInput | & $executablePath --accessible --accessible-boxscore-test 2>&1 | Out-String

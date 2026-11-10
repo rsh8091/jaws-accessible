@@ -1,0 +1,180 @@
+' Accessible read-only view of upstream SCD records (SCHEDULE.BAS).
+' No schedule saving, normalization, game activation, or simulation changes.
+Function AccessiblePickSchedule$ () Static
+    AccessiblePickSchedule$ = ""
+    If IsAccessibleTestMode% Then
+        For argIndex = 1 To _CommandCount
+            If LCase$(Command$(argIndex)) = "--accessible-schedule-test" Then
+                AccessiblePickSchedule$ = Environ$("COURTSIDE_SCHEDULE_TEST_FILE")
+                Exit Function
+            End If
+        Next
+    End If
+    AccessiblePickSchedule$ = _OpenFileDialog$("Choose Schedule file", diskPaths$(3), "*.SCD", "Schedule files [.SCD]")
+End Function
+
+Sub AccessibleScheduleMenu ()
+    Do
+        Print
+        Print "Schedules and Boxscores"
+        Print "Schedule review only in this version. Playing, editing, and saved boxscore browsing are not available yet."
+        Print "2. Play / Edit an Existing Schedule (review only)."
+        Print "0. Back to the main menu."
+        Print "99. Cancel and return to the main menu."
+        choice$ = AccessibleReadCommand$("Enter choice: ")
+        Select Case choice$
+            Case "0", "back", "99", "cancel": Exit Sub
+            Case "2"
+                Print "Choose a schedule in the Open dialog. Press Escape to cancel."
+                selectedFile$ = AccessiblePickSchedule$
+                If selectedFile$ = "" Then
+                    Print "Schedule selection canceled."
+                Else
+                    Call AccessibleReviewSchedule(selectedFile$)
+                    If accessibleScheduleReturnMain Then Exit Sub
+                End If
+            Case Else: Print "Choose 2 to open a schedule, 0 for Back, or 99 to cancel."
+        End Select
+    Loop
+End Sub
+
+' Read bytes with explicit read access. The small Errhandler hook lets an
+' inaccessible/locked file return an accessible error instead of resuming
+' with invalid data. Offset is one-based; count zero requests the whole SCD.
+Function AccessibleScheduleBytes$ (filePath$, byteOffset&, byteCount&) Static
+    AccessibleScheduleBytes$ = ""
+    If Not _FileExists(filePath$) Then Exit Function
+    accessibleScheduleReadFailed% = 0
+    accessibleScheduleReading% = 1
+    handle = FreeFile
+    Open filePath$ For Binary Access Read As #handle
+    If accessibleScheduleReadFailed% Then
+        accessibleScheduleReading% = 0
+        Exit Function
+    End If
+    size& = LOF(handle)
+    amount& = byteCount&
+    If amount& = 0 Then amount& = size&
+    readBytes$ = ""
+    If amount& > 0 And amount& <= CLng(MAX_SCHEDULE_GAMES) * SCHEDULE_SIZE_BYTES And byteOffset& >= 1 Then
+        If byteOffset& + amount& - 1 <= size& Then
+            readBytes$ = Space$(amount&)
+            Get #handle, byteOffset&, readBytes$
+        End If
+    End If
+    Close #handle
+    accessibleScheduleReading% = 0
+    If accessibleScheduleReadFailed% = 0 Then AccessibleScheduleBytes$ = readBytes$
+End Function
+
+Function AccessibleScheduleTeam$ (season$, teamNumber) Static
+    AccessibleScheduleTeam$ = "Team unavailable"
+    seasonKey$ = UCase$(_Trim$(season$))
+    If Len(seasonKey$) = 0 Or Len(seasonKey$) > 5 Or teamNumber < 1 Or teamNumber > MAX_TEAMS Then Exit Function
+    For characterIndex = 1 To Len(seasonKey$)
+        character$ = Mid$(seasonKey$, characterIndex, 1)
+        If InStr("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", character$) = 0 Then Exit Function
+    Next
+    teamPath$ = diskPaths$(0) + TEAM_FILE_NAME$ + "." + seasonKey$
+    offset& = CLng(teamNumber - 1) * TEAM_SIZE_BYTES + 1
+    length& = 15
+    name$ = AccessibleScheduleBytes$(teamPath$, offset&, length&)
+    If Len(_Trim$(name$)) > 0 Then AccessibleScheduleTeam$ = AccessibleTeamDisplay$(name$)
+End Function
+
+Sub AccessibleReviewSchedule (filePath$)
+    Dim recordText As String
+    accessibleScheduleReturnMain = 0
+    offset& = 1: length& = 0
+    contents$ = AccessibleScheduleBytes$(filePath$, offset&, length&)
+    If Len(contents$) = 0 Or Len(contents$) Mod SCHEDULE_SIZE_BYTES <> 0 Then
+        Print "Cannot review this schedule. It is empty, unreadable, too large, or not a supported schedule file."
+        ignored$ = AccessibleReadCommand$("Press Enter to return to Schedules and Boxscores: ")
+        Exit Sub
+    End If
+    gameCount = Len(contents$) / SCHEDULE_SIZE_BYTES
+    firstGame = 1
+    notice$ = ""
+    Do
+        Cls
+        Print
+        If notice$ <> "" Then Print notice$: notice$ = ""
+        Print "Schedule: "; GetFileBaseName$(filePath$)
+        Print "Read-only review. No schedule files will be changed."
+        lastGame = firstGame + 4
+        If lastGame > gameCount Then lastGame = gameCount
+        Print "Games "; LTrim$(Str$(firstGame)); " through "; LTrim$(Str$(lastGame)); " of "; LTrim$(Str$(gameCount)); "."
+        For gameNumber = firstGame To lastGame
+            recordText = Mid$(contents$, CLng(gameNumber - 1) * SCHEDULE_SIZE_BYTES + 1, SCHEDULE_SIZE_BYTES)
+            visitor = CVI(Mid$(recordText, 1, 2)): home = CVI(Mid$(recordText, 3, 2))
+            visitorSeason$ = RTrim$(Mid$(recordText, 43, 5)): homeSeason$ = RTrim$(Mid$(recordText, 48, 5))
+            visitorName$ = AccessibleScheduleTeam$(visitorSeason$, visitor)
+            homeName$ = AccessibleScheduleTeam$(homeSeason$, home)
+            Print "Game "; LTrim$(Str$(gameNumber)); ". "; visitorName$; " ("; visitorSeason$; ") at "; homeName$; " ("; homeSeason$; ")."
+            monthNumber = CVI(Mid$(recordText, 35, 2)): dayNumber = CVI(Mid$(recordText, 33, 2)): yearNumber = CVI(Mid$(recordText, 37, 2))
+            If monthNumber >= 1 And monthNumber <= 12 And dayNumber >= 1 And dayNumber <= 31 And yearNumber >= 0 Then
+                Print "Date: "; LTrim$(Str$(monthNumber)); "/"; LTrim$(Str$(dayNumber)); "/"; LTrim$(Str$(yearNumber)); ". ";
+            Else
+                Print "Date unavailable. ";
+            End If
+            timeNumber = CVI(Mid$(recordText, 31, 2))
+            hourNumber = timeNumber \ 100: minuteNumber = timeNumber Mod 100
+            If timeNumber >= 0 And hourNumber < 24 And minuteNumber < 60 Then
+                period$ = " AM": If hourNumber >= 12 Then period$ = " PM"
+                hourNumber = hourNumber Mod 12: If hourNumber = 0 Then hourNumber = 12
+                Print "Time: "; LTrim$(Str$(hourNumber)); ":"; Right$("0" + LTrim$(Str$(minuteNumber)), 2); period$; "."
+            Else
+                Print "Time unavailable."
+            End If
+            completed = CVI(Mid$(recordText, 27, 2))
+            If completed = 1 Then
+                Print "Final score: "; visitorName$; " "; LTrim$(Str$(CVI(Mid$(recordText, 39, 2)))); ", "; homeName$; " "; LTrim$(Str$(CVI(Mid$(recordText, 41, 2)))); "."
+            ElseIf completed = 0 Then
+                Print "Not played."
+            Else
+                Print "Game status unavailable."
+            End If
+            If visitorName$ = "Team unavailable" Or homeName$ = "Team unavailable" Then Print "A referenced team could not be read. Check that the matching team data is installed."
+        Next
+        Print
+        Do
+            reviewChoice$ = AccessibleReadCommand$("1 or Enter for navigation choices, 0 for Back, or 99 to cancel: ")
+            If reviewChoice$ = "0" Or reviewChoice$ = "back" Then Exit Sub
+            If reviewChoice$ = "99" Or reviewChoice$ = "cancel" Then accessibleScheduleReturnMain = 1: Exit Sub
+            If reviewChoice$ = "" Or reviewChoice$ = "1" Then Exit Do
+            Print "Choose 1 or press Enter for navigation choices, 0 for Back, or 99 to cancel."
+        Loop
+        Cls
+        Print "Schedule navigation. Games "; LTrim$(Str$(firstGame)); " through "; LTrim$(Str$(lastGame)); " of "; LTrim$(Str$(gameCount)); "."
+        Print "1. Next page."
+        Print "2. Previous page."
+        Print "3. Go to a game number."
+        Print "4. Repeat this page."
+        Print "0. Back to Schedules and Boxscores."
+        Print "99. Cancel and return to the main menu."
+        choice$ = AccessibleReadCommand$("Enter choice: ")
+        Select Case choice$
+            Case "0", "back": Exit Sub
+            Case "99", "cancel": accessibleScheduleReturnMain = 1: Exit Sub
+            Case "1", "next"
+                If lastGame < gameCount Then firstGame = lastGame + 1 Else notice$ = "This is the last page."
+            Case "2", "previous"
+                If firstGame > 1 Then firstGame = firstGame - 5 Else notice$ = "This is the first page."
+                If firstGame < 1 Then firstGame = 1
+            Case "3", "goto"
+                Do
+                    target$ = AccessibleReadCommand$("Enter a game number, or 0 for Back: ")
+                    If target$ = "0" Or target$ = "back" Then Exit Do
+                    If target$ = "cancel" Then accessibleScheduleReturnMain = 1: Exit Sub
+                    targetValue# = Val(target$)
+                    If targetValue# >= 1 And targetValue# <= gameCount And target$ = LTrim$(Str$(Fix(targetValue#))) Then
+                        firstGame = Int((targetValue# - 1) / 5) * 5 + 1
+                        Exit Do
+                    End If
+                    Print "Choose a whole game number from 1 through "; LTrim$(Str$(gameCount)); "."
+                Loop
+            Case "4", "repeat"
+            Case Else: notice$ = "Choose a displayed number."
+        End Select
+    Loop
+End Sub

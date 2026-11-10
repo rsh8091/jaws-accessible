@@ -23,7 +23,7 @@ foreach ($expected in $expectedSource) {
 
 $scriptedInput = @(
     '1', '1988', 'syracuse', '1', '1988', 'pitt', '1', '1',
-    '4', '1', '1', 'confirm', 'continue', 'continue', '3'
+    '4', '1', '1', 'confirm', 'continue', 'continue', '4'
 )
 
 Push-Location (Split-Path -Parent $executablePath)
