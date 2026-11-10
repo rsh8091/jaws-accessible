@@ -1,4 +1,4 @@
-# Accessible schedule review: first milestone
+# Accessible schedule review and team extraction
 
 Branch: `play-season`, based on Release 1 (`f931a5a`).
 
@@ -6,7 +6,7 @@ Main menu choice **3. Schedules and Boxscores** opens the accessible scheduler.
 Choices 1 (single game) and 2 (help) are unchanged. Exit is now choice 4 and
 must remain the final numbered main-menu choice as new features are added.
 Choose **2. Play / Edit an Existing Schedule (review only)**. This follows the
-upstream section and action names, but explicitly limits this milestone to review.
+upstream section and action names, but this action currently provides review only.
 
 The game calls the same native Open dialog as upstream, filtering for `.SCD`
 files and starting in the configured schedules directory. Escape cancels.
@@ -34,6 +34,31 @@ The game-detail screen waits for 1 or Enter before showing navigation:
 or 99 Cancel to the main menu. Back and Cancel also work at the reading pause.
 Moving between individual games does not move the underlying schedule page.
 
+## Extract Team Schedule
+
+Schedule menu choice **3. Extract Team Schedule** opens the source schedule
+picker, followed by the existing accessible team selector. The first game's
+season ID is offered as the default; another season can be selected for a
+mixed-season schedule. Search or browse for the team using numbered choices.
+
+Matching uses both the team record number and season ID, on either side of
+each game, as upstream `ExtractSchedule` action 3 does. Games remain in source
+order with their scores, completion status, and other settings. Like upstream,
+the extracted games set the selected team to human control and set the
+play-by-play delay to zero. The original file is never written.
+
+After the game count is announced, choose 1 to open the native Save dialog.
+Choose a new filename; existing files are refused even if the native dialog
+offers replacement. Escape cancels. A missing `.SCD` extension is added.
+After saving, choose 1 to review the extracted schedule, 0 for the schedule
+menu, or 99 for the main menu. A failed save reports the problem and warns
+that a partial destination may remain, without reporting success.
+
+The accessible adapter implements the upstream record matching and extraction
+settings without invoking its graphical prompts or modifying its shared
+schedule arrays. The existing accessible team picker uses the normal team
+index, just as in single-game setup. No simulation routines are changed.
+
 ## Implementation boundary
 
 `AccessibleSchedules.bm` owns the menus and review. It reads upstream's 52-byte
@@ -42,11 +67,12 @@ It does not call the graphical editing/saving workflow, initialize an active
 schedule, compile statistics, or change simulation routines. The reader uses
 local data rather than replacing the scheduler's or current game's shared arrays.
 
-The only change in `HELLO.BAS` is a scoped error-handler hook for file-read
+The only change in `HELLO.BAS` is a scoped error-handler hook for file I/O
 failures, so an inaccessible or locked file returns a readable error to this
-review screen. Normal error handling is unchanged outside those reads.
+review screen. Extraction also scopes this hook around writing the new file.
+Normal error handling is unchanged outside those operations.
 
-Playing, editing, creating schedules, standings, and browsing saved box scores
+Playing, editing, creating schedules from scratch, standings, and browsing saved box scores
 remain future milestones. Team data must already be installed. The sample
 schedule produced by the test script is synthetic, not a historical schedule.
 
@@ -70,3 +96,13 @@ Manual JAWS check still required:
    setup to check that focus and navigation still work normally.
 
 Automated tests do not establish JAWS speech or native-dialog focus behavior.
+
+Run `scripts/test-accessible-schedule-extraction.ps1` for extraction checks:
+exact output records for home/away matches, exclusion of another season,
+preserved results/order, unchanged source/team data, existing-file protection,
+cancellation, no matches, failed saves, and filename extension handling.
+
+For manual testing, choose 3 on the main menu and 3 on the schedule menu.
+Select a real season, keep its season ID, search for a team, and save a new
+team schedule. Confirm the match count and Save dialog are spoken, then review
+the saved games. Also try canceling the Open and Save dialogs.

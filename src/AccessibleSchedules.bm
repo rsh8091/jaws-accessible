@@ -1,5 +1,122 @@
-' Accessible read-only view of upstream SCD records (SCHEDULE.BAS).
-' No schedule saving, normalization, game activation, or simulation changes.
+' Accessible review and team extraction of upstream SCD records (SCHEDULE.BAS).
+' Extraction writes a new file only; no game activation or simulation changes.
+Function AccessibleScheduleSavePath$ (suggestedName$) Static
+    If IsAccessibleTestMode% Then
+        For argIndex = 1 To _CommandCount
+            If LCase$(Command$(argIndex)) = "--accessible-schedule-test" Then
+                AccessibleScheduleSavePath$ = Environ$("COURTSIDE_SCHEDULE_SAVE_FILE")
+                Exit Function
+            End If
+        Next
+    End If
+    AccessibleScheduleSavePath$ = _SaveFileDialog$("Save extracted team schedule as a new file", diskPaths$(3) + suggestedName$, "*.SCD", "Schedule files [.SCD]")
+End Function
+
+Sub AccessibleExtractTeamSchedule ()
+    Dim recordText As String
+    accessibleScheduleReturnMain = 0
+    Print "Choose the season schedule to extract from. Press Escape to cancel."
+    sourcePath$ = AccessiblePickSchedule$
+    If sourcePath$ = "" Then Print "Schedule selection canceled.": Exit Sub
+    offset& = 1: length& = 0
+    contents$ = AccessibleScheduleBytes$(sourcePath$, offset&, length&)
+    If Len(contents$) = 0 Or Len(contents$) Mod SCHEDULE_SIZE_BYTES <> 0 Then
+        Print "Cannot extract this schedule. It is empty, unreadable, too large, or not a supported schedule file."
+        ignored$ = AccessibleReadCommand$("Press Enter to return to Schedules and Boxscores: ")
+        Exit Sub
+    End If
+    'Use the first game's season as a convenience; the picker permits other seasons.
+    selectedYear$ = RTrim$(Mid$(contents$, 43, 5))
+    selectedTeam = 0: selectedName$ = ""
+    oldBackLabel$ = accessibleSetupBackLabel$
+    accessibleSetupBackLabel$ = "Schedules and Boxscores"
+    role$ = "schedule"
+    picked = AccessibleChooseTeam%(role$, selectedYear$, selectedTeam, selectedName$)
+    accessibleSetupBackLabel$ = oldBackLabel$
+    If picked = -1 Then accessibleScheduleReturnMain = 1: Exit Sub
+    If picked = 0 Then Exit Sub
+    extracted$ = ""
+    For gameNumber = 1 To Len(contents$) / SCHEDULE_SIZE_BYTES
+        recordText = Mid$(contents$, CLng(gameNumber - 1) * SCHEDULE_SIZE_BYTES + 1, SCHEDULE_SIZE_BYTES)
+        visitorMatch = (CVI(Mid$(recordText, 1, 2)) = selectedTeam And RTrim$(Mid$(recordText, 43, 5)) = selectedYear$)
+        homeMatch = (CVI(Mid$(recordText, 3, 2)) = selectedTeam And RTrim$(Mid$(recordText, 48, 5)) = selectedYear$)
+        If visitorMatch Or homeMatch Then
+            'Same extraction settings as upstream ExtractSchedule action 3:
+            'human visitor = 2, human home = 1, play-by-play delay = zero.
+            If visitorMatch Then Mid$(recordText, 17, 2) = MKI$(2)
+            If homeMatch Then Mid$(recordText, 17, 2) = MKI$(1)
+            Mid$(recordText, 9, 2) = MKI$(0)
+            extracted$ = extracted$ + recordText
+        End If
+    Next
+    extractedCount = Len(extracted$) / SCHEDULE_SIZE_BYTES
+    If extractedCount = 0 Then
+        Print "No games for this team and season were found in the selected schedule."
+        ignored$ = AccessibleReadCommand$("Press Enter to return to Schedules and Boxscores: ")
+        Exit Sub
+    End If
+    Print LTrim$(Str$(extractedCount)); " games found for "; AccessibleTeamDisplay$(selectedName$); " ("; selectedYear$; ")."
+    Print "The new schedule keeps game order and results, and sets your team to human control."
+    Print "The original schedule will stay unchanged. Choose a new filename; existing files will not be replaced."
+    Do
+        Print "1. Save the team schedule."
+        Print "0. Back to Schedules and Boxscores."
+        Print "99. Cancel and return to the main menu."
+        choice$ = AccessibleReadCommand$("Enter choice: ")
+        If choice$ = "0" Or choice$ = "back" Then Exit Sub
+        If choice$ = "99" Or choice$ = "cancel" Then accessibleScheduleReturnMain = 1: Exit Sub
+        If choice$ = "1" Then Exit Do
+        Print "Choose a displayed number."
+    Loop
+    suggestedName$ = "Team-" + selectedYear$ + "-" + LTrim$(Str$(selectedTeam)) + ".SCD"
+    targetPath$ = AccessibleScheduleSavePath$(suggestedName$)
+    If targetPath$ = "" Then Print "Schedule save canceled.": Exit Sub
+    If UCase$(Right$(targetPath$, 4)) <> ".SCD" Then targetPath$ = targetPath$ + ".SCD"
+    If _FileExists(targetPath$) Then
+        Print "That file already exists. Nothing was changed. Extract again and choose a new filename."
+        ignored$ = AccessibleReadCommand$("Press Enter to return to Schedules and Boxscores: ")
+        Exit Sub
+    End If
+    'The scoped I/O handler also reports save failures without entering gameplay.
+    accessibleScheduleReadFailed% = 0: accessibleScheduleReading% = 1
+    handle = FreeFile
+    Open targetPath$ For Binary Access Write Lock Read Write As #handle
+    If accessibleScheduleReadFailed% = 0 Then
+        If LOF(handle) = 0 Then
+            Put #handle, 1, extracted$
+        Else
+            accessibleScheduleReadFailed% = 1
+        End If
+        Close #handle
+    End If
+    accessibleScheduleReading% = 0
+    saveFailed = accessibleScheduleReadFailed%
+    offset& = 1: length& = 0
+    If saveFailed = 0 Then
+        saved$ = AccessibleScheduleBytes$(targetPath$, offset&, length&)
+        If saved$ <> extracted$ Then saveFailed = 1
+    End If
+    If saveFailed Then
+        Print "Could not save the complete team schedule. The original schedule is unchanged."
+        Print "A partial output file may remain. Choose a new filename when retrying."
+        ignored$ = AccessibleReadCommand$("Press Enter to return to Schedules and Boxscores: ")
+        Exit Sub
+    End If
+    Print "Saved "; LTrim$(Str$(extractedCount)); " games to "; targetPath$
+    Do
+        Print "1. Review the saved team schedule."
+        Print "0. Back to Schedules and Boxscores."
+        Print "99. Cancel and return to the main menu."
+        choice$ = AccessibleReadCommand$("Enter choice: ")
+        Select Case choice$
+            Case "1": Call AccessibleReviewSchedule(targetPath$): Exit Sub
+            Case "0", "back": Exit Sub
+            Case "99", "cancel": accessibleScheduleReturnMain = 1: Exit Sub
+            Case Else: Print "Choose a displayed number."
+        End Select
+    Loop
+End Sub
+
 Function AccessiblePickSchedule$ () Static
     AccessiblePickSchedule$ = ""
     If IsAccessibleTestMode% Then
@@ -17,8 +134,9 @@ Sub AccessibleScheduleMenu ()
     Do
         Print
         Print "Schedules and Boxscores"
-        Print "Schedule review only in this version. Playing, editing, and saved boxscore browsing are not available yet."
+        Print "Review schedules or extract a team's games. Playing, editing, and saved boxscore browsing are not available yet."
         Print "2. Play / Edit an Existing Schedule (review only)."
+        Print "3. Extract Team Schedule."
         Print "0. Back to the main menu."
         Print "99. Cancel and return to the main menu."
         choice$ = AccessibleReadCommand$("Enter choice: ")
@@ -33,7 +151,10 @@ Sub AccessibleScheduleMenu ()
                     Call AccessibleReviewSchedule(selectedFile$)
                     If accessibleScheduleReturnMain Then Exit Sub
                 End If
-            Case Else: Print "Choose 2 to open a schedule, 0 for Back, or 99 to cancel."
+            Case "3"
+                Call AccessibleExtractTeamSchedule
+                If accessibleScheduleReturnMain Then Exit Sub
+            Case Else: Print "Choose 2 to open a schedule, 3 to extract a team, 0 for Back, or 99 to cancel."
         End Select
     Loop
 End Sub

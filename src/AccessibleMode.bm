@@ -2050,6 +2050,8 @@ Sub AccessibleShowHelp ()
     Print "Review five games at a time. Use the numbered choices for next, previous, or go to a game."
     Print "Each schedule page waits for you. Choose 1 or press Enter when ready for navigation choices."
     Print "Go to a game reads only that game. Use Next, Previous, or Repeat; Back returns to your schedule page."
+    Print "Extract Team Schedule: choose a schedule and team, then save to a new filename. Existing files are not replaced."
+    Print "The extracted schedule keeps results and sets your team to human control. Choose 1 after saving to review it."
     Print "Choose 0 to go back or 99 to return to the main menu."
     Print
     commandValue$ = AccessibleReadCommand$("Press Enter to return to the main menu: ")

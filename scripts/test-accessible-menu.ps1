@@ -23,7 +23,7 @@ $expectedText = @(
     'Accessibility help',
     '3. Schedules and Boxscores.',
     '4. Exit.',
-    'Schedule review only in this version.',
+    "Review schedules or extract a team's games.",
     'Press Enter to return to the main menu:',
     'Choice not recognized.',
     'Exiting Courtside College Basketball.'
