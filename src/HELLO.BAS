@@ -1348,6 +1348,7 @@ Sub COLHOOP ()
         ft6FloorFouls = 0
         pbpOpt = 0
         sndOpt = 0
+        If accessibleScheduledGame% Then Call AccessibleApplyScheduledRules
         Select Case accessibleShotClock
             Case 45: sClockVal = 1
             Case 35: sClockVal = 2
@@ -1788,6 +1789,7 @@ Sub COLHOOP ()
             accessibleEngineLastTeam = -1
             GoTo 250
         Else
+            If accessibleScheduledGame% Then accessibleScheduledComplete% = 1
             If IsAccessibleTurnoverDiagnosticMode% = 1 Then
                 Call AccessiblePrintTurnoverDiagnostic
             Else

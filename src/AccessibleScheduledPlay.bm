@@ -1,0 +1,230 @@
+' Scheduled-game adapter. The simulator is unchanged; only its existing
+' prepared-game entry and completed-game return are connected to an SCD record.
+Sub AccessibleApplyScheduledRules ()
+    gameLoc = CVI(Mid$(accessibleScheduledRecord$, 5, 2))
+    threePtOpt = CVI(Mid$(accessibleScheduledRecord$, 7, 2))
+    foulsToDQ = CVI(Mid$(accessibleScheduledRecord$, 11, 2))
+    ft10thFoul = CVI(Mid$(accessibleScheduledRecord$, 13, 2))
+    playerOpt = CVI(Mid$(accessibleScheduledRecord$, 17, 2))
+    If playerOpt = 0 Then playerMode = 0
+    coachOpt = CVI(Mid$(accessibleScheduledRecord$, 19, 2))
+    ft3PtFoul = CVI(Mid$(accessibleScheduledRecord$, 21, 2))
+    ft6FloorFouls = CVI(Mid$(accessibleScheduledRecord$, 29, 2))
+    'sClockVal is assigned from accessibleShotClock by the prepared-game path.
+    'Console narration is paced by prompts rather than graphical PBP delay.
+End Sub
+
+Sub AccessiblePlayScheduledGame (filePath$, contents$, gameNumber)
+    Dim recordText As String
+    accessibleScheduledGame% = 0: accessibleScheduledComplete% = 0
+    recordText = Mid$(contents$, CLng(gameNumber - 1) * SCHEDULE_SIZE_BYTES + 1, SCHEDULE_SIZE_BYTES)
+    If Len(recordText) <> SCHEDULE_SIZE_BYTES Then Exit Sub
+    If CVI(Mid$(recordText, 27, 2)) <> 0 Then
+        Print "This game is already completed or has an unsupported status. Its result will not be replaced."
+        ignored$ = AccessibleReadCommand$("Press Enter to return to the game: ")
+        Exit Sub
+    End If
+    offset& = 1: length& = 0
+    current$ = AccessibleScheduleBytes$(filePath$, offset&, length&)
+    If current$ <> contents$ Then
+        Print "The schedule changed or cannot be read. Reopen it before playing."
+        ignored$ = AccessibleReadCommand$("Press Enter to return to the game: ")
+        Exit Sub
+    End If
+    visitorYear$ = RTrim$(Mid$(recordText, 43, 5)): homeYear$ = RTrim$(Mid$(recordText, 48, 5))
+    visitorIdx = CVI(Mid$(recordText, 1, 2)): homeIdx = CVI(Mid$(recordText, 3, 2))
+    valid = 1
+    If AccessibleScheduleTeam$(visitorYear$, visitorIdx) = "Team unavailable" Then valid = 0
+    If AccessibleScheduleTeam$(homeYear$, homeIdx) = "Team unavailable" Then valid = 0
+    For side = 0 To 1
+        If side = 0 Then season$ = visitorYear$: teamNumber = visitorIdx Else season$ = homeYear$: teamNumber = homeIdx
+        dataPath$ = diskPaths$(0) + DATA_FILE_NAME$ + "." + season$
+        offset& = CLng(teamNumber - 1) * DATA_SIZE_BYTES + 1: length& = DATA_SIZE_BYTES
+        If Len(AccessibleScheduleBytes$(dataPath$, offset&, length&)) <> DATA_SIZE_BYTES Then valid = 0
+    Next
+    'Validate the options that will be used as array indexes or rule switches.
+    For fieldIndex = 2 To 14
+        value = CVI(Mid$(recordText, fieldIndex * 2 + 1, 2))
+        Select Case fieldIndex
+            Case 2: If value < 0 Or value > 2 Then valid = 0
+            Case 3, 6, 9, 10, 14: If value < 0 Or value > 1 Then valid = 0
+            Case 5: If value < 1 Or value > 9 Then valid = 0
+            Case 7, 8: If value < 0 Or value > 3 Then valid = 0
+        End Select
+    Next
+    If valid = 0 Then
+        Print "Cannot play this game. Check its team data and schedule settings."
+        ignored$ = AccessibleReadCommand$("Press Enter to return to the game: ")
+        Exit Sub
+    End If
+    Call InitVar
+    earlyExit = 0
+    Erase accessibleSetupLoadedYear$, accessibleSetupLoadedIdx, accessibleSetupLineupCount
+    accessibleScheduledRecord$ = recordText
+    accessiblePlayerOpt = CVI(Mid$(recordText, 17, 2))
+    accessibleGameLoc = CVI(Mid$(recordText, 5, 2))
+    accessibleThreePoint = CVI(Mid$(recordText, 7, 2))
+    accessibleFoulsToDQ = CVI(Mid$(recordText, 11, 2))
+    Select Case CVI(Mid$(recordText, 15, 2))
+        Case 1: accessibleShotClock = 45
+        Case 2: accessibleShotClock = 35
+        Case 3: accessibleShotClock = 30
+        Case Else: accessibleShotClock = 0
+    End Select
+    If AccessiblePrepareMatchup%(visitorYear$, homeYear$, visitorIdx, homeIdx) = 0 Then
+        ignored$ = AccessibleReadCommand$("Press Enter to return to the game: ")
+        Exit Sub
+    End If
+    threePtOpt = accessibleThreePoint
+    sClockVal = CVI(Mid$(recordText, 15, 2))
+    accessibleSetupActive = 1
+    setupStep = 11
+    Do While setupStep >= 11 And setupStep <= 19
+        accessibleSetupBackLabel$ = "the previous schedule setup step"
+        result = 1
+        Select Case setupStep
+            Case 11
+                Print "Scheduled game "; LTrim$(Str$(gameNumber)); "."
+                Call AccessiblePrintScheduleGame(contents$, gameNumber)
+                Call AccessibleSetupSummary
+                If accessibleGameLoc = 0 Then Print "Scheduled court advantage: visiting team."
+                Print "The scheduled matchup and rules are fixed. Only a completed score will be saved."
+                Print "Season statistics and standings are not saved in this version."
+                If accessiblePlayerOpt < 3 Then
+                    If CVI(Mid$(accessibleScheduledRecord$, 19, 2)) = 0 Then Print "Current human role: coach and select shots." Else Print "Current human role: coach only; the computer selects shots."
+                    Print "1. Coach and select shots, as in single-game play."
+                    Print "2. Coach only and let the computer shoot."
+                    Print "98. Keep the current human role."
+                    Print "Your choice applies to this game. Next, review lineups and strategies."
+                Else
+                    Print "1. Review lineups and strategies."
+                End If
+                Print "0. Back to the schedule without playing."
+                Print "99. Cancel and return to the main menu."
+                choice$ = AccessibleReadCommand$("Enter choice: ")
+                If choice$ = "99" Or choice$ = "cancel" Then accessibleScheduleReturnMain = 1: Exit Do
+                If choice$ = "0" Then Exit Do
+                If accessiblePlayerOpt < 3 Then
+                    Select Case choice$
+                        Case "1": Mid$(accessibleScheduledRecord$, 19, 2) = MKI$(0)
+                        Case "2": Mid$(accessibleScheduledRecord$, 19, 2) = MKI$(1)
+                        Case "98", "keep"
+                        Case Else: Print "Choose a displayed number.": result = 2
+                    End Select
+                Else
+                    If choice$ <> "1" Then result = 2
+                End If
+            Case 12
+                Call AccessibleShowLoadedTeam(0, "Visiting")
+                ignored$ = AccessibleReadCommand$("Press Enter to review the home roster: ")
+                Call AccessibleShowLoadedTeam(1, "Home")
+                choice$ = AccessibleReadCommand$("1 to continue, 0 for Back, or 99 to cancel: ")
+                Select Case choice$
+                    Case "0": result = 0
+                    Case "99", "cancel": result = -1
+                    Case "1"
+                    Case Else: result = 2
+                End Select
+            Case 13, 14
+                side = setupStep - 13
+                If side = 0 Then role$ = "Visiting" Else role$ = "Home"
+                computerControlled = AccessibleSetupComputer%(side)
+                result = AccessibleChooseLineup%(side, role$, computerControlled)
+            Case 15 To 18
+                side = Int((setupStep - 15) / 2)
+                If AccessibleSetupComputer%(side) = 0 Then
+                    If setupStep = 15 Or setupStep = 17 Then result = AccessibleChooseOffense%(side) Else result = AccessibleChooseDefense%(side)
+                End If
+            Case 19
+                If accessiblePlayerOpt < 3 Then
+                    If CVI(Mid$(accessibleScheduledRecord$, 19, 2)) = 0 Then Print "Human role: coach and select shots." Else Print "Human role: coach only; the computer selects shots."
+                End If
+                Print "1. Start this scheduled game."
+                Print "0. Review lineups and strategies again."
+                Print "99. Cancel without changing the schedule."
+                choice$ = AccessibleReadCommand$("Enter choice: ")
+                Select Case choice$
+                    Case "1": setupStep = 20: Exit Do
+                    Case "0": setupStep = 12: result = 2
+                    Case "99", "cancel": result = -1
+                    Case Else: result = 2
+                End Select
+        End Select
+        If result = -1 Then accessibleScheduleReturnMain = 1: Exit Do
+        If result = 0 Then setupStep = setupStep - 1
+        If result = 1 Then setupStep = setupStep + 1
+        If setupStep = 19 Then
+            For side = 0 To 1
+                If AccessibleSetupComputer%(side) = 0 And offStrat(side) = 14 And defCoverage(1 - side) <> 2 Then
+                    Print "The opposing defense changed. Choose an available offensive style."
+                    setupStep = 15 + side * 2
+                    Exit For
+                End If
+            Next
+        End If
+    Loop
+    accessibleSetupActive = 0
+    If setupStep <> 20 Then
+        Print "Scheduled game canceled. The schedule is unchanged."
+        If accessibleScheduleReturnMain Then Exit Sub
+        ignored$ = AccessibleReadCommand$("Press Enter to return to the game: ")
+        Exit Sub
+    End If
+    accessibleScheduledGame% = 1
+    Call AccessibleRunGame
+    accessibleScheduledGame% = 0
+    If accessibleScheduledComplete% = 0 Then
+        Print "Game unfinished. The schedule is unchanged."
+        ignored$ = AccessibleReadCommand$("Press Enter to return to the game: ")
+        Exit Sub
+    End If
+    Do
+        Print "1. Save the completed result to this schedule."
+        Print "0. Return without saving this result."
+        choice$ = AccessibleReadCommand$("Enter choice: ")
+        If choice$ = "0" Then Print "Result not saved. The schedule is unchanged.": Exit Do
+        If choice$ = "1" Then
+            If AccessibleSaveScheduledResult%(filePath$, contents$, gameNumber) Then
+                Print "Completed result saved to the schedule."
+                Exit Do
+            End If
+            Print "Result was not saved. The file may be locked, read-only, or changed. You can retry."
+        End If
+    Loop
+    ignored$ = AccessibleReadCommand$("Press Enter to return to the game: ")
+End Sub
+
+Function AccessibleSaveScheduledResult% (filePath$, contents$, gameNumber) Static
+    AccessibleSaveScheduledResult% = 0
+    savedOK = 0
+    If accessibleScheduledComplete% = 0 Or _FileExists(filePath$) = 0 Then Exit Function
+    Dim recordText As String
+    recordText = Mid$(contents$, CLng(gameNumber - 1) * SCHEDULE_SIZE_BYTES + 1, SCHEDULE_SIZE_BYTES)
+    If Len(recordText) <> SCHEDULE_SIZE_BYTES Then Exit Function
+    If CVI(Mid$(recordText, 27, 2)) <> 0 Then Exit Function
+    Mid$(recordText, 27, 2) = MKI$(1)
+    Mid$(recordText, 39, 2) = MKI$(score(0, 0))
+    Mid$(recordText, 41, 2) = MKI$(score(1, 0))
+    accessibleScheduleReadFailed% = 0: accessibleScheduleReading% = 1
+    handle = FreeFile
+    Open filePath$ For Binary Access Read Write Lock Read Write As #handle
+    If accessibleScheduleReadFailed% = 0 Then
+        If LOF(handle) = Len(contents$) Then
+            current$ = Space$(Len(contents$))
+            Get #handle, 1, current$
+            If accessibleScheduleReadFailed% = 0 And current$ = contents$ Then
+                Put #handle, CLng(gameNumber - 1) * SCHEDULE_SIZE_BYTES + 1, recordText
+                If accessibleScheduleReadFailed% = 0 Then
+                    check$ = Space$(SCHEDULE_SIZE_BYTES)
+                    Get #handle, CLng(gameNumber - 1) * SCHEDULE_SIZE_BYTES + 1, check$
+                    If check$ = recordText And accessibleScheduleReadFailed% = 0 Then savedOK = 1
+                End If
+            End If
+        End If
+        Close #handle
+    End If
+    accessibleScheduleReading% = 0
+    If accessibleScheduleReadFailed% Then savedOK = 0
+    If savedOK Then Mid$(contents$, CLng(gameNumber - 1) * SCHEDULE_SIZE_BYTES + 1, SCHEDULE_SIZE_BYTES) = recordText
+    AccessibleSaveScheduledResult% = savedOK
+End Function

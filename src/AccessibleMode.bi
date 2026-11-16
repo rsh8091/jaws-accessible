@@ -27,12 +27,17 @@ Declare Sub AccessibleMainMenu ()
 Declare Sub AccessibleShowHelp ()
 Dim Shared accessibleScheduleReading%, accessibleScheduleReadFailed%
 Dim Shared accessibleScheduleReturnMain
+Dim Shared accessibleScheduledGame%, accessibleScheduledComplete%, accessibleScheduledRecord$
+Declare Sub AccessiblePlayScheduledGame (filePath$, contents$, gameNumber)
+Declare Sub AccessibleApplyScheduledRules ()
+Declare Function AccessibleSaveScheduledResult% (filePath$, contents$, gameNumber) Static
 Declare Sub AccessibleScheduleMenu ()
+Declare Sub AccessibleResetSchedule (filePath$, contents$)
 Declare Sub AccessibleExtractTeamSchedule ()
 Declare Function AccessibleScheduleSavePath$ (suggestedName$) Static
 Declare Sub AccessibleReviewSchedule (filePath$)
 Declare Sub AccessiblePrintScheduleGame (contents$, gameNumber)
-Declare Sub AccessibleReviewScheduleGame (contents$, selectedGame)
+Declare Sub AccessibleReviewScheduleGame (filePath$, contents$, selectedGame)
 Declare Function AccessibleScheduleBytes$ (filePath$, byteOffset&, byteCount&) Static
 Declare Function AccessibleScheduleTeam$ (season$, teamNumber) Static
 Declare Function AccessiblePickSchedule$ () Static

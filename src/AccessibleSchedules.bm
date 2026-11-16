@@ -1,5 +1,5 @@
 ' Accessible review and team extraction of upstream SCD records (SCHEDULE.BAS).
-' Extraction writes a new file only; no game activation or simulation changes.
+' Scheduled gameplay is handled by the separate AccessibleScheduledPlay adapter.
 Function AccessibleScheduleSavePath$ (suggestedName$) Static
     If IsAccessibleTestMode% Then
         For argIndex = 1 To _CommandCount
@@ -134,8 +134,8 @@ Sub AccessibleScheduleMenu ()
     Do
         Print
         Print "Schedules and Boxscores"
-        Print "Review schedules or extract a team's games. Playing, editing, and saved boxscore browsing are not available yet."
-        Print "2. Play / Edit an Existing Schedule (review only)."
+        Print "Review schedules or extract a team's games. Choose an unplayed game's details to play it."
+        Print "2. Play / Edit an Existing Schedule."
         Print "3. Extract Team Schedule."
         Print "0. Back to the main menu."
         Print "99. Cancel and return to the main menu."
@@ -221,7 +221,7 @@ Sub AccessibleReviewSchedule (filePath$)
         Print
         If notice$ <> "" Then Print notice$: notice$ = ""
         Print "Schedule: "; GetFileBaseName$(filePath$)
-        Print "Read-only review. No schedule files will be changed."
+        Print "Read-only review. Open a game's details to play; saving a completed result updates this schedule."
         lastGame = firstGame + 4
         If lastGame > gameCount Then lastGame = gameCount
         Print "Games "; LTrim$(Str$(firstGame)); " through "; LTrim$(Str$(lastGame)); " of "; LTrim$(Str$(gameCount)); "."
@@ -242,6 +242,7 @@ Sub AccessibleReviewSchedule (filePath$)
         Print "2. Previous page."
         Print "3. Go to a game number."
         Print "4. Repeat this page."
+        Print "5. Reset Scores."
         Print "0. Back to Schedules and Boxscores."
         Print "99. Cancel and return to the main menu."
         choice$ = AccessibleReadCommand$("Enter choice: ")
@@ -261,19 +262,76 @@ Sub AccessibleReviewSchedule (filePath$)
                     targetValue# = Val(target$)
                     If targetValue# >= 1 And targetValue# <= gameCount And target$ = LTrim$(Str$(Fix(targetValue#))) Then
                         selectedGame = targetValue#
-                        Call AccessibleReviewScheduleGame(contents$, selectedGame)
+                        Call AccessibleReviewScheduleGame(filePath$, contents$, selectedGame)
                         If accessibleScheduleReturnMain Then Exit Sub
                         Exit Do
                     End If
                     Print "Choose a whole game number from 1 through "; LTrim$(Str$(gameCount)); "."
                 Loop
             Case "4", "repeat"
+            Case "5", "reset"
+                Call AccessibleResetSchedule(filePath$, contents$)
+                If accessibleScheduleReturnMain Then Exit Sub
             Case Else: notice$ = "Choose a displayed number."
         End Select
     Loop
 End Sub
 
-Sub AccessibleReviewScheduleGame (contents$, selectedGame)
+Sub AccessibleResetSchedule (filePath$, contents$)
+    Cls
+    Print "Reset Scores for "; GetFileBaseName$(filePath$)
+    Print "This marks all "; LTrim$(Str$(Len(contents$) / SCHEDULE_SIZE_BYTES)); " games in this schedule as unplayed."
+    Print "It saves to this same file. Previous results will no longer appear as completed games."
+    Print "Teams, dates, game settings, and other schedule files stay unchanged."
+    Do
+        Print "1. Confirm reset and save."
+        Print "0. Back without resetting."
+        Print "99. Cancel and return to the main menu."
+        choice$ = AccessibleReadCommand$("Enter choice: ")
+        If choice$ = "0" Or choice$ = "back" Then Exit Sub
+        If choice$ = "99" Or choice$ = "cancel" Then accessibleScheduleReturnMain = 1: Exit Sub
+        If choice$ = "1" Then Exit Do
+        Print "Choose a displayed number."
+    Loop
+    reset$ = contents$
+    'Match upstream Reset Scores: clear only the completed flag, not stored scores.
+    For gameNumber = 1 To Len(reset$) / SCHEDULE_SIZE_BYTES
+        Mid$(reset$, CLng(gameNumber - 1) * SCHEDULE_SIZE_BYTES + 27, 2) = MKI$(0)
+    Next
+    savedOK = 0
+    accessibleScheduleReadFailed% = 0: accessibleScheduleReading% = 1
+    If _FileExists(filePath$) Then
+        handle = FreeFile
+        Open filePath$ For Binary Access Read Write Lock Read Write As #handle
+        If accessibleScheduleReadFailed% = 0 Then
+            If LOF(handle) = Len(contents$) Then
+                current$ = Space$(Len(contents$))
+                Get #handle, 1, current$
+                If accessibleScheduleReadFailed% = 0 And current$ = contents$ Then
+                    Put #handle, 1, reset$
+                    If accessibleScheduleReadFailed% = 0 Then
+                        check$ = Space$(Len(reset$))
+                        Get #handle, 1, check$
+                        If accessibleScheduleReadFailed% = 0 And check$ = reset$ Then savedOK = 1
+                    End If
+                End If
+            End If
+            Close #handle
+        End If
+    End If
+    accessibleScheduleReading% = 0
+    If accessibleScheduleReadFailed% Then savedOK = 0
+    If savedOK Then
+        contents$ = reset$
+        Print "Reset saved. All games are now unplayed. Open a game's details and choose 4 to play."
+    Else
+        Print "Could not confirm the reset was saved. The file may be read-only, locked, or changed."
+        Print "Reopen the schedule to check its current status before trying again."
+    End If
+    ignored$ = AccessibleReadCommand$("Press Enter to return to the schedule: ")
+End Sub
+
+Sub AccessibleReviewScheduleGame (filePath$, contents$, selectedGame)
     gameCount = Len(contents$) / SCHEDULE_SIZE_BYTES
     currentGame = selectedGame
     notice$ = ""
@@ -295,6 +353,7 @@ Sub AccessibleReviewScheduleGame (contents$, selectedGame)
         Print "1. Next game."
         Print "2. Previous game."
         Print "3. Repeat this game."
+        If CVI(Mid$(contents$, CLng(currentGame - 1) * SCHEDULE_SIZE_BYTES + 27, 2)) = 0 Then Print "4. Play this game."
         Print "0. Back to the schedule page."
         Print "99. Cancel and return to the main menu."
         choice$ = AccessibleReadCommand$("Enter choice: ")
@@ -304,6 +363,9 @@ Sub AccessibleReviewScheduleGame (contents$, selectedGame)
             Case "2", "previous"
                 If currentGame > 1 Then currentGame = currentGame - 1 Else notice$ = "This is the first game."
             Case "3", "repeat"
+            Case "4"
+                Call AccessiblePlayScheduledGame(filePath$, contents$, currentGame)
+                If accessibleScheduleReturnMain Then Exit Sub
             Case "0", "back": Exit Sub
             Case "99", "cancel": accessibleScheduleReturnMain = 1: Exit Sub
             Case Else: notice$ = "Choose a displayed number."

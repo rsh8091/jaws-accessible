@@ -485,7 +485,11 @@ Sub AccessibleRunGame ()
 
     Print
     Print "Original simulator validation."
-    If IsAccessibleTurnoverDiagnosticMode% = 1 Then
+    If accessibleScheduledGame% And IsAccessibleTestMode% = 0 Then
+        Print "Playing the scheduled game to completion."
+        accessibleEngineLimit = 0
+        accessibleEngineStopClock = 0
+    ElseIf IsAccessibleTurnoverDiagnosticMode% = 1 Then
         Print "Automated full-game turnover diagnostic."
         accessibleEngineLimit = 0
         accessibleEngineStopClock = 0
@@ -533,7 +537,7 @@ Sub AccessibleRunGame ()
     accessibleEngineMode = 0
     accessiblePreparedGame = 0
     accessibleTurnoverDiagnosticActive = 0
-    Print "Returning to the main menu."
+    If accessibleScheduledGame% Then Print "Returning to the schedule result options." Else Print "Returning to the main menu."
 
 End Sub
 
@@ -774,7 +778,7 @@ Sub AccessiblePostgameMenu ()
         Print "2. Hear the visiting team box score."
         Print "3. Hear the home team box score."
         Print "4. Create the HTML box score and open the folder containing it."
-        Print "5. Return to the main menu."
+        If accessibleScheduledGame% Then Print "5. Continue to save the schedule result." Else Print "5. Return to the main menu."
         commandValue$ = AccessibleReadCommand$("Enter choice: ")
         Select Case commandValue$
             Case "1"
@@ -2045,13 +2049,18 @@ Sub AccessibleShowHelp ()
     Print "The game pauses at key points so you can review the text with your screen reader."
     Print "Press Enter when prompted to continue."
     Print "During play, offense and defense selections are confirmed before you press Enter to return to the menu."
-    Print "Main menu choice 3 opens Schedules and Boxscores; choice 4 exits. Schedule review is read-only for now."
+    Print "Main menu choice 3 opens Schedules and Boxscores; choice 4 exits."
     Print "Choose a schedule in the Windows Open dialog. Tab moves between controls; Escape cancels."
     Print "Review five games at a time. Use the numbered choices for next, previous, or go to a game."
     Print "Each schedule page waits for you. Choose 1 or press Enter when ready for navigation choices."
+    Print "Schedule navigation choice 5 resets all games to unplayed. Confirm with 1 to save to the same file, or 0 to go back."
     Print "Go to a game reads only that game. Use Next, Previous, or Repeat; Back returns to your schedule page."
     Print "Extract Team Schedule: choose a schedule and team, then save to a new filename. Existing files are not replaced."
     Print "The extracted schedule keeps results and sets your team to human control. Choose 1 after saving to review it."
+    Print "In an unplayed game's details, choose 4 to play. Review lineups and strategies, then confirm tipoff."
+    Print "For human play, choose 1 to coach and select shots as in a single game, 2 to coach only, or 98 to keep the current role."
+    Print "After a completed game, choose 5 in postgame options, then 1 to save its score to the schedule."
+    Print "Canceling setup or ending an unfinished game leaves the schedule unchanged. Completed games cannot be replayed here."
     Print "Choose 0 to go back or 99 to return to the main menu."
     Print
     commandValue$ = AccessibleReadCommand$("Press Enter to return to the main menu: ")
@@ -2063,3 +2072,4 @@ End Sub
 '$Include: 'AccessibleSubstitutions.bm'
 
 '$Include: 'AccessibleSchedules.bm'
+'$Include: 'AccessibleScheduledPlay.bm'

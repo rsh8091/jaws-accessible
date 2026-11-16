@@ -173,7 +173,11 @@ Sub AccessibleSetupSummary ()
         Case 2: Print "Control: human controls visitor; computer controls home."
         Case 3: Print "Control: computer controls both teams."
     End Select
-    If accessibleGameLoc = 1 Then Print "Location: home-court advantage." Else Print "Location: neutral site."
+    Select Case accessibleGameLoc
+        Case 0: Print "Location: visiting-court advantage."
+        Case 1: Print "Location: home-court advantage."
+        Case Else: Print "Location: neutral site."
+    End Select
     If accessibleShotClock = 0 Then Print "Shot clock: none." Else Print "Shot clock: "; LTrim$(Str$(accessibleShotClock)); " seconds."
     If accessibleThreePoint = 1 Then Print "Three-point shot: yes." Else Print "Three-point shot: no."
     Print "Fouls to disqualify: "; LTrim$(Str$(accessibleFoulsToDQ)); "."
