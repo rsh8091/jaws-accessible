@@ -2054,6 +2054,9 @@ Sub AccessibleShowHelp ()
     Print "Review five games at a time. Use the numbered choices for next, previous, or go to a game."
     Print "Each schedule page waits for you. Choose 1 or press Enter when ready for navigation choices."
     Print "Schedule navigation choice 5 resets all games to unplayed. Confirm with 1 to save to the same file, or 0 to go back."
+    Print "Choice 6 plays a range. Enter starting and ending game numbers, then confirm. Completed games are skipped."
+    Print "After saving each game, choose 1 for the next unplayed game or 0 to stop. Unsaved games stop the range."
+    Print "At game-number prompts, 99 means game 99; type cancel to return to main. The range lasts for this session only."
     Print "Go to a game reads only that game. Use Next, Previous, or Repeat; Back returns to your schedule page."
     Print "Extract Team Schedule: choose a schedule and team, then save to a new filename. Existing files are not replaced."
     Print "The extracted schedule keeps results and sets your team to human control. Choose 1 after saving to review it."
@@ -2073,3 +2076,4 @@ End Sub
 
 '$Include: 'AccessibleSchedules.bm'
 '$Include: 'AccessibleScheduledPlay.bm'
+'$Include: 'AccessibleScheduleRange.bm'

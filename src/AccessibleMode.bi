@@ -27,6 +27,8 @@ Declare Sub AccessibleMainMenu ()
 Declare Sub AccessibleShowHelp ()
 Dim Shared accessibleScheduleReading%, accessibleScheduleReadFailed%
 Dim Shared accessibleScheduleReturnMain
+Dim Shared accessibleScheduleRangeActive%
+Declare Sub AccessiblePlayScheduleRange (filePath$, contents$)
 Dim Shared accessibleScheduledGame%, accessibleScheduledComplete%, accessibleScheduledRecord$
 Declare Sub AccessiblePlayScheduledGame (filePath$, contents$, gameNumber)
 Declare Sub AccessibleApplyScheduledRules ()

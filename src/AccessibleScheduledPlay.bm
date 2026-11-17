@@ -21,14 +21,14 @@ Sub AccessiblePlayScheduledGame (filePath$, contents$, gameNumber)
     If Len(recordText) <> SCHEDULE_SIZE_BYTES Then Exit Sub
     If CVI(Mid$(recordText, 27, 2)) <> 0 Then
         Print "This game is already completed or has an unsupported status. Its result will not be replaced."
-        ignored$ = AccessibleReadCommand$("Press Enter to return to the game: ")
+        If accessibleScheduleRangeActive% = 0 Then ignored$ = AccessibleReadCommand$("Press Enter to return to the game: ")
         Exit Sub
     End If
     offset& = 1: length& = 0
     current$ = AccessibleScheduleBytes$(filePath$, offset&, length&)
     If current$ <> contents$ Then
         Print "The schedule changed or cannot be read. Reopen it before playing."
-        ignored$ = AccessibleReadCommand$("Press Enter to return to the game: ")
+        If accessibleScheduleRangeActive% = 0 Then ignored$ = AccessibleReadCommand$("Press Enter to return to the game: ")
         Exit Sub
     End If
     visitorYear$ = RTrim$(Mid$(recordText, 43, 5)): homeYear$ = RTrim$(Mid$(recordText, 48, 5))
@@ -54,7 +54,7 @@ Sub AccessiblePlayScheduledGame (filePath$, contents$, gameNumber)
     Next
     If valid = 0 Then
         Print "Cannot play this game. Check its team data and schedule settings."
-        ignored$ = AccessibleReadCommand$("Press Enter to return to the game: ")
+        If accessibleScheduleRangeActive% = 0 Then ignored$ = AccessibleReadCommand$("Press Enter to return to the game: ")
         Exit Sub
     End If
     Call InitVar
@@ -72,7 +72,7 @@ Sub AccessiblePlayScheduledGame (filePath$, contents$, gameNumber)
         Case Else: accessibleShotClock = 0
     End Select
     If AccessiblePrepareMatchup%(visitorYear$, homeYear$, visitorIdx, homeIdx) = 0 Then
-        ignored$ = AccessibleReadCommand$("Press Enter to return to the game: ")
+        If accessibleScheduleRangeActive% = 0 Then ignored$ = AccessibleReadCommand$("Press Enter to return to the game: ")
         Exit Sub
     End If
     threePtOpt = accessibleThreePoint
@@ -167,7 +167,7 @@ Sub AccessiblePlayScheduledGame (filePath$, contents$, gameNumber)
     If setupStep <> 20 Then
         Print "Scheduled game canceled. The schedule is unchanged."
         If accessibleScheduleReturnMain Then Exit Sub
-        ignored$ = AccessibleReadCommand$("Press Enter to return to the game: ")
+        If accessibleScheduleRangeActive% = 0 Then ignored$ = AccessibleReadCommand$("Press Enter to return to the game: ")
         Exit Sub
     End If
     accessibleScheduledGame% = 1
@@ -175,7 +175,7 @@ Sub AccessiblePlayScheduledGame (filePath$, contents$, gameNumber)
     accessibleScheduledGame% = 0
     If accessibleScheduledComplete% = 0 Then
         Print "Game unfinished. The schedule is unchanged."
-        ignored$ = AccessibleReadCommand$("Press Enter to return to the game: ")
+        If accessibleScheduleRangeActive% = 0 Then ignored$ = AccessibleReadCommand$("Press Enter to return to the game: ")
         Exit Sub
     End If
     Do
@@ -191,7 +191,7 @@ Sub AccessiblePlayScheduledGame (filePath$, contents$, gameNumber)
             Print "Result was not saved. The file may be locked, read-only, or changed. You can retry."
         End If
     Loop
-    ignored$ = AccessibleReadCommand$("Press Enter to return to the game: ")
+    If accessibleScheduleRangeActive% = 0 Then ignored$ = AccessibleReadCommand$("Press Enter to return to the game: ")
 End Sub
 
 Function AccessibleSaveScheduledResult% (filePath$, contents$, gameNumber) Static

@@ -243,6 +243,7 @@ Sub AccessibleReviewSchedule (filePath$)
         Print "3. Go to a game number."
         Print "4. Repeat this page."
         Print "5. Reset Scores."
+        Print "6. Play Games."
         Print "0. Back to Schedules and Boxscores."
         Print "99. Cancel and return to the main menu."
         choice$ = AccessibleReadCommand$("Enter choice: ")
@@ -271,6 +272,9 @@ Sub AccessibleReviewSchedule (filePath$)
             Case "4", "repeat"
             Case "5", "reset"
                 Call AccessibleResetSchedule(filePath$, contents$)
+                If accessibleScheduleReturnMain Then Exit Sub
+            Case "6", "play"
+                Call AccessiblePlayScheduleRange(filePath$, contents$)
                 If accessibleScheduleReturnMain Then Exit Sub
             Case Else: notice$ = "Choose a displayed number."
         End Select

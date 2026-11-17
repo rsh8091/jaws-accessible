@@ -1,0 +1,106 @@
+' Session-only range navigation around the existing single scheduled-game flow.
+Sub AccessiblePlayScheduleRange (filePath$, contents$)
+    gameCount = Len(contents$) / SCHEDULE_SIZE_BYTES
+    rangeStep = 1
+    Do
+        Select Case rangeStep
+            Case 1, 2
+                If rangeStep = 1 Then
+                    Print "Play Games. This schedule has "; LTrim$(Str$(gameCount)); " games."
+                    prompt$ = "Starting game number: "
+                    minimumGame = 1
+                    Print "0. Back to schedule navigation."
+                Else
+                    Print "Starting game: "; LTrim$(Str$(firstGame)); "."
+                    prompt$ = "Ending game number: "
+                    minimumGame = firstGame
+                    Print "0. Back to starting game selection."
+                End If
+                Print "Enter a game number. 99 means game 99; type cancel to return to the main menu."
+                answer$ = AccessibleReadCommand$(prompt$)
+                If answer$ = "cancel" Then accessibleScheduleReturnMain = 1: Exit Sub
+                If answer$ = "0" Or answer$ = "back" Then
+                    If rangeStep = 1 Then Exit Sub Else rangeStep = 1
+                Else
+                    number# = Val(answer$)
+                    If number# >= minimumGame And number# <= gameCount And answer$ = LTrim$(Str$(Fix(number#))) Then
+                        If rangeStep = 1 Then firstGame = number#: rangeStep = 2 Else lastGame = number#: rangeStep = 3
+                    Else
+                        Print "Choose a whole game number from "; LTrim$(Str$(minimumGame)); " through "; LTrim$(Str$(gameCount)); "."
+                    End If
+                End If
+            Case 3
+                unplayedCount = 0: completedCount = 0: unsupportedCount = 0
+                For gameNumber = firstGame To lastGame
+                    status = CVI(Mid$(contents$, CLng(gameNumber - 1) * SCHEDULE_SIZE_BYTES + 27, 2))
+                    Select Case status
+                        Case 0: unplayedCount = unplayedCount + 1
+                        Case 1: completedCount = completedCount + 1
+                        Case Else: unsupportedCount = unsupportedCount + 1
+                    End Select
+                Next
+                Print "Selected range: games "; LTrim$(Str$(firstGame)); " through "; LTrim$(Str$(lastGame)); "."
+                Print LTrim$(Str$(unplayedCount)); " unplayed games; "; LTrim$(Str$(completedCount)); " completed games will be skipped."
+                If unsupportedCount Then
+                    Print "This range contains an unsupported game status. Choose another range."
+                    ignored$ = AccessibleReadCommand$("Press Enter to choose a range: ")
+                    rangeStep = 1
+                ElseIf unplayedCount = 0 Then
+                    Print "No unplayed games in this range. Nothing was changed."
+                    ignored$ = AccessibleReadCommand$("Press Enter to return to the schedule: ")
+                    Exit Sub
+                Else
+                    Print "Save each completed result before continuing. You can stop between games."
+                    Print "1. Start this range."
+                    Print "0. Back to ending game selection."
+                    Print "99. Cancel and return to the main menu."
+                    answer$ = AccessibleReadCommand$("Enter choice: ")
+                    Select Case answer$
+                        Case "1": Exit Do
+                        Case "0", "back": rangeStep = 2
+                        Case "99", "cancel": accessibleScheduleReturnMain = 1: Exit Sub
+                        Case Else: Print "Choose a displayed number."
+                    End Select
+                End If
+        End Select
+    Loop
+    currentGame = firstGame
+    Do While currentGame <= lastGame
+        If CVI(Mid$(contents$, CLng(currentGame - 1) * SCHEDULE_SIZE_BYTES + 27, 2)) = 1 Then
+            currentGame = currentGame + 1
+        Else
+            Print "Range progress: game "; LTrim$(Str$(currentGame)); " in games "; LTrim$(Str$(firstGame)); " through "; LTrim$(Str$(lastGame)); "."
+            accessibleScheduleRangeActive% = 1
+            Call AccessiblePlayScheduledGame(filePath$, contents$, currentGame)
+            accessibleScheduleRangeActive% = 0
+            If accessibleScheduleReturnMain Then Exit Sub
+            If CVI(Mid$(contents$, CLng(currentGame - 1) * SCHEDULE_SIZE_BYTES + 27, 2)) <> 1 Then
+                Print "Range stopped at game "; LTrim$(Str$(currentGame)); ". No result was saved for this game. Earlier saved results remain."
+                ignored$ = AccessibleReadCommand$("Press Enter to return to the schedule: ")
+                Exit Sub
+            End If
+            currentGame = currentGame + 1
+            Do While currentGame <= lastGame
+                If CVI(Mid$(contents$, CLng(currentGame - 1) * SCHEDULE_SIZE_BYTES + 27, 2)) <> 1 Then Exit Do
+                currentGame = currentGame + 1
+            Loop
+            If currentGame <= lastGame Then
+                Do
+                    Print "Result saved. Next unplayed game: "; LTrim$(Str$(currentGame)); "."
+                    Print "1. Continue to the next game."
+                    Print "0. Stop this range and return to the schedule."
+                    Print "99. Cancel and return to the main menu."
+                    answer$ = AccessibleReadCommand$("Enter choice: ")
+                    Select Case answer$
+                        Case "1": Exit Do
+                        Case "0", "back": Exit Sub
+                        Case "99", "cancel": accessibleScheduleReturnMain = 1: Exit Sub
+                        Case Else: Print "Choose a displayed number."
+                    End Select
+                Loop
+            End If
+        End If
+    Loop
+    Print "Range complete. All games in the selected range have saved results."
+    ignored$ = AccessibleReadCommand$("Press Enter to return to the schedule: ")
+End Sub

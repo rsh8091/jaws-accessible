@@ -29,6 +29,14 @@ is still needed; the program cannot detect when a screen reader finishes speakin
   numbers, which are hidden for unplayed games. Teams, dates, settings, and all
   other files are unchanged. No new copy or filename is required. The write
   requires the file to match the loaded version and reports failures.
+- 6: Play Games. Choose a starting and ending game number, then confirm the
+  range. Completed games are skipped. Each unplayed game uses the existing
+  scheduled-game setup and save flow. After saving, choose 1 for the next game,
+  0 to stop at the schedule, or 99 for the main menu. Unsaved or unfinished games
+  stop the range without losing earlier saved results. The range lasts for this
+  session only; saved results remain in the schedule after closing the program.
+  At starting/ending game prompts, 0 goes Back and typed `cancel` returns to main;
+  99 is a game number. Enter the same start and end number to play one game.
 - 0: Back to Schedules and Boxscores.
 - 99: Cancel and return to the main menu.
 
@@ -157,6 +165,12 @@ game saved after resetting a schedule containing historical results.
 Human-role cases verify that selecting shots reaches the simulator's Pass and
 Shoot menu, and cover keeping coach-only mode or switching into it. These cases
 also verify that selecting a role does not change the schedule's stored settings.
+
+`scripts/test-accessible-schedule-range.ps1` exercises full simulated games in a
+range, skipping completed games, stopping between games, discarding a later
+result while preserving earlier saves, a single-game range, all-completed
+ranges, invalid bounds, Back/Cancel, game 99, unfinished games, and read-only
+save failures. It compares all schedule bytes with the expected simulator scores.
 
 Manual JAWS check: open a copy of a team schedule, open an unplayed game's
 details, choose 4, review setup, play, then save the result. Reopen the schedule
